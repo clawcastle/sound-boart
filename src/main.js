@@ -11,12 +11,13 @@ const { deleteItem } = require("./delete.js");
 const { config } = require("./config.js");
 const { assignSoundToCategory, renameCategory } = require("./categories.js");
 const { makeSuggestion } = require("./suggest.js");
+const { setGreeting, playGreeting } = require("./greeting.js");
 
 const app = express();
 const client = new Discord.Client();
 const { prefix } = config;
 
-const getMessageHandlers = (serverId, textChannel, voiceChannel) => ({
+const getMessageHandlers = (serverId, textChannel, voiceChannel, userId) => ({
   aoe: async (messageContent) => {
     const soundIndex = parseInt(messageContent.params[0], 10) - 1;
     await playAoe(soundIndex, voiceChannel);
@@ -34,7 +35,7 @@ const getMessageHandlers = (serverId, textChannel, voiceChannel) => ({
       messageContent.params[0],
       () => {
         textChannel.send(
-          `Taunt uploaded successfully! Type '!tnt custom ${messageContent.params[0]}' to play it.`
+          `Taunt uploaded successfully! Type '!sbt custom ${messageContent.params[0]}' to play it.`
         );
       },
       (err) => {
@@ -85,6 +86,23 @@ const getMessageHandlers = (serverId, textChannel, voiceChannel) => ({
       }
     );
   },
+  set: async (messageContent) => {
+    if (messageContent.params.length < 2) {
+      textChannel.send(
+        "Insufficient amount of parameters. Command should be used like this: !sbt set greet {greetingSoundName}"
+      );
+    }
+    const greetingSoundName = messageContent.params[1];
+    try {
+      await setGreeting(userId, serverId, greetingSoundName);
+    } catch (e) {
+      console.log("Error occurred while trying to set greeting", e);
+
+      textChannel.send(
+        "An error occurred trying to set your greeting sound, most likely because the sound doesn't exist."
+      );
+    }
+  },
   rename: async (messageContent) => {
     const categoryName = messageContent.params[0];
     const newCategoryName = messageContent.params[1];
@@ -134,12 +152,18 @@ const messageHandler = (message) => {
     return;
   }
   const serverId = message.guild.id;
+  const userId = message.member.id;
   const textChannel = message.channel;
   const voiceChannel = message.member.voice.channel;
 
   const messageContent = transformMessageContent(message);
 
-  const handlers = getMessageHandlers(serverId, textChannel, voiceChannel);
+  const handlers = getMessageHandlers(
+    serverId,
+    textChannel,
+    voiceChannel,
+    userId
+  );
 
   try {
     const commandMatch = config.commands.some((c) => {
@@ -155,7 +179,7 @@ const messageHandler = (message) => {
 
     if (!commandMatch) {
       textChannel.send(
-        "Invalid command. Type '!tnt help' for a list of available commands."
+        "Invalid command. Type '!sbt help' for a list of available commands."
       );
     }
   } catch (err) {
@@ -186,6 +210,16 @@ const transformMessageContent = (message) => {
 
 client.on("message", (message) => {
   messageHandler(message);
+});
+
+client.on("voiceStateUpdate", async (oldState, newState) => {
+  const userJoinedChannel = !oldState.channel && !!newState.channel;
+  const userId = newState.member.id;
+  const serverId = newState.guild.id;
+
+  if (userJoinedChannel) {
+    await playGreeting(userId, serverId, newState.channel);
+  }
 });
 
 client.login(config.botToken);

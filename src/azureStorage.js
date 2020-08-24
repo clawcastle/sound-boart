@@ -259,8 +259,9 @@ const handleResponse = (response, onSuccess, onError) => {
 
 const serverSettingsTemplate = () => ({
   channelLeaveTimeout: 600,
-  prefix: "!tnt",
+  prefix: "!sbt",
   categories: {},
+  userCommands: {},
 });
 
 const isSuccessStatusCode = (statusCode) =>
