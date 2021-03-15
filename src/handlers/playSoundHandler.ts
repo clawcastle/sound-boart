@@ -21,7 +21,7 @@ class PlaySoundCommandHandler implements ICommandHandler {
 
     if (!params) return;
 
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${params.soundName}`;
+    const soundFilePath = `${soundsDirPath}/${params.serverId}/${params.soundName}.mp3`;
     if (!fs.existsSync(soundFilePath)) {
       sendMessage(
         "Sound does not exist.",
