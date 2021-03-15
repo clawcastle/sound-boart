@@ -1,4 +1,4 @@
-import EventEmitter from "node:events";
+import EventEmitter from "events";
 import Discord from "discord.js";
 import ICommandHandler from "./handlers/commandHandler";
 import { SoundBoartEvent } from "./soundBoartEvents";

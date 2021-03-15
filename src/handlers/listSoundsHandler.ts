@@ -18,7 +18,7 @@ class ListSoundsCommandHandler implements ICommandHandler {
     const commandParts = getCommandParts(command.content);
 
     return (
-      commandParts.length > 1 && listEvent.aliases.includes(commandParts[1])
+      commandParts.length > 0 && listEvent.aliases.includes(commandParts[0])
     );
   }
 
@@ -67,7 +67,9 @@ class ListSoundsCommandHandler implements ICommandHandler {
   }
 
   private chunkMessage(soundNames: string[]) {
-    const allSounds = soundNames.reduce((a, b) => a + `, ${b}`);
+    const allSounds = soundNames.reduce(
+      (a, b) => a + `, ${b.replace(".mp3", "")}`
+    );
 
     return allSounds.match(/.{1,2000}/g) ?? [];
   }

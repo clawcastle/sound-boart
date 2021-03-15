@@ -24,7 +24,7 @@ discordClient.on("message", (message) => {
 
   const messageParts = getCommandParts(message.content);
 
-  if (messageParts.length == 0) return;
+  if (messageParts.length === 0) return;
 
   eventEmitter.emit(messageParts[0], message);
 });

@@ -17,6 +17,7 @@ type UploadSoundCommandHandlerParams = {
 class UploadSoundCommandHandler implements ICommandHandler {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
+    console.log("parts", commandParts);
 
     return (
       commandParts.length > 1 &&
@@ -34,7 +35,8 @@ class UploadSoundCommandHandler implements ICommandHandler {
     const soundName = commandParts[1];
     const serverId = command.guild?.id;
 
-    if (!serverId || !attachment?.url) return null;
+    if (!serverId || !attachment?.url || !attachment.url.includes(".mp3"))
+      return null;
 
     return {
       discordCdnFilePath: attachment?.url,
@@ -68,8 +70,9 @@ class UploadSoundCommandHandler implements ICommandHandler {
     discordCdnFilePath: string,
     textChannel: Discord.TextChannel
   ) {
-    if (!fs.existsSync(soundsDirPath)) {
-      await fsAsync.mkdir(soundsDirPath);
+    if (!fs.existsSync(`${soundsDirPath}/${serverId}`)) {
+      console.log("eeee");
+      await fsAsync.mkdir(`${soundsDirPath}/${serverId}`);
     }
 
     await this.downloadSoundFromDiscordAttachment(
@@ -87,11 +90,13 @@ class UploadSoundCommandHandler implements ICommandHandler {
     textChannel: Discord.TextChannel
   ) {
     const writeStream = fs.createWriteStream(
-      `${soundsDirPath}/${serverId}/${soundName}`
+      `${soundsDirPath}/${serverId}/${soundName}.mp3`
     );
 
     const response = await fetch(discordCdnFilePath);
-    response.body.pipe(writeStream);
+
+    console.log(response.status, response.body);
+    // response.body.pipe(writeStream);
     writeStream
       .on("finish", () => {
         writeStream.close();
@@ -107,6 +112,8 @@ class UploadSoundCommandHandler implements ICommandHandler {
           textChannel
         );
       });
+
+    response.body.pipe(writeStream);
   }
 }
 
