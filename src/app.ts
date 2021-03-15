@@ -5,7 +5,14 @@ import SoundBoartEventEmitter from "./soundBoartEventEmitter";
 import UploadSoundCommandHandler from "./handlers/uploadSoundHandler";
 import ListSoundsCommandHandler from "./handlers/listSoundsHandler";
 import PlaySoundCommandHandler from "./handlers/playSoundHandler";
-import { uploadEvent, listEvent, playEvent, events } from "./soundBoartEvents";
+import DeleteSoundCommandHandler from "./handlers/deleteSoundHandler";
+import {
+  uploadEvent,
+  listEvent,
+  playEvent,
+  deleteEvent,
+  events,
+} from "./soundBoartEvents";
 import { getCommandParts } from "./utils/messageHelpers";
 
 const discordClient = new Discord.Client();
@@ -22,6 +29,9 @@ eventEmitter.registerHandler(listEvent, listSoundsHandler);
 
 const playSoundHandler = new PlaySoundCommandHandler();
 eventEmitter.registerHandler(playEvent, playSoundHandler);
+
+const deleteSoundHandler = new DeleteSoundCommandHandler();
+eventEmitter.registerHandler(deleteEvent, deleteSoundHandler);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;
