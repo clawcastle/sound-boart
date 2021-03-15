@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler";
 import Discord from "discord.js";
 import { soundsDirPath } from "../config";
-import { listEvent } from "../soundBoartEvents";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";

@@ -14,4 +14,8 @@ export const playEvent = {
   aliases: ["play"],
 };
 
-export const events = [uploadEvent, listEvent];
+export const deleteEvent = {
+  aliases: ["rm", "del", "remove", "delete"],
+};
+
+export const events = [uploadEvent, listEvent, playEvent, deleteEvent];
