@@ -3,7 +3,9 @@ import express from "express";
 import { botToken, prefix } from "./config";
 import SoundBoartEventEmitter from "./soundBoartEventEmitter";
 import UploadSoundCommandHandler from "./handlers/uploadSoundHandler";
-import { uploadEvent } from "./soundBoartEvents";
+import ListSoundsCommandHandler from "./handlers/listSoundsHandler";
+import { uploadEvent, listEvent } from "./soundBoartEvents";
+import { getCommandParts } from "./utils/messageHelpers";
 
 const discordClient = new Discord.Client();
 const eventEmitter = new SoundBoartEventEmitter();
@@ -12,23 +14,19 @@ const app = express();
 discordClient.login(botToken);
 
 const uploadSoundHandler = new UploadSoundCommandHandler();
-eventEmitter.register(uploadEvent, uploadSoundHandler);
+eventEmitter.registerHandler(uploadEvent, uploadSoundHandler);
+
+const listSoundsHandler = new ListSoundsCommandHandler();
+eventEmitter.registerHandler(listEvent, listSoundsHandler);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;
 
-  const messageParts = message.content.split(" ");
-  if (messageParts.length <= 1) return;
+  const messageParts = getCommandParts(message.content);
 
-  eventEmitter.emit(messageParts[1]);
-});
+  if (messageParts.length === 0) return;
 
-discordClient.on("voiceStateUpdate", async (oldState, newState) => {
-  const userJoinedChannel = !oldState.channel && !!newState.channel;
-
-  if (userJoinedChannel) {
-    console.log("User joined");
-  }
+  eventEmitter.emit(messageParts[0], message);
 });
 
 app.listen(3000, () => {
