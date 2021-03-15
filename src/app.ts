@@ -4,7 +4,8 @@ import { botToken, prefix } from "./config";
 import SoundBoartEventEmitter from "./soundBoartEventEmitter";
 import UploadSoundCommandHandler from "./handlers/uploadSoundHandler";
 import ListSoundsCommandHandler from "./handlers/listSoundsHandler";
-import { uploadEvent, listEvent } from "./soundBoartEvents";
+import PlaySoundCommandHandler from "./handlers/playSoundHandler";
+import { uploadEvent, listEvent, playEvent, events } from "./soundBoartEvents";
 import { getCommandParts } from "./utils/messageHelpers";
 
 const discordClient = new Discord.Client();
@@ -19,12 +20,23 @@ eventEmitter.registerHandler(uploadEvent, uploadSoundHandler);
 const listSoundsHandler = new ListSoundsCommandHandler();
 eventEmitter.registerHandler(listEvent, listSoundsHandler);
 
+const playSoundHandler = new PlaySoundCommandHandler();
+eventEmitter.registerHandler(playEvent, playSoundHandler);
+
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;
 
   const messageParts = getCommandParts(message.content);
-
   if (messageParts.length === 0) return;
+
+  //TODO: Optimize this check
+  //There is no alias for play, so we just try and invoke it if no other aliases match
+  if (
+    !events.some((e) => e.aliases.some((alias) => alias == messageParts[0]))
+  ) {
+    eventEmitter.emit("play", message);
+    return;
+  }
 
   eventEmitter.emit(messageParts[0], message);
 });
