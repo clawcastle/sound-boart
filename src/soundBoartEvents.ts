@@ -10,4 +10,8 @@ export const listEvent = {
   aliases: ["l", "list"],
 };
 
+export const playEvent = {
+  aliases: ["play"],
+};
+
 export const events = [uploadEvent, listEvent];
