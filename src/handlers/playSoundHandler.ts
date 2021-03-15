@@ -12,7 +12,7 @@ type PlaySoundCommandHandlerArgs = {
 };
 
 class PlaySoundCommandHandler implements ICommandHandler {
-  activate(command: Discord.Message) {
+  activate(_: Discord.Message) {
     return true;
   }
 
@@ -21,14 +21,24 @@ class PlaySoundCommandHandler implements ICommandHandler {
 
     if (!params) return;
 
-    if (
-      !fs.existsSync(`${soundsDirPath}/${params.serverId}/${params.soundName}`)
-    ) {
+    const soundFilePath = `${soundsDirPath}/${params.serverId}/${params.soundName}`;
+    if (!fs.existsSync(soundFilePath)) {
       sendMessage(
         "Sound does not exist.",
         command.channel as Discord.TextChannel
       );
     }
+
+    const voiceChannel = command.member?.voice?.channel;
+    if (!voiceChannel) return;
+
+    const conn = await voiceChannel.join();
+
+    const dispatcher = conn.play(soundFilePath);
+
+    dispatcher.on("finish", () => {
+      //reset timer here when implemented
+    });
   }
 
   parseCommand(command: Discord.Message): PlaySoundCommandHandlerArgs | null {
@@ -42,3 +52,5 @@ class PlaySoundCommandHandler implements ICommandHandler {
     };
   }
 }
+
+export default PlaySoundCommandHandler;
