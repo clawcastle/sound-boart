@@ -22,10 +22,15 @@ export const renameEvent = {
   aliases: ["rename"],
 };
 
+export const tagSoundEvent = {
+  aliases: ["tag"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
   playEvent,
   deleteEvent,
   renameEvent,
+  tagSoundEvent,
 ];
