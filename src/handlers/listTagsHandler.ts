@@ -1,10 +1,8 @@
 import ICommandHandler from "./commandHandler";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config";
-import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings, updateSettings } from "../serverSettings/settingsManager";
+import { getSettings } from "../serverSettings/settingsManager";
 
 type ListTagsCommandHandlerArgs = {
   serverId: string;
