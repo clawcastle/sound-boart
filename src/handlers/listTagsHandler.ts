@@ -36,7 +36,9 @@ class ListTagsCommandHandler implements ICommandHandler {
     const serverSettings = await getSettings(params.serverId);
     const tagNames = Object.keys(serverSettings.tags).join("\n");
 
-    sendMessage(tagNames, textChannel);
+    if (tagNames && tagNames.length > 0) {
+      sendMessage(tagNames, textChannel);
+    }
   }
 }
 
