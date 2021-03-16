@@ -4,7 +4,7 @@ import { soundsDirPath, prefix } from "../config";
 import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler";
 import { sendMessage } from "../utils/textChannelHelpers";
-import { uploadEvent } from "../soundBoartEvents";
+import { uploadEvent, events } from "../soundBoartEvents";
 import { getCommandParts } from "../utils/messageHelpers";
 const fsAsync = fs.promises;
 
@@ -15,9 +15,17 @@ type UploadSoundCommandHandlerParams = {
 };
 
 class UploadSoundCommandHandler implements ICommandHandler {
+  private _reservedWords: string[] = [];
+  constructor() {
+    events.forEach((event) => {
+      event.aliases.forEach((alias) => {
+        this._reservedWords.push(alias);
+      });
+    });
+  }
+
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
-    console.log("parts", commandParts);
 
     return (
       commandParts.length > 1 &&
@@ -47,11 +55,20 @@ class UploadSoundCommandHandler implements ICommandHandler {
 
   async handleCommand(command: Discord.Message) {
     const params = this.parseCommand(command);
+    const textChannel = command.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(
         "Something went wrong while trying to upload your sound.",
-        command.channel as Discord.TextChannel
+        textChannel
+      );
+      return;
+    }
+
+    if (this._reservedWords.includes(params.soundName)) {
+      sendMessage(
+        `The name '${params.soundName}' is reserved by a command for the bot. Please pick something else.`,
+        textChannel
       );
       return;
     }
@@ -60,7 +77,7 @@ class UploadSoundCommandHandler implements ICommandHandler {
       params.soundName,
       params.serverId,
       params.discordCdnFilePath,
-      command.channel as Discord.TextChannel
+      textChannel
     );
   }
 
@@ -71,7 +88,6 @@ class UploadSoundCommandHandler implements ICommandHandler {
     textChannel: Discord.TextChannel
   ) {
     if (!fs.existsSync(`${soundsDirPath}/${serverId}`)) {
-      console.log("eeee");
       await fsAsync.mkdir(`${soundsDirPath}/${serverId}`);
     }
 
@@ -95,8 +111,6 @@ class UploadSoundCommandHandler implements ICommandHandler {
 
     const response = await fetch(discordCdnFilePath);
 
-    console.log(response.status, response.body);
-    // response.body.pipe(writeStream);
     writeStream
       .on("finish", () => {
         writeStream.close();
