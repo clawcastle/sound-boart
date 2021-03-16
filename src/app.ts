@@ -11,6 +11,7 @@ import TagSoundCommandHandler from "./handlers/tagSoundHandler";
 import ListTagsCommandHandler from "./handlers/listTagsHandler";
 import DeleteTagCommandHandler from "./handlers/deleteTagHandler";
 import ListSoundsWithTagCommandHandler from "./handlers/listSoundsWithTagHandler";
+import RenameTagCommandHandler from "./handlers/renameTagHandler";
 import {
   uploadEvent,
   listEvent,
@@ -22,6 +23,7 @@ import {
   listTagsEvent,
   deleteTagEvent,
   listSoundsWithTagEvent,
+  renameTagEvent,
 } from "./soundBoartEvents";
 import { getCommandParts } from "./utils/messageHelpers";
 
@@ -57,6 +59,9 @@ eventEmitter.registerHandler(deleteTagEvent, deleteTagHandler);
 
 const listSoundsWithTagHandler = new ListSoundsWithTagCommandHandler();
 eventEmitter.registerHandler(listSoundsWithTagEvent, listSoundsWithTagHandler);
+
+const renameTagHandler = new RenameTagCommandHandler();
+eventEmitter.registerHandler(renameTagEvent, renameTagHandler);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;

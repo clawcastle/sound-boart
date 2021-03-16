@@ -38,6 +38,10 @@ export const listSoundsWithTagEvent = {
   aliases: ["tagged"],
 };
 
+export const renameTagEvent = {
+  aliases: ["renametag"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -48,4 +52,5 @@ export const events = [
   listTagsEvent,
   deleteTagEvent,
   listSoundsWithTagEvent,
+  renameTagEvent,
 ];
