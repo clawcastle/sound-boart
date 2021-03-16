@@ -53,7 +53,9 @@ class ListSoundsCommandHandler implements ICommandHandler {
 
       const textChannel = command.channel as Discord.TextChannel;
       messages.forEach((msg) => {
-        textChannel.send(msg);
+        if (msg.length > 0) {
+          textChannel.send(msg);
+        }
       });
     } else {
       //Handle list category/other stuff

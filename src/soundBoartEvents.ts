@@ -27,7 +27,11 @@ export const tagSoundEvent = {
 };
 
 export const listTagsEvent = {
-  aliases: ["ltags", "listtags"],
+  aliases: ["tags", "listtags"],
+};
+
+export const deleteTagEvent = {
+  aliases: ["rmtag", "removetag", "deletetag"],
 };
 
 export const events = [
@@ -38,4 +42,5 @@ export const events = [
   renameEvent,
   tagSoundEvent,
   listTagsEvent,
+  deleteTagEvent,
 ];
