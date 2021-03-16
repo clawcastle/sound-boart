@@ -1,9 +1,9 @@
 type ServerSettings = {
-  categories: { [key: string]: string[] };
+  tags: { [key: string]: string[] };
 };
 
 export const defaultSettings: ServerSettings = {
-  categories: {},
+  tags: {},
 };
 
 export default ServerSettings;
