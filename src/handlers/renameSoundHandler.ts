@@ -4,6 +4,7 @@ import { soundsDirPath } from "../config";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
+const fsAsync = fs.promises;
 
 type RenameSoundCommandHandlerArgs = {
   serverId: string;
@@ -32,7 +33,23 @@ class RenameSoundCommandHandler implements ICommandHandler {
   async handleCommand(command: Discord.Message) {
     const params = this.parseCommand(command);
 
-    if (!params) return;
+    if (!params || params.currentSoundName === params.newSoundName) {
+      sendMessage(
+        "Could not rename sound.",
+        command.channel as Discord.TextChannel
+      );
+      return;
+    }
+
+    const currentSoundFilePath = `${soundsDirPath}/${params.serverId}/${params.currentSoundName}.mp3`;
+    const newSoundFilePath = `${soundsDirPath}/${params.serverId}/${params.newSoundName}.mp3`;
+
+    await fsAsync.rename(currentSoundFilePath, newSoundFilePath);
+
+    sendMessage(
+      "Sound renamed successfully.",
+      command.channel as Discord.TextChannel
+    );
   }
 }
 
