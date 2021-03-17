@@ -81,6 +81,8 @@ discordClient.on("message", (message) => {
   eventEmitter.emit(messageParts[0], message);
 });
 
+discordClient.on("voiceStateUpdate", (oldState, newState) => {});
+
 app.listen(3000, () => {
   console.log("Listening on port 3000");
 });
