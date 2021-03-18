@@ -24,8 +24,10 @@ import {
   deleteTagEvent,
   listSoundsWithTagEvent,
   renameTagEvent,
+  setGreetSoundEvent,
 } from "./soundBoartEvents";
 import { getCommandParts } from "./utils/messageHelpers";
+import SetGreetSoundCommandHandler from "./handlers/setGreetSoundHandler";
 
 const discordClient = new Discord.Client();
 const eventEmitter = new SoundBoartEventEmitter();
@@ -62,6 +64,9 @@ eventEmitter.registerHandler(listSoundsWithTagEvent, listSoundsWithTagHandler);
 
 const renameTagHandler = new RenameTagCommandHandler();
 eventEmitter.registerHandler(renameTagEvent, renameTagHandler);
+
+const setGreetSoundHandler = new SetGreetSoundCommandHandler();
+eventEmitter.registerHandler(setGreetSoundEvent, setGreetSoundHandler);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;

@@ -42,6 +42,10 @@ export const renameTagEvent = {
   aliases: ["renametag"],
 };
 
+export const setGreetSoundEvent = {
+  aliases: ["set-greet"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -53,4 +57,5 @@ export const events = [
   deleteTagEvent,
   listSoundsWithTagEvent,
   renameTagEvent,
+  setGreetSoundEvent,
 ];

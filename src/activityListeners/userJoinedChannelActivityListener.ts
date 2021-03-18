@@ -11,7 +11,7 @@ type UserJoinedChannelActivity = {
   voiceChannel: Discord.VoiceChannel;
 };
 
-class UserJoinedActivityListener
+class UserJoinedChannelActivityListener
   implements IActivityListener<UserJoinedChannelActivity> {
   async onActivity({
     userId,
