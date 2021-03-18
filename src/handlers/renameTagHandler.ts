@@ -11,7 +11,7 @@ type RenameTagCommandHandlerArgs = {
   newTagName: string;
 };
 
-class RenameTagCommandHandler implements ICommandHandler {
+class RenameTagCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 

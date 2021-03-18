@@ -11,7 +11,7 @@ type DeleteSoundCommandHandlerArgs = {
   soundName: string;
 };
 
-class DeleteSoundCommandHandler implements ICommandHandler {
+class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     return true;
   }

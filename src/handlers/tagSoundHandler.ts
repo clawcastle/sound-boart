@@ -12,7 +12,7 @@ type TagSoundCommandHandlerArgs = {
   tagName: string;
 };
 
-class TagSoundCommandHandler implements ICommandHandler {
+class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 

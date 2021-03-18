@@ -10,7 +10,7 @@ type PlaySoundCommandHandlerArgs = {
   soundName: string;
 };
 
-class PlaySoundCommandHandler implements ICommandHandler {
+class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
   activate(_: Discord.Message) {
     return true;
   }

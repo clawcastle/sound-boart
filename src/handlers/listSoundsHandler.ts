@@ -13,7 +13,7 @@ type ListSoundsCommandHandlerParams = {
   query?: string;
 };
 
-class ListSoundsCommandHandler implements ICommandHandler {
+class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 
