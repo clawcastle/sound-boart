@@ -9,7 +9,8 @@ type ListSoundsWithTagCommandHandlerArgs = {
   tagName: string;
 };
 
-class ListSoundsWithTagCommandHandler implements ICommandHandler {
+class ListSoundsWithTagCommandHandler
+  implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 

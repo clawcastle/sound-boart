@@ -8,7 +8,7 @@ type ListTagsCommandHandlerArgs = {
   serverId: string;
 };
 
-class ListTagsCommandHandler implements ICommandHandler {
+class ListTagsCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 

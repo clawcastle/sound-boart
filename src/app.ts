@@ -24,10 +24,22 @@ import {
   deleteTagEvent,
   listSoundsWithTagEvent,
   renameTagEvent,
-  setGreetSoundEvent,
+  setGreetingSoundEvent,
+  playGreetingSoundEvent,
+  removeGreetingSoundEvent,
 } from "./soundBoartEvents";
 import { getCommandParts } from "./utils/messageHelpers";
-import SetGreetSoundCommandHandler from "./handlers/setGreetSoundHandler";
+import SetGreetSoundCommandHandler from "./handlers/setGreetingSoundHandler";
+import PlayGreetingSoundCommandHandler from "./handlers/playGreetingSoundHandler";
+import RemoveGreetingSoundCommandHandler from "./handlers/removeGreetingSoundHandler";
+
+const eventAliasesSet = new Set<string>();
+
+events.forEach((e) => {
+  e.aliases.forEach((alias) => {
+    eventAliasesSet.add(alias);
+  });
+});
 
 const discordClient = new Discord.Client();
 const eventEmitter = new SoundBoartEventEmitter();
@@ -66,7 +78,16 @@ const renameTagHandler = new RenameTagCommandHandler();
 eventEmitter.registerHandler(renameTagEvent, renameTagHandler);
 
 const setGreetSoundHandler = new SetGreetSoundCommandHandler();
-eventEmitter.registerHandler(setGreetSoundEvent, setGreetSoundHandler);
+eventEmitter.registerHandler(setGreetingSoundEvent, setGreetSoundHandler);
+
+const playGreetingSoundHandler = new PlayGreetingSoundCommandHandler();
+eventEmitter.registerHandler(playGreetingSoundEvent, playGreetingSoundHandler);
+
+const removeGreetingSoundHandler = new RemoveGreetingSoundCommandHandler();
+eventEmitter.registerHandler(
+  removeGreetingSoundEvent,
+  removeGreetingSoundHandler
+);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;
@@ -74,11 +95,8 @@ discordClient.on("message", (message) => {
   const messageParts = getCommandParts(message.content);
   if (messageParts.length === 0) return;
 
-  //TODO: Optimize this check
   //There is no alias for play, so we just try and invoke it if no other aliases match
-  if (
-    !events.some((e) => e.aliases.some((alias) => alias == messageParts[0]))
-  ) {
+  if (!eventAliasesSet.has(messageParts[0])) {
     eventEmitter.emit("play", message);
     return;
   }
@@ -86,7 +104,9 @@ discordClient.on("message", (message) => {
   eventEmitter.emit(messageParts[0], message);
 });
 
-discordClient.on("voiceStateUpdate", (oldState, newState) => {});
+discordClient.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
+  eventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
+});
 
 app.listen(3000, () => {
   console.log("Listening on port 3000");

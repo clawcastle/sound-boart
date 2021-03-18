@@ -3,30 +3,35 @@ import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { getSettings, updateSettings } from "../serverSettings/settingsManager";
-import ServerSettings from "../serverSettings/serverSettings";
 
-type DeleteTagCommandHandlerArgs = {
+type SetGreetingSoundCommandHandlerArgs = {
   serverId: string;
-  tagName: string;
+  userId: string;
+  soundName: string;
 };
 
-class DeleteTagCommandHandler implements ICommandHandler<Discord.Message> {
+class SetGreetingSoundCommandHandler
+  implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 
     return commandParts.length > 1;
   }
-  parseCommand(command: Discord.Message): DeleteTagCommandHandlerArgs | null {
+  parseCommand(
+    command: Discord.Message
+  ): SetGreetingSoundCommandHandlerArgs | null {
     const commandParts = getCommandParts(command.content);
-    const tagName = commandParts[1];
+    const soundName = commandParts[1];
 
     const serverId = command.guild?.id;
+    const userId = command.member?.id;
 
-    if (!tagName || !serverId) return null;
+    if (!soundName || !serverId || !userId) return null;
 
     return {
       serverId,
-      tagName,
+      userId,
+      soundName,
     };
   }
   async handleCommand(command: Discord.Message) {
@@ -35,7 +40,7 @@ class DeleteTagCommandHandler implements ICommandHandler<Discord.Message> {
 
     if (!params) {
       sendMessage(
-        "Something went wrong while trying to rename tag",
+        "Something went wrong while trying to set your greeting sound.",
         textChannel
       );
       return;
@@ -43,19 +48,29 @@ class DeleteTagCommandHandler implements ICommandHandler<Discord.Message> {
 
     const settings = await getSettings(params.serverId);
 
-    if (!settings.tags[params.tagName]) {
-      sendMessage(`No tag with name ${params.tagName} exists.`, textChannel);
+    if (!settings || !settings.greetings) {
+      sendMessage(
+        "Something went wrong while trying to set your greeting sound.",
+        textChannel
+      );
       return;
     }
 
-    const { [params.tagName]: tagToRemove, ...restTags } = settings.tags;
-
-    const updatedSettings: ServerSettings = { ...settings, tags: restTags };
+    const updatedSettings = {
+      ...settings,
+      greetings: {
+        ...settings.greetings,
+        [params.userId]: params.soundName,
+      },
+    };
 
     await updateSettings(params.serverId, updatedSettings);
 
-    sendMessage("Tag deleted successfully.", textChannel);
+    sendMessage(
+      `Greeting sound has been set to ${params.soundName}.`,
+      textChannel
+    );
   }
 }
 
-export default DeleteTagCommandHandler;
+export default SetGreetingSoundCommandHandler;

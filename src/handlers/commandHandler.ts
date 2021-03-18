@@ -1,9 +1,9 @@
 import Discord from "discord.js";
 
-interface ICommandHandler {
-  activate: (command: Discord.Message) => boolean;
-  parseCommand: (command: Discord.Message) => any;
-  handleCommand: (command: Discord.Message) => Promise<void>;
+interface ICommandHandler<T> {
+  activate: (command: T) => boolean;
+  parseCommand: (command: T) => any;
+  handleCommand: (command: T) => Promise<void>;
 }
 
 export default ICommandHandler;

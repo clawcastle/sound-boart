@@ -14,7 +14,7 @@ type UploadSoundCommandHandlerParams = {
   soundName: string;
 };
 
-class UploadSoundCommandHandler implements ICommandHandler {
+class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
   private _reservedWords: string[] = [];
   constructor() {
     events.forEach((event) => {

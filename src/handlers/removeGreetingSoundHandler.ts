@@ -3,34 +3,31 @@ import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { getSettings, updateSettings } from "../serverSettings/settingsManager";
+import ServerSettings from "../serverSettings/serverSettings";
 
-type SetGreetSoundCommandHandlerArgs = {
+type RemoveGreetingSoundCommandHandlerArgs = {
   serverId: string;
   userId: string;
-  soundName: string;
 };
 
-class SetGreetSoundCommandHandler implements ICommandHandler {
+class RemoveGreetingSoundCommandHandler
+  implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 
-    return commandParts.length > 1;
+    return commandParts.length > 0;
   }
   parseCommand(
     command: Discord.Message
-  ): SetGreetSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(command.content);
-    const soundName = commandParts[1];
-
+  ): RemoveGreetingSoundCommandHandlerArgs | null {
     const serverId = command.guild?.id;
     const userId = command.member?.id;
 
-    if (!soundName || !serverId || !userId) return null;
+    if (!serverId || !userId) return null;
 
     return {
       serverId,
       userId,
-      soundName,
     };
   }
   async handleCommand(command: Discord.Message) {
@@ -39,7 +36,7 @@ class SetGreetSoundCommandHandler implements ICommandHandler {
 
     if (!params) {
       sendMessage(
-        "Something went wrong while trying to set your greeting sound.",
+        "Something went wrong while trying to remove your greeting sound.",
         textChannel
       );
       return;
@@ -47,29 +44,25 @@ class SetGreetSoundCommandHandler implements ICommandHandler {
 
     const settings = await getSettings(params.serverId);
 
-    if (!settings || !settings.greetings) {
-      sendMessage(
-        "Something went wrong while trying to set your greeting sound.",
-        textChannel
-      );
+    if (!settings?.greetings || !settings.greetings[params.userId]) {
+      sendMessage("Could not find any greeting sound to remove.", textChannel);
       return;
     }
 
-    const updatedSettings = {
+    const {
+      [params.userId]: greetingSoundToRemove,
+      ...restGreetings
+    } = settings.greetings;
+
+    const updatedSettings: ServerSettings = {
       ...settings,
-      greetings: {
-        ...settings.greetings,
-        [params.userId]: params.soundName,
-      },
+      greetings: restGreetings,
     };
 
     await updateSettings(params.serverId, updatedSettings);
 
-    sendMessage(
-      `Greeting sound has been set to ${params.soundName}.`,
-      textChannel
-    );
+    sendMessage("Greeting sound successfully removed.", textChannel);
   }
 }
 
-export default SetGreetSoundCommandHandler;
+export default RemoveGreetingSoundCommandHandler;

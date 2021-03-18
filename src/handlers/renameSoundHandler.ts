@@ -12,7 +12,7 @@ type RenameSoundCommandHandlerArgs = {
   newSoundName: string;
 };
 
-class RenameSoundCommandHandler implements ICommandHandler {
+class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 
