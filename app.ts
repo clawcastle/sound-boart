@@ -1,4 +1,4 @@
-import * as Discord from "discord.js";
+import Discord from "discord.js";
 import express from "express";
 import { botToken, prefix } from "./src/config";
 import SoundBoartEventEmitter from "./src/soundBoartEventEmitter";
