@@ -7,7 +7,7 @@ import { getCommandParts } from "../utils/messageHelpers";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
-  soundName: string;
+  soundNames: string[];
 };
 
 class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
@@ -15,40 +15,80 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     return true;
   }
 
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
-
-    if (!params) return;
-
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${params.soundName}.mp3`;
-    if (!fs.existsSync(soundFilePath)) {
-      sendMessage(
-        "Sound does not exist.",
-        command.channel as Discord.TextChannel
-      );
-    }
-
-    const voiceChannel = command.member?.voice?.channel;
-    if (!voiceChannel) return;
-
-    const conn = await voiceChannel.join();
-
-    const dispatcher = conn.play(soundFilePath);
-
-    dispatcher.on("finish", () => {
-      //reset timer here when implemented
-    });
-  }
-
   parseCommand(command: Discord.Message): PlaySoundCommandHandlerArgs | null {
     const commandParts = getCommandParts(command.content);
 
-    if (commandParts.length === 0 || !command.guild?.id) return null;
+    if (commandParts.length === 0) return null;
+
+    const soundNames = commandParts;
+
+    const serverId = command.guild?.id;
+
+    if (!serverId || !soundNames) return null;
 
     return {
-      serverId: command.guild.id,
-      soundName: commandParts[0],
+      serverId,
+      soundNames,
     };
+  }
+
+  async handleCommand(command: Discord.Message) {
+    const params = this.parseCommand(command);
+    const textChannel = command.channel as Discord.TextChannel;
+
+    if (!params) return;
+
+    if (params.soundNames.length > 3) {
+      sendMessage(
+        "Max amount of sounds played back-to-back is 3.",
+        textChannel
+      );
+      return;
+    }
+
+    const voiceChannel = command.member?.voice?.channel;
+
+    if (!voiceChannel) {
+      sendMessage(
+        "Something went wrong while trying to play sound.",
+        textChannel
+      );
+      return;
+    }
+
+    const conn = await voiceChannel.join();
+
+    for (const soundName of params.soundNames) {
+      const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
+
+      if (!fs.existsSync(soundFilePath)) {
+        sendMessage(`Sound '${soundName}' does not exist.`, textChannel);
+        continue;
+      }
+
+      try {
+        await this.playSound(soundFilePath, conn);
+      } catch (err) {
+        sendMessage(
+          `Something went wrong while playing sound '${soundName}'`,
+          textChannel
+        );
+        continue;
+      }
+    }
+  }
+
+  playSound(soundFilePath: string, voiceConnection: Discord.VoiceConnection) {
+    return new Promise<void>((resolve, reject) => {
+      voiceConnection
+        .play(soundFilePath)
+        .on("finish", () => {
+          resolve();
+        })
+        .on("error", (e) => {
+          reject(e);
+        });
+    });
   }
 }
 
