@@ -3,6 +3,7 @@ import Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager";
 import { soundsDirPath } from "../config";
 import fs from "fs";
+import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
 
 type VoiceStateUpdate = {
   oldVoiceState: Discord.VoiceState;
@@ -52,7 +53,7 @@ class PlayGreetingSoundCommandHandler
     const conn = await params.voiceChannel.join();
 
     conn.play(soundFilePath).on("finish", () => {
-      //TODO: reset timer here when implemented
+      resetVoiceChannelTimer(params.voiceChannel);
     });
   }
 }
