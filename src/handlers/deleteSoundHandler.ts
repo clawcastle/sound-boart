@@ -13,14 +13,16 @@ type DeleteSoundCommandHandlerArgs = {
 
 class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
-    return true;
+    const commandParts = getCommandParts(command.content);
+
+    return commandParts.length > 1;
   }
 
   parseCommand(command: Discord.Message): DeleteSoundCommandHandlerArgs | null {
     const commandParts = getCommandParts(command.content);
     const serverId = command.guild?.id;
 
-    if (commandParts.length === 0 || !serverId) return null;
+    if (commandParts.length < 1 || !serverId) return null;
 
     const soundName = commandParts[1];
 
