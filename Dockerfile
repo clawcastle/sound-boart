@@ -2,14 +2,21 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY . ./
+COPY package.json ./
+COPY tsconfig.json ./
+COPY app.ts ./
+COPY src/ ./src
 
-RUN ls
+RUN apt update \
+    && apt-get -y install ffmpeg
 
 RUN npm install -g npm@latest \
-    && npm ci \
+    && npm install
+
+RUN npm install -g npm@latest \
+    && npm install \
     && npm install -g typescript
 
-RUN tsc ./src/app.ts
+RUN tsc
 
 CMD [ "node", "./dist/app.js" ]

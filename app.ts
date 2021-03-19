@@ -1,17 +1,17 @@
-import Discord from "discord.js";
+import * as Discord from "discord.js";
 import express from "express";
-import { botToken, prefix } from "./config";
-import SoundBoartEventEmitter from "./soundBoartEventEmitter";
-import UploadSoundCommandHandler from "./handlers/uploadSoundHandler";
-import ListSoundsCommandHandler from "./handlers/listSoundsHandler";
-import PlaySoundCommandHandler from "./handlers/playSoundHandler";
-import DeleteSoundCommandHandler from "./handlers/deleteSoundHandler";
-import RenameSoundCommandHandler from "./handlers/renameSoundHandler";
-import TagSoundCommandHandler from "./handlers/tagSoundHandler";
-import ListTagsCommandHandler from "./handlers/listTagsHandler";
-import DeleteTagCommandHandler from "./handlers/deleteTagHandler";
-import ListSoundsWithTagCommandHandler from "./handlers/listSoundsWithTagHandler";
-import RenameTagCommandHandler from "./handlers/renameTagHandler";
+import { botToken, prefix } from "./src/config";
+import SoundBoartEventEmitter from "./src/soundBoartEventEmitter";
+import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler";
+import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler";
+import PlaySoundCommandHandler from "./src/handlers/playSoundHandler";
+import DeleteSoundCommandHandler from "./src/handlers/deleteSoundHandler";
+import RenameSoundCommandHandler from "./src/handlers/renameSoundHandler";
+import TagSoundCommandHandler from "./src/handlers/tagSoundHandler";
+import ListTagsCommandHandler from "./src/handlers/listTagsHandler";
+import DeleteTagCommandHandler from "./src/handlers/deleteTagHandler";
+import ListSoundsWithTagCommandHandler from "./src/handlers/listSoundsWithTagHandler";
+import RenameTagCommandHandler from "./src/handlers/renameTagHandler";
 import {
   uploadEvent,
   listEvent,
@@ -27,11 +27,11 @@ import {
   setGreetingSoundEvent,
   playGreetingSoundEvent,
   removeGreetingSoundEvent,
-} from "./soundBoartEvents";
-import { getCommandParts } from "./utils/messageHelpers";
-import SetGreetSoundCommandHandler from "./handlers/setGreetingSoundHandler";
-import PlayGreetingSoundCommandHandler from "./handlers/playGreetingSoundHandler";
-import RemoveGreetingSoundCommandHandler from "./handlers/removeGreetingSoundHandler";
+} from "./src/soundBoartEvents";
+import { getCommandParts } from "./src/utils/messageHelpers";
+import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler";
+import PlayGreetingSoundCommandHandler from "./src/handlers/playGreetingSoundHandler";
+import RemoveGreetingSoundCommandHandler from "./src/handlers/removeGreetingSoundHandler";
 
 const eventAliasesSet = new Set<string>();
 

@@ -1,5 +1,5 @@
 import ICommandHandler from "./commandHandler";
-import Discord from "discord.js";
+import * as Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager";
 import { soundsDirPath } from "../config";
 import fs from "fs";

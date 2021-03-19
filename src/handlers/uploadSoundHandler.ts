@@ -1,4 +1,4 @@
-import Discord from "discord.js";
+import * as Discord from "discord.js";
 import fs from "fs";
 import { soundsDirPath, prefix } from "../config";
 import fetch from "node-fetch";
