@@ -4,6 +4,7 @@ import { soundsDirPath } from "../config";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
+import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -76,6 +77,8 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
         continue;
       }
     }
+
+    resetVoiceChannelTimer(voiceChannel);
   }
 
   playSound(soundFilePath: string, voiceConnection: Discord.VoiceConnection) {
