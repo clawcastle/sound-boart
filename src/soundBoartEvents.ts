@@ -39,7 +39,7 @@ export const listSoundsWithTagEvent = {
 };
 
 export const renameTagEvent = {
-  aliases: ["renametag"],
+  aliases: ["rename-tag"],
 };
 
 export const setGreetingSoundEvent = {
