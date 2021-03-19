@@ -54,6 +54,10 @@ export const removeGreetingSoundEvent = {
   aliases: ["rm-greet", "remove-greet", "delete-greet"],
 };
 
+export const helpEvent = {
+  aliases: ["help"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -68,4 +72,5 @@ export const events = [
   setGreetingSoundEvent,
   playGreetingSoundEvent,
   removeGreetingSoundEvent,
+  helpEvent,
 ];
