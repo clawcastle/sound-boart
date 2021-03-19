@@ -39,7 +39,7 @@ export const listSoundsWithTagEvent = {
 };
 
 export const renameTagEvent = {
-  aliases: ["renametag"],
+  aliases: ["rename-tag"],
 };
 
 export const setGreetingSoundEvent = {
@@ -52,6 +52,10 @@ export const playGreetingSoundEvent = {
 
 export const removeGreetingSoundEvent = {
   aliases: ["rm-greet", "remove-greet", "delete-greet"],
+};
+
+export const helpEvent = {
+  aliases: ["help"],
 };
 
 export const events = [
@@ -68,4 +72,5 @@ export const events = [
   setGreetingSoundEvent,
   playGreetingSoundEvent,
   removeGreetingSoundEvent,
+  helpEvent,
 ];
