@@ -52,7 +52,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     if (!voiceChannel) {
       sendMessage(
-        "Something went wrong while trying to play sound.",
+        "You need to be connected to a voice channel to play a sound.",
         textChannel
       );
       return;

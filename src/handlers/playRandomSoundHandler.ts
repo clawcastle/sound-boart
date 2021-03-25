@@ -45,9 +45,17 @@ class PlayRandomSoundCommandHandler
     const textChannel = command.channel as Discord.TextChannel;
     const voiceChannel = command.member?.voice?.channel;
 
-    if (!params || !voiceChannel) {
+    if (!params) {
       sendMessage(
         "Something went wrong while trying to play a random sound",
+        textChannel
+      );
+      return;
+    }
+
+    if (!voiceChannel) {
+      sendMessage(
+        "You need to be connected to a voice channel to play a sound.",
         textChannel
       );
       return;

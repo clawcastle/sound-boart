@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import { leaveTimeoutInMilliseconds } from "../config";
 
-const timerMap: { [serverId: string]: number } = {};
+const timerMap: { [channelId: string]: NodeJS.Timeout } = {};
 
 export function resetVoiceChannelTimer(voiceChannel: Discord.VoiceChannel) {
   const channelId = voiceChannel.id;
@@ -14,4 +14,6 @@ export function resetVoiceChannelTimer(voiceChannel: Discord.VoiceChannel) {
     voiceChannel.leave();
     delete timerMap[channelId];
   }, leaveTimeoutInMilliseconds);
+
+  timerMap[channelId] = timerHandle;
 }
