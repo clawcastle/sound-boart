@@ -1,10 +1,10 @@
 import ICommandHandler from "./commandHandler";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config";
 import { listEvent } from "../soundBoartEvents";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
+import { getSoundNamesForServer } from "../utils/soundHelpers";
 
 const fsAsync = fs.promises;
 
@@ -48,7 +48,7 @@ class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     if (!params.query) {
-      const soundNames = await this.getSoundNames(params.serverId);
+      const soundNames = await getSoundNamesForServer(params.serverId);
       const messages = this.chunkMessage(soundNames);
 
       const textChannel = command.channel as Discord.TextChannel;
@@ -60,12 +60,6 @@ class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
     } else {
       //Handle list category/other stuff
     }
-  }
-
-  private async getSoundNames(serverId: string) {
-    const soundNames = await fsAsync.readdir(`${soundsDirPath}/${serverId}`);
-
-    return soundNames;
   }
 
   private chunkMessage(soundNames: string[]) {

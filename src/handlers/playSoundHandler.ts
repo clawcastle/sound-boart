@@ -5,6 +5,7 @@ import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
+import { playSound } from "../utils/soundHelpers";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -68,7 +69,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       }
 
       try {
-        await this.playSound(soundFilePath, conn);
+        await playSound(soundFilePath, conn);
       } catch (err) {
         sendMessage(
           `Something went wrong while playing sound '${soundName}'`,
@@ -79,19 +80,6 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     resetVoiceChannelTimer(voiceChannel);
-  }
-
-  playSound(soundFilePath: string, voiceConnection: Discord.VoiceConnection) {
-    return new Promise<void>((resolve, reject) => {
-      voiceConnection
-        .play(soundFilePath)
-        .on("finish", () => {
-          resolve();
-        })
-        .on("error", (e) => {
-          reject(e);
-        });
-    });
   }
 }
 

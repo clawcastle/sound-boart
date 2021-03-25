@@ -2,7 +2,7 @@ import ICommandHandler from "./commandHandler";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings } from "../serverSettings/settingsManager";
+import { getSoundNamesWithTagForServer } from "../utils/soundHelpers";
 
 type ListSoundsWithTagCommandHandlerArgs = {
   serverId: string;
@@ -43,20 +43,23 @@ class ListSoundsWithTagCommandHandler
       return;
     }
 
-    const serverSettings = await getSettings(params.serverId);
+    try {
+      const soundNames = await getSoundNamesWithTagForServer(
+        params.serverId,
+        params.tagName
+      );
 
-    if (!serverSettings.tags[params.tagName]) {
+      if (soundNames && soundNames.length > 0) {
+        const soundNamesMessage = soundNames.join(", ");
+
+        sendMessage(soundNamesMessage, textChannel);
+      }
+    } catch (error) {
       sendMessage(
-        `No tag exists with the name '${params.tagName}'.`,
+        "Something went wrong while trying to list tags.",
         textChannel
       );
       return;
-    }
-
-    const soundNames = serverSettings.tags[params.tagName].join(", ");
-
-    if (soundNames) {
-      sendMessage(soundNames, textChannel);
     }
   }
 }
