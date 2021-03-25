@@ -28,12 +28,14 @@ import {
   playGreetingSoundEvent,
   removeGreetingSoundEvent,
   helpEvent,
+  playRandomSoundEvent,
 } from "./src/soundBoartEvents";
 import { getCommandParts } from "./src/utils/messageHelpers";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler";
 import PlayGreetingSoundCommandHandler from "./src/handlers/playGreetingSoundHandler";
 import RemoveGreetingSoundCommandHandler from "./src/handlers/removeGreetingSoundHandler";
 import HelpCommandHandler from "./src/handlers/helpHandler";
+import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler";
 
 const eventAliasesSet = new Set<string>();
 
@@ -93,6 +95,9 @@ eventEmitter.registerHandler(
 
 const helpCommandHandler = new HelpCommandHandler();
 eventEmitter.registerHandler(helpEvent, helpCommandHandler);
+
+const playRandomSoundHandler = new PlayRandomSoundCommandHandler();
+eventEmitter.registerHandler(playRandomSoundEvent, playRandomSoundHandler);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;

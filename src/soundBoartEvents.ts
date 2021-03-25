@@ -58,6 +58,10 @@ export const helpEvent = {
   aliases: ["help"],
 };
 
+export const playRandomSoundEvent = {
+  aliases: ["rnd", "random"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -73,4 +77,5 @@ export const events = [
   playGreetingSoundEvent,
   removeGreetingSoundEvent,
   helpEvent,
+  playRandomSoundEvent,
 ];
