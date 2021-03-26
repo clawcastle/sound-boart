@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import fs from "fs";
-import { soundsDirPath, prefix } from "../config";
+import { soundsDirPath, prefix, maxFileSizeInBytes } from "../config";
 import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler";
 import { sendMessage } from "../utils/textChannelHelpers";
@@ -12,6 +12,7 @@ type UploadSoundCommandHandlerParams = {
   discordCdnFilePath: string;
   serverId: string;
   soundName: string;
+  size: number;
 };
 
 class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
@@ -50,6 +51,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       discordCdnFilePath: attachment?.url,
       serverId: serverId,
       soundName: soundName,
+      size: attachment.size,
     };
   }
 
@@ -70,6 +72,11 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
         `The name '${params.soundName}' is reserved by a command for the bot. Please pick something else.`,
         textChannel
       );
+      return;
+    }
+
+    if (params.size > maxFileSizeInBytes) {
+      sendMessage("Max file size is 5 MB", textChannel);
       return;
     }
 
