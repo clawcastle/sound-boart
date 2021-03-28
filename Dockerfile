@@ -7,6 +7,8 @@ COPY tsconfig.json ./
 COPY app.ts ./
 COPY src/ ./src
 
+ENV NODE_ENV production
+
 RUN apt update \
     && apt-get -y install ffmpeg
 
