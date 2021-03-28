@@ -62,6 +62,10 @@ export const playRandomSoundEvent = {
   aliases: ["rnd", "random"],
 };
 
+export const searchEvent = {
+  aliases: ["find", "search"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -78,4 +82,5 @@ export const events = [
   removeGreetingSoundEvent,
   helpEvent,
   playRandomSoundEvent,
+  searchEvent,
 ];
