@@ -7,8 +7,6 @@ COPY tsconfig.json ./
 COPY app.ts ./
 COPY src/ ./src
 
-ENV NODE_ENV production
-
 RUN apt update \
     && apt-get -y install ffmpeg
 
@@ -18,6 +16,8 @@ RUN npm install -g npm@latest \
 RUN npm install -g npm@latest \
     && npm install \
     && npm install -g typescript
+
+ENV NODE_ENV production
 
 RUN tsc
 
