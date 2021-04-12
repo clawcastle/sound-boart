@@ -2,7 +2,7 @@
 
 Sound-boart is a discord bot that allows you to upload short sound clips and playing them in your Discord channel. It also contains features such as listing and categorising these sounds, and setting a sound that will play whenever you join a voice channel. 
 
-All sounds uploaded only exist in the context of the Discord server you upload them within. This means that you cannot play a sound that uploaded on Server1 when in a voice channel belonging to Server2.
+All sounds uploaded only exist in the context of the Discord server you upload them within. This means that you cannot play a sound that is only uploaded on Server1 when in a voice channel belonging to Server2.
 
 If you want to add sound-boart to your Discord server, use the following link: https://discord.com/api/oauth2/authorize?client_id=682259204790157375&permissions=36711680&scope=bot
 
