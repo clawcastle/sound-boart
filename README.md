@@ -48,3 +48,6 @@ Lists all tags. Use like this: $tags
   
 ## List sounds with specific tag
 Lists all sounds tagged with a specific tag. Use like this: $tagged \<tag-name\>
+
+## Search for sounds
+Lists all sounds that includes the search term in their name. Use like this: $search \<search_term\>
