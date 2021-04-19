@@ -71,7 +71,7 @@ Then, rename the _sampleConfig.ts_ file to _config.ts_ and replace the relevant 
 After this, assuming you have installed node.js on your machine, it should be as simple as running the following commands:
 
 - `npm install`.
-- `npm run build` or `tsc` to run the Typescript compiler.
+- `npm run build` to run the Typescript compiler.
 - `node ./dist/app.js` (or `npm start` assuming you have nodemon installed) and the bot should be up and running.
 
 Alternatively, if you have Docker and `docker-compose` installed, you can simply run `docker-compose up`. Make sure to specify the sounds and settings directories to match the path used for the volume in the `docker-compose.yml` file (at least if you wish to persist the data).
