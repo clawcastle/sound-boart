@@ -1,9 +1,6 @@
 version: "3.8"
 services:
   bot:
-    environment:
-      BOT_TOKEN: <place token here>
-      DATA_PATH: ./data
     volumes:
       - ./data:/data
     ports:
