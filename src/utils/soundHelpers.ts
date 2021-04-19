@@ -12,7 +12,6 @@ export function playSound(
     voiceConnection
       .play(soundFilePath)
       .on("finish", () => {
-        console.log("her");
         resolve();
       })
       .on("error", (e) => {

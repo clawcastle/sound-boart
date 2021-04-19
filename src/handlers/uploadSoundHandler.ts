@@ -95,7 +95,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     textChannel: Discord.TextChannel
   ) {
     if (!fs.existsSync(`${soundsDirPath}/${serverId}`)) {
-      await fsAsync.mkdir(`${soundsDirPath}/${serverId}`);
+      await fsAsync.mkdir(`${soundsDirPath}/${serverId}`, { recursive: true });
     }
 
     await this.downloadSoundFromDiscordAttachment(
