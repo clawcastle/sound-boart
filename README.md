@@ -74,4 +74,4 @@ After this, assuming you have installed node.js on your machine, it should be as
 - `npm run build` or `tsc` to run the Typescript compiler.
 - `node ./dist/app.js` (or `npm start` assuming you have nodemon installed) and the bot should be up and running.
 
-Alternatively, if you have Docker installed, you can simply run `docker-compose up`. Make sure to specify the sounds and settings directories to match the path used for the volume in the `docker-compose.yml` file (at least if you wish to persist the data).
+Alternatively, if you have Docker and `docker-compose` installed, you can simply run `docker-compose up`. Make sure to specify the sounds and settings directories to match the path used for the volume in the `docker-compose.yml` file (at least if you wish to persist the data).
