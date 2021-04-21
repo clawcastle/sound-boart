@@ -73,6 +73,12 @@ export const uploadSound = {
     "Uploads a sound to the server. The sound can then be referenced and played by the name you specify in this command (not the name of the file you upload). The file should be sent as an attachment to the message you send with the upload command. Mind that only .mp3 files are valid. Use like this: $up <sound-name>",
 };
 
+export const searchSound = {
+  title: "Search for sound",
+  description:
+    "Searches for sounds containing the given query string. Use like this: $find <query_string>",
+};
+
 export const helpInfo = [
   deleteSound,
   deleteTag,
@@ -86,4 +92,5 @@ export const helpInfo = [
   setGreetingSound,
   tagSound,
   uploadSound,
+  searchSound,
 ];
