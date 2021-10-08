@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import express from "express";
 import { botToken, prefix } from "./src/config";
-import SoundBoartEventEmitter from "./src/soundBoartEventEmitter";
+import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter";
 import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler";
 import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler";
 import PlaySoundCommandHandler from "./src/handlers/playSoundHandler";
@@ -48,61 +48,72 @@ events.forEach((e) => {
 });
 
 const discordClient = new Discord.Client();
-const eventEmitter = new SoundBoartEventEmitter();
 const app = express();
 
 discordClient.login(botToken);
 
 const uploadSoundHandler = new UploadSoundCommandHandler();
-eventEmitter.registerHandler(uploadEvent, uploadSoundHandler);
+soundBoartEventEmitter.registerHandler(uploadEvent, uploadSoundHandler);
 
 const listSoundsHandler = new ListSoundsCommandHandler();
-eventEmitter.registerHandler(listEvent, listSoundsHandler);
+soundBoartEventEmitter.registerHandler(listEvent, listSoundsHandler);
 
 const playSoundHandler = new PlaySoundCommandHandler();
-eventEmitter.registerHandler(playEvent, playSoundHandler);
+soundBoartEventEmitter.registerHandler(playEvent, playSoundHandler);
 
 const deleteSoundHandler = new DeleteSoundCommandHandler();
-eventEmitter.registerHandler(deleteEvent, deleteSoundHandler);
+soundBoartEventEmitter.registerHandler(deleteEvent, deleteSoundHandler);
 
 const renameSoundHandler = new RenameSoundCommandHandler();
-eventEmitter.registerHandler(renameEvent, renameSoundHandler);
+soundBoartEventEmitter.registerHandler(renameEvent, renameSoundHandler);
 
 const tagSoundHandler = new TagSoundCommandHandler();
-eventEmitter.registerHandler(tagSoundEvent, tagSoundHandler);
+soundBoartEventEmitter.registerHandler(tagSoundEvent, tagSoundHandler);
 
 const listTagsHandler = new ListTagsCommandHandler();
-eventEmitter.registerHandler(listTagsEvent, listTagsHandler);
+soundBoartEventEmitter.registerHandler(listTagsEvent, listTagsHandler);
 
 const deleteTagHandler = new DeleteTagCommandHandler();
-eventEmitter.registerHandler(deleteTagEvent, deleteTagHandler);
+soundBoartEventEmitter.registerHandler(deleteTagEvent, deleteTagHandler);
 
 const listSoundsWithTagHandler = new ListSoundsWithTagCommandHandler();
-eventEmitter.registerHandler(listSoundsWithTagEvent, listSoundsWithTagHandler);
+soundBoartEventEmitter.registerHandler(
+  listSoundsWithTagEvent,
+  listSoundsWithTagHandler
+);
 
 const renameTagHandler = new RenameTagCommandHandler();
-eventEmitter.registerHandler(renameTagEvent, renameTagHandler);
+soundBoartEventEmitter.registerHandler(renameTagEvent, renameTagHandler);
 
 const setGreetSoundHandler = new SetGreetSoundCommandHandler();
-eventEmitter.registerHandler(setGreetingSoundEvent, setGreetSoundHandler);
+soundBoartEventEmitter.registerHandler(
+  setGreetingSoundEvent,
+  setGreetSoundHandler
+);
 
 const playGreetingSoundHandler = new PlayGreetingSoundCommandHandler();
-eventEmitter.registerHandler(playGreetingSoundEvent, playGreetingSoundHandler);
+soundBoartEventEmitter.registerHandler(
+  playGreetingSoundEvent,
+  playGreetingSoundHandler
+);
 
 const removeGreetingSoundHandler = new RemoveGreetingSoundCommandHandler();
-eventEmitter.registerHandler(
+soundBoartEventEmitter.registerHandler(
   removeGreetingSoundEvent,
   removeGreetingSoundHandler
 );
 
 const helpCommandHandler = new HelpCommandHandler();
-eventEmitter.registerHandler(helpEvent, helpCommandHandler);
+soundBoartEventEmitter.registerHandler(helpEvent, helpCommandHandler);
 
 const playRandomSoundHandler = new PlayRandomSoundCommandHandler();
-eventEmitter.registerHandler(playRandomSoundEvent, playRandomSoundHandler);
+soundBoartEventEmitter.registerHandler(
+  playRandomSoundEvent,
+  playRandomSoundHandler
+);
 
 const seachHandler = new SearchCommandHandler();
-eventEmitter.registerHandler(searchEvent, seachHandler);
+soundBoartEventEmitter.registerHandler(searchEvent, seachHandler);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;
@@ -112,15 +123,15 @@ discordClient.on("message", (message) => {
 
   //There is no alias for play, so we just try and invoke it if no other aliases match
   if (!eventAliasesSet.has(messageParts[0])) {
-    eventEmitter.emit("play", message);
+    soundBoartEventEmitter.emit("play", message);
     return;
   }
 
-  eventEmitter.emit(messageParts[0], message);
+  soundBoartEventEmitter.emit(messageParts[0], message);
 });
 
 discordClient.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
-  eventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
+  soundBoartEventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
 });
 
 app.listen(3000, () => {

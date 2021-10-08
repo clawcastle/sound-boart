@@ -14,4 +14,4 @@ class SoundBoartEventEmitter extends EventEmitter {
   }
 }
 
-export default SoundBoartEventEmitter;
+export const soundBoartEventEmitter = new SoundBoartEventEmitter();
