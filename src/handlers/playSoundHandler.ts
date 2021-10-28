@@ -12,6 +12,7 @@ import { soundPlayedEvent } from "../soundBoartEvents";
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
   soundNames: string[];
+  userId: string;
 };
 
 class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
@@ -28,11 +29,14 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     const serverId = command.guild?.id;
 
-    if (!serverId || !soundNames) return null;
+    const userId = command.author.id;
+
+    if (!serverId || !soundNames || !userId) return null;
 
     return {
       serverId,
       soundNames,
+      userId,
     };
   }
 
@@ -74,7 +78,11 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
         await playSound(soundFilePath, conn);
 
         if (soundPlayedEvent.aliases?.length > 0) {
-          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0]);
+          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {
+            soundName,
+            serverId: params.serverId,
+            userId: params.userId,
+          });
         }
       } catch (err) {
         sendMessage(

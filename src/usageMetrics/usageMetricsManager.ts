@@ -12,10 +12,11 @@ export async function updateSoundPlayedMetrics(
   userId: string,
   soundName: string
 ) {
-  const filePath = `${usageMetricsDirPath}/${serverId}/metrics.json`;
+  const directoryPath = `${usageMetricsDirPath}/${serverId}`;
+  const filePath = `${directoryPath}/metrics.json`;
 
-  if (!fs.existsSync(filePath)) {
-    await fsAsync.mkdir(filePath, {
+  if (!fs.existsSync(directoryPath)) {
+    await fsAsync.mkdir(directoryPath, {
       recursive: true,
     });
   }

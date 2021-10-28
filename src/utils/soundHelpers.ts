@@ -21,7 +21,11 @@ export function playSound(
 }
 
 export async function getSoundNamesForServer(serverId: string) {
-  const soundNames = await fsAsync.readdir(`${soundsDirPath}/${serverId}`);
+  const soundsDirectory = `${soundsDirPath}/${serverId}`;
+  if (!fs.existsSync(soundsDirectory)) {
+    return [];
+  }
+  const soundNames = await fsAsync.readdir(soundsDirectory);
 
   return soundNames.map((name) => name.replace(".mp3", ""));
 }
