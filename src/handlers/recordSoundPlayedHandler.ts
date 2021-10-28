@@ -1,9 +1,5 @@
 import ICommandHandler from "./commandHandler";
-import Discord from "discord.js";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings, updateSettings } from "../serverSettings/settingsManager";
-import ServerSettings from "../serverSettings/serverSettings";
+import { updateSoundPlayedMetrics } from "../usageMetrics/usageMetricsManager";
 
 type RecordSoundPlayedCommandHandlerArgs = {
   serverId: string;
@@ -21,6 +17,10 @@ class RecordSoundPlayedCommandHandler
     return command;
   }
   async handleCommand(command: RecordSoundPlayedCommandHandlerArgs) {
-    const params = this.parseCommand(command);
+    const { serverId, userId, soundName } = this.parseCommand(command);
+
+    await updateSoundPlayedMetrics(serverId, userId, soundName);
   }
 }
+
+export default RecordSoundPlayedCommandHandler;

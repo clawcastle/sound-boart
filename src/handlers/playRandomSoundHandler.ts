@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler";
 import Discord from "discord.js";
 import { soundsDirPath } from "../config";
-import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
@@ -17,7 +16,8 @@ type PlayRandomSoundCommandHandlerArgs = {
 };
 
 class PlayRandomSoundCommandHandler
-  implements ICommandHandler<Discord.Message> {
+  implements ICommandHandler<Discord.Message>
+{
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 
@@ -65,6 +65,14 @@ class PlayRandomSoundCommandHandler
       ? await getSoundNamesWithTagForServer(params.serverId, params.tagName)
       : await getSoundNamesForServer(params.serverId);
 
+    if (!soundNames || soundNames.length === 0) {
+      sendMessage(
+        "Either no sounds exist on the server, or no sounds exist with the provided tag.",
+        textChannel
+      );
+      return;
+    }
+
     const index = Math.ceil(Math.random() * soundNames.length - 1);
     const soundToPlay = soundNames[index];
 
@@ -74,6 +82,8 @@ class PlayRandomSoundCommandHandler
       `${soundsDirPath}/${params.serverId}/${soundToPlay}.mp3`,
       conn
     );
+
+    resetVoiceChannelTimer(voiceChannel);
   }
 }
 

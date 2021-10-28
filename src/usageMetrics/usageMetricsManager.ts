@@ -1,4 +1,8 @@
-import { ServerUsageMetrics, defaultUsageMetrics } from "./usageMetrics";
+import {
+  ServerUsageMetrics,
+  defaultUsageMetrics,
+  SoundPlayedByUser,
+} from "./usageMetrics";
 import { usageMetricsDirPath } from "../config";
 import fs from "fs";
 const fsAsync = fs.promises;
@@ -17,6 +21,19 @@ export async function updateSoundPlayedMetrics(
   }
 
   const usageMetrics = await getUsageMetricsForServer(serverId);
+
+  const entryToUpdate = usageMetrics.soundsPlayed.find(
+    (s) => s.soundName === soundName
+  );
+
+  if (entryToUpdate) {
+    entryToUpdate.timesPlayed += 1;
+  } else {
+    const newEntry: SoundPlayedByUser = { soundName, timesPlayed: 1 };
+    usageMetrics.soundsPlayed.push(newEntry);
+  }
+
+  await fsAsync.writeFile(filePath, JSON.stringify(usageMetrics));
 }
 
 export async function getUsageMetricsForServer(serverId: string) {

@@ -66,6 +66,10 @@ export const searchEvent = {
   aliases: ["find", "search"],
 };
 
+export const soundPlayedEvent = {
+  aliases: ["sound-played"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -83,4 +87,5 @@ export const events = [
   helpEvent,
   playRandomSoundEvent,
   searchEvent,
+  soundPlayedEvent,
 ];

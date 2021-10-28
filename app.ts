@@ -1,5 +1,4 @@
 import Discord from "discord.js";
-import express from "express";
 import { botToken, prefix } from "./src/config";
 import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter";
 import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler";
@@ -30,6 +29,7 @@ import {
   helpEvent,
   playRandomSoundEvent,
   searchEvent,
+  soundPlayedEvent,
 } from "./src/soundBoartEvents";
 import { getCommandParts } from "./src/utils/messageHelpers";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler";
@@ -38,6 +38,8 @@ import RemoveGreetingSoundCommandHandler from "./src/handlers/removeGreetingSoun
 import HelpCommandHandler from "./src/handlers/helpHandler";
 import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler";
 import SearchCommandHandler from "./src/handlers/searchHandler";
+import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler";
+import http from "http";
 
 const eventAliasesSet = new Set<string>();
 
@@ -48,7 +50,6 @@ events.forEach((e) => {
 });
 
 const discordClient = new Discord.Client();
-const app = express();
 
 discordClient.login(botToken);
 
@@ -112,8 +113,14 @@ soundBoartEventEmitter.registerHandler(
   playRandomSoundHandler
 );
 
-const seachHandler = new SearchCommandHandler();
-soundBoartEventEmitter.registerHandler(searchEvent, seachHandler);
+const searchHandler = new SearchCommandHandler();
+soundBoartEventEmitter.registerHandler(searchEvent, searchHandler);
+
+const recordSoundPlayedHandler = new RecordSoundPlayedCommandHandler();
+soundBoartEventEmitter.registerHandler(
+  soundPlayedEvent,
+  recordSoundPlayedHandler
+);
 
 discordClient.on("message", (message) => {
   if (!message.content.startsWith(prefix)) return;
@@ -134,6 +141,8 @@ discordClient.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
   soundBoartEventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
 });
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
+const server = http.createServer((_, res) => {
+  res.end();
 });
+
+server.listen(3000);

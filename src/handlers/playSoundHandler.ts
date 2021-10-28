@@ -6,6 +6,8 @@ import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
 import { playSound } from "../utils/soundHelpers";
+import { soundBoartEventEmitter } from "../soundBoartEventEmitter";
+import { soundPlayedEvent } from "../soundBoartEvents";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -70,6 +72,10 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
 
       try {
         await playSound(soundFilePath, conn);
+
+        if (soundPlayedEvent.aliases?.length > 0) {
+          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0]);
+        }
       } catch (err) {
         sendMessage(
           `Something went wrong while playing sound '${soundName}'`,

@@ -33,7 +33,7 @@ export async function getSoundNamesWithTagForServer(
   const serverSettings = await getSettings(serverId);
 
   if (!serverSettings.tags[tagName]) {
-    throw new Error("Tag does not exist");
+    return [];
   }
 
   const soundNames = serverSettings.tags[tagName];
