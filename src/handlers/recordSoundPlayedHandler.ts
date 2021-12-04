@@ -10,7 +10,7 @@ type RecordSoundPlayedCommandHandlerArgs = {
 class RecordSoundPlayedCommandHandler
   implements ICommandHandler<RecordSoundPlayedCommandHandlerArgs>
 {
-  activate(command: RecordSoundPlayedCommandHandlerArgs) {
+  activate(_: RecordSoundPlayedCommandHandlerArgs) {
     return true;
   }
   parseCommand(command: RecordSoundPlayedCommandHandlerArgs) {

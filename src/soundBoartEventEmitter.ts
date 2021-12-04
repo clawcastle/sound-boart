@@ -7,7 +7,12 @@ class SoundBoartEventEmitter extends EventEmitter {
     event.aliases.forEach((eventAlias) => {
       this.on(eventAlias, async (message: T) => {
         if (handler.activate(message)) {
-          await handler.handleCommand(message);
+          try {
+            await handler.handleCommand(message);
+          } catch (err) {
+            //TODO: add proper logging
+            console.log("An error occurred", err);
+          }
         }
       });
     });

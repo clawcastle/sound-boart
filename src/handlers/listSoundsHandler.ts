@@ -6,11 +6,8 @@ import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { getSoundNamesForServer } from "../utils/soundHelpers";
 
-const fsAsync = fs.promises;
-
 type ListSoundsCommandHandlerParams = {
   serverId: string;
-  query?: string;
 };
 
 class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
@@ -47,19 +44,15 @@ class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    if (!params.query) {
-      const soundNames = await getSoundNamesForServer(params.serverId);
-      const messages = this.chunkMessage(soundNames);
+    const soundNames = await getSoundNamesForServer(params.serverId);
+    const messages = this.chunkMessage(soundNames);
 
-      const textChannel = command.channel as Discord.TextChannel;
-      messages.forEach((msg) => {
-        if (msg.length > 0) {
-          textChannel.send(msg);
-        }
-      });
-    } else {
-      //Handle list category/other stuff
-    }
+    const textChannel = command.channel as Discord.TextChannel;
+    messages.forEach((msg) => {
+      if (msg.length > 0) {
+        textChannel.send(msg);
+      }
+    });
   }
 
   private chunkMessage(soundNames: string[]) {
