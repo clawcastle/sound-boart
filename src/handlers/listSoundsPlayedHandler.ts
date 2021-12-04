@@ -64,8 +64,6 @@ class ListSoundsPlayedCommandHandler
       soundsSortedByTimesPlayed
     );
 
-    console.log(messageChunks);
-
     messageChunks.forEach((messageChunk) => {
       sendMessage(messageChunk, textChannel);
     });
