@@ -70,8 +70,8 @@ export const soundPlayedEvent = {
   aliases: ["sound-played"],
 };
 
-export const listStatsEvent = {
-  aliases: ["stats"],
+export const listTopSoundsEvent = {
+  aliases: ["top"],
 };
 
 export const events = [
@@ -92,5 +92,5 @@ export const events = [
   playRandomSoundEvent,
   searchEvent,
   soundPlayedEvent,
-  listStatsEvent,
+  listTopSoundsEvent,
 ];

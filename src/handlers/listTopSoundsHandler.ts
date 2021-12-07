@@ -7,23 +7,20 @@ import { SoundPlayedByUser } from "../usageMetrics/usageMetrics";
 
 const topNSoundsDefault = 10;
 
-type ListSoundsPlayedCommandHandlerArgs = {
+type ListTopSoundsCommandHandlerArgs = {
   serverId: string;
   topNSounds: number;
 };
 
-class ListSoundsPlayedCommandHandler
-  implements ICommandHandler<Discord.Message>
-{
+class ListTopSoundsCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Discord.Message) {
-    console.log("stats");
     const commandParts = getCommandParts(command.content);
 
     return commandParts.length > 0;
   }
   parseCommand(
     command: Discord.Message
-  ): ListSoundsPlayedCommandHandlerArgs | null {
+  ): ListTopSoundsCommandHandlerArgs | null {
     const serverId = command.guild?.id;
 
     const commandParts = getCommandParts(command.content);
@@ -58,7 +55,8 @@ class ListSoundsPlayedCommandHandler
 
     const soundsSortedByTimesPlayed = serverUsageMetrics.soundsPlayed
       .filter((sound) => sound.timesPlayed !== 0)
-      .sort((a, b) => a.timesPlayed - b.timesPlayed);
+      .sort((a, b) => b.timesPlayed - a.timesPlayed)
+      .slice(0, params.topNSounds);
 
     const messageChunks = this.createSoundsPlayedMessageChunked(
       soundsSortedByTimesPlayed
@@ -78,9 +76,10 @@ class ListSoundsPlayedCommandHandler
       ];
     }
 
-    const allSoundsToList = soundsPlayed
-      .sort((a, b) => b.timesPlayed - a.timesPlayed)
-      .reduce((a, b) => a + `"${b.soundName}": ${b.timesPlayed} \r\n`, "");
+    const allSoundsToList = soundsPlayed.reduce(
+      (a, b) => a + `"${b.soundName}": ${b.timesPlayed} \r\n`,
+      ""
+    );
 
     const chunks = [];
     let currentChunk = "";
@@ -99,4 +98,4 @@ class ListSoundsPlayedCommandHandler
   }
 }
 
-export default ListSoundsPlayedCommandHandler;
+export default ListTopSoundsCommandHandler;
