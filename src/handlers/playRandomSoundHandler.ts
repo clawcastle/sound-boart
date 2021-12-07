@@ -9,10 +9,13 @@ import {
   getSoundNamesForServer,
   getSoundNamesWithTagForServer,
 } from "../utils/soundHelpers";
+import { soundBoartEventEmitter } from "../soundBoartEventEmitter";
+import { soundPlayedEvent } from "../soundBoartEvents";
 
 type PlayRandomSoundCommandHandlerArgs = {
   serverId: string;
   tagName?: string;
+  userId: string;
 };
 
 class PlayRandomSoundCommandHandler
@@ -29,14 +32,17 @@ class PlayRandomSoundCommandHandler
     const commandParts = getCommandParts(command.content);
 
     const serverId = command.guild?.id;
-    if (!serverId || commandParts.length === 0) return null;
+    const userId = command.author.id;
 
-    if (commandParts.length === 1) return { serverId };
+    if (!serverId || !userId || commandParts.length === 0) return null;
+
+    if (commandParts.length === 1) return { serverId, userId };
 
     const tagName = commandParts[1];
 
     return {
       serverId,
+      userId,
       tagName,
     };
   }
@@ -74,14 +80,28 @@ class PlayRandomSoundCommandHandler
     }
 
     const index = Math.ceil(Math.random() * soundNames.length - 1);
-    const soundToPlay = soundNames[index];
+    const soundName = soundNames[index];
 
     const conn = await voiceChannel.join();
 
-    await playSound(
-      `${soundsDirPath}/${params.serverId}/${soundToPlay}.mp3`,
-      conn
-    );
+    const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
+
+    try {
+      await playSound(soundFilePath, conn);
+
+      if (soundPlayedEvent.aliases?.length > 0) {
+        soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {
+          soundName,
+          serverId: params.serverId,
+          userId: params.userId,
+        });
+      }
+    } catch (err) {
+      sendMessage(
+        `Something went wrong while playing sound '${soundName}'`,
+        textChannel
+      );
+    }
 
     resetVoiceChannelTimer(voiceChannel);
   }

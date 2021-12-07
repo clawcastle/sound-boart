@@ -17,7 +17,8 @@ type PlayGreetingSoundCommandHandlerArgs = {
 };
 
 class PlayGreetingSoundCommandHandler
-  implements ICommandHandler<VoiceStateUpdate> {
+  implements ICommandHandler<VoiceStateUpdate>
+{
   activate({ oldVoiceState, newVoiceState }: VoiceStateUpdate) {
     return !oldVoiceState.channel && !!newVoiceState.channel;
   }
