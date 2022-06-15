@@ -5,7 +5,7 @@ import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers";
 import { getCommandParts } from "../utils/messageHelpers";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
-import { playSound } from "../utils/soundHelpers";
+import { getClosestSoundNames, playSound } from "../utils/soundHelpers";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter";
 import { soundPlayedEvent } from "../soundBoartEvents";
 
@@ -70,7 +70,26 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
 
       if (!fs.existsSync(soundFilePath)) {
-        sendMessage(`Sound '${soundName}' does not exist.`, textChannel);
+        const closestSoundNames = await getClosestSoundNames(
+          soundName,
+          params.serverId
+        );
+
+        let message = "Sound `" + soundName + "` does not exist.";
+
+        if (closestSoundNames.length > 0) {
+          const soundNamesFormatted = closestSoundNames
+            .map((name) => "`" + name + "`")
+            .join(", ");
+
+          message += ` Did you mean: ${soundNamesFormatted}`;
+        }
+
+        textChannel.send({
+          embed: {
+            description: message,
+          },
+        });
         continue;
       }
 
