@@ -1,8 +1,11 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings, updateSettings } from "../serverSettings/settingsManager";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import {
+  getSettings,
+  updateSettings,
+} from "../serverSettings/settingsManager.js";
 
 type SetGreetingSoundCommandHandlerArgs = {
   serverId: string;
@@ -11,7 +14,8 @@ type SetGreetingSoundCommandHandlerArgs = {
 };
 
 class SetGreetingSoundCommandHandler
-  implements ICommandHandler<Discord.Message> {
+  implements ICommandHandler<Discord.Message>
+{
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 

@@ -1,8 +1,8 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSoundNamesWithTagForServer } from "../utils/soundHelpers";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import { getSoundNamesWithTagForServer } from "../utils/soundHelpers.js";
 
 type ListSoundsWithTagCommandHandlerArgs = {
   serverId: string;
@@ -10,7 +10,8 @@ type ListSoundsWithTagCommandHandlerArgs = {
 };
 
 class ListSoundsWithTagCommandHandler
-  implements ICommandHandler<Discord.Message> {
+  implements ICommandHandler<Discord.Message>
+{
   activate(command: Discord.Message) {
     const commandParts = getCommandParts(command.content);
 

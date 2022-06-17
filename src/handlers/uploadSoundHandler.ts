@@ -1,11 +1,11 @@
 import Discord from "discord.js";
 import fs from "fs";
-import { soundsDirPath, prefix, maxFileSizeInBytes } from "../config";
+import { soundsDirPath, prefix, maxFileSizeInBytes } from "../config.js";
 import fetch from "node-fetch";
-import ICommandHandler from "./commandHandler";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { uploadEvent, events } from "../soundBoartEvents";
-import { getCommandParts } from "../utils/messageHelpers";
+import ICommandHandler from "./commandHandler.js";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { uploadEvent, events } from "../soundBoartEvents.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
 const fsAsync = fs.promises;
 
 type UploadSoundCommandHandlerParams = {
@@ -117,6 +117,14 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     );
 
     const response = await fetch(discordCdnFilePath);
+
+    if (!response.body) {
+      sendMessage(
+        "Something went wrong while trying to upload your sound.",
+        textChannel
+      );
+      return;
+    }
 
     writeStream
       .on("finish", () => {

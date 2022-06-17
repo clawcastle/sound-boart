@@ -1,16 +1,16 @@
 import Discord from "discord.js";
-import { botToken, prefix } from "./src/config";
-import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter";
-import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler";
-import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler";
-import PlaySoundCommandHandler from "./src/handlers/playSoundHandler";
-import DeleteSoundCommandHandler from "./src/handlers/deleteSoundHandler";
-import RenameSoundCommandHandler from "./src/handlers/renameSoundHandler";
-import TagSoundCommandHandler from "./src/handlers/tagSoundHandler";
-import ListTagsCommandHandler from "./src/handlers/listTagsHandler";
-import DeleteTagCommandHandler from "./src/handlers/deleteTagHandler";
-import ListSoundsWithTagCommandHandler from "./src/handlers/listSoundsWithTagHandler";
-import RenameTagCommandHandler from "./src/handlers/renameTagHandler";
+import { botToken, prefix } from "./src/config.js";
+import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter.js";
+import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler.js";
+import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler.js";
+import PlaySoundCommandHandler from "./src/handlers/playSoundHandler.js";
+import DeleteSoundCommandHandler from "./src/handlers/deleteSoundHandler.js";
+import RenameSoundCommandHandler from "./src/handlers/renameSoundHandler.js";
+import TagSoundCommandHandler from "./src/handlers/tagSoundHandler.js";
+import ListTagsCommandHandler from "./src/handlers/listTagsHandler.js";
+import DeleteTagCommandHandler from "./src/handlers/deleteTagHandler.js";
+import ListSoundsWithTagCommandHandler from "./src/handlers/listSoundsWithTagHandler.js";
+import RenameTagCommandHandler from "./src/handlers/renameTagHandler.js";
 import {
   uploadEvent,
   listEvent,
@@ -31,17 +31,17 @@ import {
   searchEvent,
   soundPlayedEvent,
   listTopSoundsEvent,
-} from "./src/soundBoartEvents";
-import { getCommandParts } from "./src/utils/messageHelpers";
-import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler";
-import PlayGreetingSoundCommandHandler from "./src/handlers/playGreetingSoundHandler";
-import RemoveGreetingSoundCommandHandler from "./src/handlers/removeGreetingSoundHandler";
-import HelpCommandHandler from "./src/handlers/helpHandler";
-import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler";
-import SearchCommandHandler from "./src/handlers/searchHandler";
-import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler";
+} from "./src/soundBoartEvents.js";
+import { getCommandParts } from "./src/utils/messageHelpers.js";
+import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler.js";
+import PlayGreetingSoundCommandHandler from "./src/handlers/playGreetingSoundHandler.js";
+import RemoveGreetingSoundCommandHandler from "./src/handlers/removeGreetingSoundHandler.js";
+import HelpCommandHandler from "./src/handlers/helpHandler.js";
+import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler.js";
+import SearchCommandHandler from "./src/handlers/searchHandler.js";
+import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler.js";
 import http from "http";
-import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler";
+import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
 
 const eventAliasesSet = new Set<string>();
 

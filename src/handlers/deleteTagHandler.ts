@@ -1,9 +1,12 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings, updateSettings } from "../serverSettings/settingsManager";
-import ServerSettings from "../serverSettings/serverSettings";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import {
+  getSettings,
+  updateSettings,
+} from "../serverSettings/settingsManager.js";
+import ServerSettings from "../serverSettings/serverSettings.js";
 
 type DeleteTagCommandHandlerArgs = {
   serverId: string;

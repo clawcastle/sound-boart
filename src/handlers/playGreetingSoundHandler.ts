@@ -1,9 +1,9 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { getSettings } from "../serverSettings/settingsManager";
-import { soundsDirPath } from "../config";
+import { getSettings } from "../serverSettings/settingsManager.js";
+import { soundsDirPath } from "../config.js";
 import fs from "fs";
-import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
+import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 
 type VoiceStateUpdate = {
   oldVoiceState: Discord.VoiceState;

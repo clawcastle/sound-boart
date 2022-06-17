@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import { leaveTimeoutInMilliseconds } from "../config";
+import { leaveTimeoutInMilliseconds } from "../config.js";
 
 const timerMap: { [channelId: string]: NodeJS.Timeout } = {};
 

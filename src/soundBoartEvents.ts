@@ -1,5 +1,3 @@
-import { prefix } from "./config";
-
 export type SoundBoartEvent = { aliases: string[] };
 
 export const uploadEvent = {

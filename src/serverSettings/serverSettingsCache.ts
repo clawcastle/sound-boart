@@ -1,4 +1,4 @@
-import ServerSettings from "./serverSettings";
+import ServerSettings from "./serverSettings.js";
 
 const cache: { [key: string]: ServerSettings } = {};
 

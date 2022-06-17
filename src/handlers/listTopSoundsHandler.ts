@@ -1,9 +1,9 @@
-import ICommandHandler from "./commandHandler";
-import { getUsageMetricsForServer } from "../usageMetrics/usageMetricsManager";
-import { getCommandParts } from "../utils/messageHelpers";
+import ICommandHandler from "./commandHandler.js";
+import { getUsageMetricsForServer } from "../usageMetrics/usageMetricsManager.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
 import Discord from "discord.js";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { SoundPlayedByUser } from "../usageMetrics/usageMetrics";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { SoundPlayedByUser } from "../usageMetrics/usageMetrics.js";
 
 const topNSoundsDefault = 10;
 

@@ -1,9 +1,9 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config";
+import { soundsDirPath } from "../config.js";
 import fs from "fs";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
 const fsAsync = fs.promises;
 
 type RenameSoundCommandHandlerArgs = {

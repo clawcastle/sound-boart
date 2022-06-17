@@ -1,10 +1,10 @@
-import ServerSettings, { defaultSettings } from "./serverSettings";
+import ServerSettings, { defaultSettings } from "./serverSettings.js";
 import {
   getSettings as getSettingsFromCache,
   insertSettings as insertSettingsInCache,
-} from "./serverSettingsCache";
+} from "./serverSettingsCache.js";
 import fs from "fs";
-import { serverSettingsDirPath } from "../config";
+import { serverSettingsDirPath } from "../config.js";
 const fsAsync = fs.promises;
 
 export async function getSettings(serverId: string): Promise<ServerSettings> {

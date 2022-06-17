@@ -1,9 +1,8 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings } from "../serverSettings/settingsManager";
-import { CommandHelpInfo, helpInfo } from "../utils/helpResults";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import { helpInfo } from "../utils/helpResults.js";
 
 type HelpCommandHandlerArgs = {
   specifiedCommand?: string;

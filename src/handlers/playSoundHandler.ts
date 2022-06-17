@@ -1,13 +1,13 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config";
+import { soundsDirPath } from "../config.js";
 import fs from "fs";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
-import { getClosestSoundNames, playSound } from "../utils/soundHelpers";
-import { soundBoartEventEmitter } from "../soundBoartEventEmitter";
-import { soundPlayedEvent } from "../soundBoartEvents";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
+import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
+import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
+import { soundPlayedEvent } from "../soundBoartEvents.js";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -82,7 +82,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
             .map((name) => "`" + name + "`")
             .join(", ");
 
-          message += ` Did you mean: ${soundNamesFormatted}`;
+          message += ` Did you mean: \n${soundNamesFormatted}`;
         }
 
         textChannel.send({

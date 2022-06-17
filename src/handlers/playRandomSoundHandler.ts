@@ -1,16 +1,16 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer";
+import { soundsDirPath } from "../config.js";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import {
   playSound,
   getSoundNamesForServer,
   getSoundNamesWithTagForServer,
-} from "../utils/soundHelpers";
-import { soundBoartEventEmitter } from "../soundBoartEventEmitter";
-import { soundPlayedEvent } from "../soundBoartEvents";
+} from "../utils/soundHelpers.js";
+import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
+import { soundPlayedEvent } from "../soundBoartEvents.js";
 
 type PlayRandomSoundCommandHandlerArgs = {
   serverId: string;

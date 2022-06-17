@@ -1,4 +1,4 @@
-import { prefix, commandPartsCacheSize } from "../config";
+import { prefix, commandPartsCacheSize } from "../config.js";
 
 export function splitCommandContent(commandContent: string) {
   return commandContent.replace(prefix, "").trimStart().split(" ");

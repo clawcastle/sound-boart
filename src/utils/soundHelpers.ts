@@ -1,8 +1,8 @@
 import Discord from "discord.js";
 import fs from "fs";
 const fsAsync = fs.promises;
-import { soundsDirPath } from "../config";
-import { getSettings } from "../serverSettings/settingsManager";
+import { soundsDirPath } from "../config.js";
+import { getSettings } from "../serverSettings/settingsManager.js";
 
 export function playSound(
   soundFilePath: string,
@@ -48,7 +48,7 @@ export async function getSoundNamesWithTagForServer(
 export async function getClosestSoundNames(
   soundName: string,
   serverId: string,
-  nClosest: number = 3
+  nClosest: number = 5
 ) {
   const soundNames = await getSoundNamesForServer(serverId);
 
@@ -72,6 +72,8 @@ export async function getClosestSoundNames(
   let previousCounts: { [char: string]: number } = {};
 
   const computeSoundNameDistance = (otherName: string) => {
+    let diff = Math.abs(soundName.length - otherName.length);
+
     for (let i = 0; i < otherName.length; i++) {
       const char = otherName[i];
 
@@ -79,10 +81,12 @@ export async function getClosestSoundNames(
         otherSoundNameCharCounts[char] = 0;
       }
 
+      if (i < soundName.length && soundName[i] !== otherName[i]) {
+        diff += 1;
+      }
+
       otherSoundNameCharCounts[char] += 1;
     }
-
-    let diff = 0;
 
     Object.keys(soundNameCharCounts).forEach((char) => {
       const currentCharCount = otherSoundNameCharCounts[char] ?? 0;
@@ -95,7 +99,7 @@ export async function getClosestSoundNames(
 
     previousCounts = { ...otherSoundNameCharCounts };
 
-    return diff + Math.abs(soundName.length - otherName.length);
+    return diff;
   };
 
   soundNames.forEach((otherName) => {

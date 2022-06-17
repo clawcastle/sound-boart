@@ -1,6 +1,6 @@
 import EventEmitter from "events";
-import ICommandHandler from "./handlers/commandHandler";
-import { SoundBoartEvent } from "./soundBoartEvents";
+import ICommandHandler from "./handlers/commandHandler.js";
+import { SoundBoartEvent } from "./soundBoartEvents.js";
 
 class SoundBoartEventEmitter extends EventEmitter {
   registerHandler<T>(event: SoundBoartEvent, handler: ICommandHandler<T>) {

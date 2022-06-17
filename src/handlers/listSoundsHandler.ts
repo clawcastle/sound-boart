@@ -1,10 +1,9 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { listEvent } from "../soundBoartEvents";
-import fs from "fs";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSoundNamesForServer } from "../utils/soundHelpers";
+import { listEvent } from "../soundBoartEvents.js";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import { getSoundNamesForServer } from "../utils/soundHelpers.js";
 
 type ListSoundsCommandHandlerParams = {
   serverId: string;

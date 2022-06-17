@@ -2,8 +2,8 @@ import {
   ServerUsageMetrics,
   defaultUsageMetrics,
   SoundPlayedByUser,
-} from "./usageMetrics";
-import { usageMetricsDirPath } from "../config";
+} from "./usageMetrics.js";
+import { usageMetricsDirPath } from "../config.js";
 import fs from "fs";
 const fsAsync = fs.promises;
 

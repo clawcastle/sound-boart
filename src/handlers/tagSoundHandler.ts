@@ -1,10 +1,13 @@
-import ICommandHandler from "./commandHandler";
+import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config";
+import { soundsDirPath } from "../config.js";
 import fs from "fs";
-import { sendMessage } from "../utils/textChannelHelpers";
-import { getCommandParts } from "../utils/messageHelpers";
-import { getSettings, updateSettings } from "../serverSettings/settingsManager";
+import { sendMessage } from "../utils/textChannelHelpers.js";
+import { getCommandParts } from "../utils/messageHelpers.js";
+import {
+  getSettings,
+  updateSettings,
+} from "../serverSettings/settingsManager.js";
 
 type TagSoundCommandHandlerArgs = {
   serverId: string;

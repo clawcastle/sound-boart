@@ -1,5 +1,5 @@
-import ICommandHandler from "./commandHandler";
-import { updateSoundPlayedMetrics } from "../usageMetrics/usageMetricsManager";
+import ICommandHandler from "./commandHandler.js";
+import { updateSoundPlayedMetrics } from "../usageMetrics/usageMetricsManager.js";
 
 type RecordSoundPlayedCommandHandlerArgs = {
   serverId: string;
