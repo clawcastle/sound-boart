@@ -48,7 +48,8 @@ export async function getSoundNamesWithTagForServer(
 export async function getClosestSoundNames(
   soundName: string,
   serverId: string,
-  nClosest: number = 5
+  maxResults: number = 5,
+  threshold: number = 6
 ) {
   const soundNames = await getSoundNamesForServer(serverId);
 
@@ -72,7 +73,7 @@ export async function getClosestSoundNames(
   let previousCounts: { [char: string]: number } = {};
 
   const computeSoundNameDistance = (otherName: string) => {
-    let diff = Math.abs(soundName.length - otherName.length);
+    let diff = 0;
 
     for (let i = 0; i < otherName.length; i++) {
       const char = otherName[i];
@@ -87,6 +88,15 @@ export async function getClosestSoundNames(
 
       otherSoundNameCharCounts[char] += 1;
     }
+
+    // All characters were in the same place as sound name to be compared with, so either this other name is a prefix of the sound name,
+    // or it begins with the entirety of the sound name and then contains additional characters afterwards.
+    const isPrefixOrContainsSoundName = diff === 0;
+    if (isPrefixOrContainsSoundName) {
+      return 0;
+    }
+
+    diff += Math.abs(soundName.length - otherName.length);
 
     Object.keys(soundNameCharCounts).forEach((char) => {
       const currentCharCount = otherSoundNameCharCounts[char] ?? 0;
@@ -105,11 +115,13 @@ export async function getClosestSoundNames(
   soundNames.forEach((otherName) => {
     const diff = computeSoundNameDistance(otherName);
 
-    if (!buckets[diff]) {
-      buckets[diff] = [];
-    }
+    if (diff <= threshold) {
+      if (!buckets[diff]) {
+        buckets[diff] = [];
+      }
 
-    buckets[diff].push(otherName);
+      buckets[diff].push(otherName);
+    }
   });
 
   const closestNames: string[] = [];
@@ -119,7 +131,7 @@ export async function getClosestSoundNames(
     .sort((a, b) => a - b)
     .forEach((diff) => {
       for (let i = 0; i < buckets[diff].length; i++) {
-        if (closestNames.length >= nClosest) return;
+        if (closestNames.length >= maxResults) return;
 
         closestNames.push(buckets[diff][i]);
       }
