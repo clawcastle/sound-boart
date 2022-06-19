@@ -16,11 +16,12 @@ type UploadSoundCommandHandlerParams = {
 };
 
 class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  private _reservedWords: string[] = [];
+  private _reservedWords: Set<string>;
   constructor() {
+    this._reservedWords = new Set();
     events.forEach((event) => {
       event.aliases.forEach((alias) => {
-        this._reservedWords.push(alias);
+        this._reservedWords.add(alias);
       });
     });
   }
@@ -67,7 +68,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    if (this._reservedWords.includes(params.soundName)) {
+    if (this._reservedWords.has(params.soundName)) {
       sendMessage(
         `The name '${params.soundName}' is reserved by a command for the bot. Please pick something else.`,
         textChannel
