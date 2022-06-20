@@ -12,11 +12,11 @@ Below is a list explaining the different commands available.
 
 ## Play sound
 
-Plays a sound by the name specified if it exists. Use like this: $\<sound-name\>. Can also be used to play multiple sound consecutively (at most 3), like this: ```$<sound_name1> <sound_name2> <sound_name3>```
+Plays a sound by the name specified if it exists. Use like this: ```$<sound-name>```. Can also be used to play multiple sound consecutively (at most 3), like this: ```$<sound_name1> <sound_name2> <sound_name3>```
 
 ## Upload sound
 
-Uploads a sound to the server. The sound can then be referenced and played by the name you specify in this command (not the name of the file you upload). The file should be sent as an attachment to the message you send with the upload command. The current size limit is 5MB. Mind that only .mp3 files are valid. Use like this: ```$up <sound-name>```
+Uploads a sound to the server. The sound can then be referenced and played by the name you specify in this command (not the name of the file you upload). The file should be sent as an attachment to the message you send with the upload command. The current size limit is 5MB. Mind that only ```.mp3``` files are valid. Use like this: ```$up <sound-name>```
 
 ## Rename sound
 
