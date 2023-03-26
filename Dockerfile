@@ -1,5 +1,7 @@
 FROM node:latest
 
+ARG BOT_TOKEN
+
 WORKDIR /app
 
 COPY package.json ./
@@ -15,6 +17,7 @@ RUN npm install -g npm@latest \
     && npm install -g typescript
 
 ENV NODE_ENV production
+ENV BOT_TOKEN ${BOT_TOKEN}
 
 RUN tsc
 

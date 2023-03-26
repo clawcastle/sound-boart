@@ -1,22 +1,35 @@
-import Discord from "discord.js";
 import fs from "fs";
 const fsAsync = fs.promises;
 import { soundsDirPath } from "../config.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
+import {
+  VoiceConnection,
+  createAudioPlayer,
+  createAudioResource,
+  AudioPlayerStatus,
+} from "@discordjs/voice";
 
 export function playSound(
   soundFilePath: string,
-  voiceConnection: Discord.VoiceConnection
+  voiceConnection: VoiceConnection
 ) {
   return new Promise<void>((resolve, reject) => {
-    voiceConnection
-      .play(soundFilePath)
-      .on("finish", () => {
-        resolve();
-      })
-      .on("error", (e) => {
-        reject(e);
-      });
+    const audioPlayer = createAudioPlayer();
+    const audioResource = createAudioResource(soundFilePath);
+
+    const subscription = voiceConnection.subscribe(audioPlayer);
+
+    audioPlayer.play(audioResource);
+
+    audioPlayer.on("error", (e) => {
+      console.log("An error occurred while playing sound.", e);
+      reject();
+    });
+
+    audioPlayer.on(AudioPlayerStatus.Idle, (_) => {
+      subscription?.unsubscribe();
+      resolve();
+    });
   });
 }
 

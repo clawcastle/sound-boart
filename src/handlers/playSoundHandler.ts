@@ -8,6 +8,7 @@ import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
+import { joinVoiceChannel } from "@discordjs/voice";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -64,7 +65,11 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    const conn = await voiceChannel.join();
+    const conn = joinVoiceChannel({
+      channelId: voiceChannel.id,
+      guildId: voiceChannel.guildId,
+      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+    });
 
     for (const soundName of params.soundNames) {
       const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
@@ -86,9 +91,11 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
         }
 
         textChannel.send({
-          embed: {
-            description: message,
-          },
+          embeds: [
+            {
+              description: message,
+            },
+          ],
         });
         continue;
       }
@@ -112,7 +119,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       }
     }
 
-    resetVoiceChannelTimer(voiceChannel);
+    resetVoiceChannelTimer(voiceChannel.guildId);
   }
 }
 

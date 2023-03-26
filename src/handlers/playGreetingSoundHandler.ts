@@ -4,6 +4,8 @@ import { getSettings } from "../serverSettings/settingsManager.js";
 import { soundsDirPath } from "../config.js";
 import fs from "fs";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
+import { joinVoiceChannel } from "@discordjs/voice";
+import { playSound } from "../utils/soundHelpers.js";
 
 type VoiceStateUpdate = {
   oldVoiceState: Discord.VoiceState;
@@ -13,7 +15,7 @@ type VoiceStateUpdate = {
 type PlayGreetingSoundCommandHandlerArgs = {
   userId: string;
   serverId: string;
-  voiceChannel: Discord.VoiceChannel;
+  voiceChannel: Discord.VoiceBasedChannel;
 };
 
 class PlayGreetingSoundCommandHandler
@@ -51,11 +53,14 @@ class PlayGreetingSoundCommandHandler
 
     if (!fs.existsSync(soundFilePath)) return;
 
-    const conn = await params.voiceChannel.join();
-
-    conn.play(soundFilePath).on("finish", () => {
-      resetVoiceChannelTimer(params.voiceChannel);
+    const conn = joinVoiceChannel({
+      channelId: params.voiceChannel.id,
+      guildId: params.voiceChannel.guildId,
+      adapterCreator: params.voiceChannel.guild.voiceAdapterCreator,
     });
+
+    await playSound(soundFilePath, conn);
+    resetVoiceChannelTimer(params.voiceChannel.guildId);
   }
 }
 

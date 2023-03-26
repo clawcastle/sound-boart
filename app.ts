@@ -1,5 +1,10 @@
-import Discord from "discord.js";
-import { botToken, prefix } from "./src/config.js";
+import {
+  Client as DiscordClient,
+  Events,
+  GatewayIntentBits,
+  Partials,
+} from "discord.js";
+import { prefix } from "./src/config.js";
 import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter.js";
 import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler.js";
 import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler.js";
@@ -51,7 +56,25 @@ events.forEach((e) => {
   });
 });
 
-const discordClient = new Discord.Client();
+const discordClient = new DiscordClient({
+  intents: [
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+  ],
+  partials: [Partials.Channel],
+});
+
+const botToken = process.env.BOT_TOKEN;
+
+if (!botToken) {
+  throw new Error("BOT_TOKEN was missing in environment variables.");
+}
+
+discordClient.once(Events.ClientReady, () => {
+  console.log("Soundboart is ready");
+});
 
 discordClient.login(botToken);
 
@@ -130,7 +153,7 @@ soundBoartEventEmitter.registerHandler(
   listTopSoundsHandler
 );
 
-discordClient.on("message", (message) => {
+discordClient.on(Events.MessageCreate, (message) => {
   if (!message.content.startsWith(prefix)) return;
 
   const messageParts = getCommandParts(message.content);
@@ -145,7 +168,7 @@ discordClient.on("message", (message) => {
   soundBoartEventEmitter.emit(messageParts[0], message);
 });
 
-discordClient.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
+discordClient.on(Events.VoiceStateUpdate, (oldVoiceState, newVoiceState) => {
   soundBoartEventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
 });
 

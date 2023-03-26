@@ -11,6 +11,7 @@ import {
 } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
+import { joinVoiceChannel } from "@discordjs/voice";
 
 type PlayRandomSoundCommandHandlerArgs = {
   serverId: string;
@@ -82,7 +83,11 @@ class PlayRandomSoundCommandHandler
     const index = Math.ceil(Math.random() * soundNames.length - 1);
     const soundName = soundNames[index];
 
-    const conn = await voiceChannel.join();
+    const conn = joinVoiceChannel({
+      channelId: voiceChannel.id,
+      guildId: voiceChannel.guildId,
+      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+    });
 
     const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
 
@@ -103,7 +108,7 @@ class PlayRandomSoundCommandHandler
       );
     }
 
-    resetVoiceChannelTimer(voiceChannel);
+    resetVoiceChannelTimer(voiceChannel.guildId);
   }
 }
 

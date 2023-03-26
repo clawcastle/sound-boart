@@ -1,19 +1,22 @@
 import Discord from "discord.js";
 import { leaveTimeoutInMilliseconds } from "../config.js";
+import { getVoiceConnection } from "@discordjs/voice";
 
 const timerMap: { [channelId: string]: NodeJS.Timeout } = {};
 
-export function resetVoiceChannelTimer(voiceChannel: Discord.VoiceChannel) {
-  const channelId = voiceChannel.id;
-
-  if (timerMap[channelId]) {
-    clearTimeout(timerMap[channelId]);
+export function resetVoiceChannelTimer(serverId: string) {
+  if (timerMap[serverId]) {
+    clearTimeout(timerMap[serverId]);
   }
 
   const timerHandle = setTimeout(() => {
-    voiceChannel.leave();
-    delete timerMap[channelId];
+    const voiceConnection = getVoiceConnection(serverId);
+
+    if (voiceConnection) {
+      voiceConnection.destroy();
+    }
+    delete timerMap[serverId];
   }, leaveTimeoutInMilliseconds);
 
-  timerMap[channelId] = timerHandle;
+  timerMap[serverId] = timerHandle;
 }
