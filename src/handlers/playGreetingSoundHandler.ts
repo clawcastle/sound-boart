@@ -53,13 +53,7 @@ class PlayGreetingSoundCommandHandler
 
     if (!fs.existsSync(soundFilePath)) return;
 
-    const conn = joinVoiceChannel({
-      channelId: params.voiceChannel.id,
-      guildId: params.voiceChannel.guildId,
-      adapterCreator: params.voiceChannel.guild.voiceAdapterCreator,
-    });
-
-    await playSound(soundFilePath, conn);
+    await playSound(soundFilePath, params.voiceChannel);
     resetVoiceChannelTimer(params.voiceChannel.guildId);
   }
 }

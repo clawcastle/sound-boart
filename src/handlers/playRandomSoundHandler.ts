@@ -83,16 +83,10 @@ class PlayRandomSoundCommandHandler
     const index = Math.ceil(Math.random() * soundNames.length - 1);
     const soundName = soundNames[index];
 
-    const conn = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guildId,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    });
-
     const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
 
     try {
-      await playSound(soundFilePath, conn);
+      await playSound(soundFilePath, voiceChannel);
 
       if (soundPlayedEvent.aliases?.length > 0) {
         soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {

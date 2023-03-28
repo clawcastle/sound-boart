@@ -1,3 +1,4 @@
+import { tracingSdk } from "./src/tracing/tracing.js";
 import {
   Client as DiscordClient,
   Events,
@@ -47,6 +48,10 @@ import SearchCommandHandler from "./src/handlers/searchHandler.js";
 import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler.js";
 import http from "http";
 import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
+// import { tracingSdk } from "./src/tracing/tracing.js";
+import opentelemetry from "@opentelemetry/api";
+
+tracingSdk.start();
 
 const eventAliasesSet = new Set<string>();
 
@@ -75,8 +80,6 @@ if (!botToken) {
 discordClient.once(Events.ClientReady, () => {
   console.log("Soundboart is ready");
 });
-
-discordClient.login(botToken);
 
 const uploadSoundHandler = new UploadSoundCommandHandler();
 soundBoartEventEmitter.registerHandler(uploadEvent, uploadSoundHandler);
@@ -172,8 +175,10 @@ discordClient.on(Events.VoiceStateUpdate, (oldVoiceState, newVoiceState) => {
   soundBoartEventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
 });
 
-const server = http.createServer((_, res) => {
-  res.end();
-});
+await discordClient.login(botToken);
 
-server.listen(3000);
+// const server = http.createServer((_, res) => {
+//   res.end();
+// });
+
+// server.listen(3000);

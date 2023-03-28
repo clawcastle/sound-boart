@@ -65,12 +65,6 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    const conn = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guildId,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    });
-
     for (const soundName of params.soundNames) {
       const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
 
@@ -101,7 +95,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       }
 
       try {
-        await playSound(soundFilePath, conn);
+        await playSound(soundFilePath, voiceChannel);
 
         if (soundPlayedEvent.aliases?.length > 0) {
           soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {

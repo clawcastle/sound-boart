@@ -7,13 +7,34 @@ import {
   createAudioPlayer,
   createAudioResource,
   AudioPlayerStatus,
+  getVoiceConnection,
+  joinVoiceChannel,
 } from "@discordjs/voice";
+import { VoiceBasedChannel } from "discord.js";
 
 export function playSound(
   soundFilePath: string,
-  voiceConnection: VoiceConnection
+  voiceChannel: VoiceBasedChannel
 ) {
   return new Promise<void>((resolve, reject) => {
+    const { id: channelId, guildId: serverId } = voiceChannel;
+
+    let voiceConnection = getVoiceConnection(serverId);
+    console.log("hey");
+
+    if (
+      !voiceConnection ||
+      voiceConnection.joinConfig.channelId !== channelId
+    ) {
+      console.log("switched channels");
+
+      voiceConnection = joinVoiceChannel({
+        channelId,
+        guildId: serverId,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+      });
+    }
+
     const audioPlayer = createAudioPlayer();
     const audioResource = createAudioResource(soundFilePath);
 
