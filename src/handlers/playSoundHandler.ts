@@ -8,7 +8,7 @@ import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
-import { joinVoiceChannel } from "@discordjs/voice";
+import { tracer } from "../tracing/tracer.js";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -42,6 +42,8 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
   }
 
   async handleCommand(command: Discord.Message) {
+    const span = tracer.startSpan("command.handle.play_sound");
+
     const params = this.parseCommand(command);
     const textChannel = command.channel as Discord.TextChannel;
 
@@ -54,6 +56,9 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       );
       return;
     }
+
+    span?.setAttribute("sound-names", params.soundNames);
+    span?.setAttribute("user.id", params.userId);
 
     const voiceChannel = command.member?.voice?.channel;
 
@@ -114,6 +119,8 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     resetVoiceChannelTimer(voiceChannel.guildId);
+
+    span.end();
   }
 }
 
