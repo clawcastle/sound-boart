@@ -46,9 +46,7 @@ import HelpCommandHandler from "./src/handlers/helpHandler.js";
 import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler.js";
 import SearchCommandHandler from "./src/handlers/searchHandler.js";
 import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler.js";
-import http from "http";
 import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
-// import { tracingSdk } from "./src/tracing/tracing.js";
 import opentelemetry from "@opentelemetry/api";
 
 tracingSdk.start();
@@ -176,9 +174,3 @@ discordClient.on(Events.VoiceStateUpdate, (oldVoiceState, newVoiceState) => {
 });
 
 await discordClient.login(botToken);
-
-// const server = http.createServer((_, res) => {
-//   res.end();
-// });
-
-// server.listen(3000);

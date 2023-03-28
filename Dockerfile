@@ -21,6 +21,4 @@ ENV BOT_TOKEN ${BOT_TOKEN}
 
 RUN tsc
 
-EXPOSE 3000
-
 CMD [ "node", "./dist/app.js" ]
