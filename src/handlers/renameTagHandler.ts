@@ -7,6 +7,7 @@ import {
   updateSettings,
 } from "../serverSettings/settingsManager.js";
 import ServerSettings from "../serverSettings/serverSettings.js";
+import { Command } from "../command.js";
 
 type RenameTagCommandHandlerArgs = {
   serverId: string;
@@ -15,17 +16,20 @@ type RenameTagCommandHandlerArgs = {
 };
 
 class RenameTagCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return commandParts.length > 2;
   }
-  parseCommand(command: Discord.Message): RenameTagCommandHandlerArgs | null {
-    const commandParts = getCommandParts(command.content);
+  parseCommandPayload({
+    content,
+    guild,
+  }: Discord.Message): RenameTagCommandHandlerArgs | null {
+    const commandParts = getCommandParts(content);
     const currentTagName = commandParts[1];
     const newTagName = commandParts[2];
 
-    const serverId = command.guild?.id;
+    const serverId = guild?.id;
 
     if (!serverId || !currentTagName || !newTagName) return null;
 
@@ -35,9 +39,9 @@ class RenameTagCommandHandler implements ICommandHandler<Discord.Message> {
       newTagName,
     };
   }
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
-    const textChannel = command.channel as Discord.TextChannel;
+  async handleCommand({ payload }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
+    const textChannel = payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

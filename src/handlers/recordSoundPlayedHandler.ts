@@ -1,5 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import { updateSoundPlayedMetrics } from "../usageMetrics/usageMetricsManager.js";
+import { Command } from "../command.js";
 
 type RecordSoundPlayedCommandHandlerArgs = {
   serverId: string;
@@ -13,11 +14,15 @@ class RecordSoundPlayedCommandHandler
   activate(_: RecordSoundPlayedCommandHandlerArgs) {
     return true;
   }
-  parseCommand(command: RecordSoundPlayedCommandHandlerArgs) {
-    return command;
+
+  parseCommandPayload(payload: RecordSoundPlayedCommandHandlerArgs) {
+    return payload;
   }
-  async handleCommand(command: RecordSoundPlayedCommandHandlerArgs) {
-    const { serverId, userId, soundName } = this.parseCommand(command);
+
+  async handleCommand({
+    payload,
+  }: Command<RecordSoundPlayedCommandHandlerArgs>) {
+    const { serverId, userId, soundName } = this.parseCommandPayload(payload);
 
     await updateSoundPlayedMetrics(serverId, userId, soundName);
   }

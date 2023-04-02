@@ -46,9 +46,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const span = tracer.startSpan("command.handle.play_sound");
-
+  async handleCommand({ payload, telemetry }: Command<Discord.Message>) {
     const params = this.parseCommandPayload(payload);
     const textChannel = payload.channel as Discord.TextChannel;
 
@@ -62,8 +60,8 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    span?.setAttribute("sound-names", params.soundNames);
-    span?.setAttribute("user.id", params.userId);
+    telemetry.span?.setAttribute("sound-names", params.soundNames);
+    telemetry.span?.setAttribute("user.id", params.userId);
 
     const voiceChannel = payload.member?.voice?.channel;
 
@@ -124,8 +122,6 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     resetVoiceChannelTimer(voiceChannel.guildId);
-
-    span.end();
   }
 }
 

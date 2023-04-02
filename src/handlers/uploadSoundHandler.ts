@@ -6,6 +6,7 @@ import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { uploadEvent, events } from "../soundBoartEvents.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
+import { Command } from "../command.js";
 const fsAsync = fs.promises;
 
 type UploadSoundCommandHandlerParams = {
@@ -26,24 +27,26 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     });
   }
 
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content, attachments }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return (
       commandParts.length > 1 &&
       uploadEvent.aliases.includes(commandParts[0]) &&
-      Boolean(command.attachments)
+      Boolean(attachments)
     );
   }
 
-  parseCommand(
-    command: Discord.Message
-  ): UploadSoundCommandHandlerParams | null {
-    const commandParts = getCommandParts(command.content);
-    const attachment = command.attachments.first();
+  parseCommandPayload({
+    attachments,
+    content,
+    guild,
+  }: Discord.Message): UploadSoundCommandHandlerParams | null {
+    const commandParts = getCommandParts(content);
+    const attachment = attachments.first();
 
     const soundName = commandParts[1];
-    const serverId = command.guild?.id;
+    const serverId = guild?.id;
 
     if (!serverId || !attachment?.url || !attachment.url.includes(".mp3"))
       return null;
@@ -56,9 +59,9 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
-    const textChannel = command.channel as Discord.TextChannel;
+  async handleCommand({ payload }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
+    const textChannel = payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

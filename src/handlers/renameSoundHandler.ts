@@ -4,6 +4,8 @@ import { soundsDirPath } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
+import { Command } from "../command.js";
+
 const fsAsync = fs.promises;
 
 type RenameSoundCommandHandlerArgs = {
@@ -13,15 +15,19 @@ type RenameSoundCommandHandlerArgs = {
 };
 
 class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return commandParts.length > 2;
   }
-  parseCommand(command: Discord.Message): RenameSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(command.content);
 
-    const serverId = command.guild?.id;
+  parseCommandPayload({
+    content,
+    guild,
+  }: Discord.Message): RenameSoundCommandHandlerArgs | null {
+    const commandParts = getCommandParts(content);
+
+    const serverId = guild?.id;
 
     if (!serverId) return null;
 
@@ -30,13 +36,14 @@ class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     return { serverId, currentSoundName, newSoundName };
   }
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
+
+  async handleCommand({ payload }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
 
     if (!params || params.currentSoundName === params.newSoundName) {
       sendMessage(
         "Could not rename sound.",
-        command.channel as Discord.TextChannel
+        payload.channel as Discord.TextChannel
       );
       return;
     }
@@ -48,7 +55,7 @@ class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     sendMessage(
       "Sound renamed successfully.",
-      command.channel as Discord.TextChannel
+      payload.channel as Discord.TextChannel
     );
   }
 }

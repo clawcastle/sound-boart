@@ -7,6 +7,7 @@ import {
   updateSettings,
 } from "../serverSettings/settingsManager.js";
 import ServerSettings from "../serverSettings/serverSettings.js";
+import { Command } from "../command.js";
 
 type RemoveGreetingSoundCommandHandlerArgs = {
   serverId: string;
@@ -16,16 +17,17 @@ type RemoveGreetingSoundCommandHandlerArgs = {
 class RemoveGreetingSoundCommandHandler
   implements ICommandHandler<Discord.Message>
 {
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return commandParts.length > 0;
   }
-  parseCommand(
-    command: Discord.Message
-  ): RemoveGreetingSoundCommandHandlerArgs | null {
-    const serverId = command.guild?.id;
-    const userId = command.member?.id;
+  parseCommandPayload({
+    guild,
+    member,
+  }: Discord.Message): RemoveGreetingSoundCommandHandlerArgs | null {
+    const serverId = guild?.id;
+    const userId = member?.id;
 
     if (!serverId || !userId) return null;
 
@@ -34,9 +36,9 @@ class RemoveGreetingSoundCommandHandler
       userId,
     };
   }
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
-    const textChannel = command.channel as Discord.TextChannel;
+  async handleCommand({ payload }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
+    const textChannel = payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(
