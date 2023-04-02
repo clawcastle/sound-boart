@@ -4,25 +4,27 @@ import { listEvent } from "../soundBoartEvents.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
 import { getSoundNamesForServer } from "../utils/soundHelpers.js";
+import { Command } from "../command.js";
 
 type ListSoundsCommandHandlerParams = {
   serverId: string;
 };
 
 class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return (
       commandParts.length > 0 && listEvent.aliases.includes(commandParts[0])
     );
   }
 
-  parseCommand(
-    command: Discord.Message
-  ): ListSoundsCommandHandlerParams | null {
-    const commandParts = getCommandParts(command.content);
-    const serverId = command.guild?.id;
+  parseCommandPayload({
+    content,
+    guild,
+  }: Discord.Message): ListSoundsCommandHandlerParams | null {
+    const commandParts = getCommandParts(content);
+    const serverId = guild?.id;
 
     if (!serverId) return null;
 
@@ -32,13 +34,13 @@ class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
+  async handleCommand({ payload }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
 
     if (!params) {
       sendMessage(
         "Something went wrong while trying to list your sounds",
-        command.channel as Discord.TextChannel
+        payload.channel as Discord.TextChannel
       );
       return;
     }
@@ -46,7 +48,7 @@ class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
     const soundNames = await getSoundNamesForServer(params.serverId);
     const messages = this.chunkMessage(soundNames);
 
-    const textChannel = command.channel as Discord.TextChannel;
+    const textChannel = payload.channel as Discord.TextChannel;
     messages.forEach((msg) => {
       if (msg.length > 0) {
         textChannel.send(msg);

@@ -4,8 +4,8 @@ import { getSettings } from "../serverSettings/settingsManager.js";
 import { soundsDirPath } from "../config.js";
 import fs from "fs";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
-import { joinVoiceChannel } from "@discordjs/voice";
 import { playSound } from "../utils/soundHelpers.js";
+import { Command } from "../command.js";
 
 type VoiceStateUpdate = {
   oldVoiceState: Discord.VoiceState;
@@ -24,7 +24,8 @@ class PlayGreetingSoundCommandHandler
   activate({ oldVoiceState, newVoiceState }: VoiceStateUpdate) {
     return !oldVoiceState.channel && !!newVoiceState.channel;
   }
-  parseCommand({
+
+  parseCommandPayload({
     newVoiceState,
   }: VoiceStateUpdate): PlayGreetingSoundCommandHandlerArgs | null {
     const serverId = newVoiceState.guild.id;
@@ -39,8 +40,9 @@ class PlayGreetingSoundCommandHandler
       voiceChannel,
     };
   }
-  async handleCommand(command: VoiceStateUpdate) {
-    const params = this.parseCommand(command);
+
+  async handleCommand({ payload }: Command<VoiceStateUpdate>) {
+    const params = this.parseCommandPayload(payload);
 
     if (!params) return;
 
