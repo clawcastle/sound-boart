@@ -1,7 +1,9 @@
+import { Command } from "../command";
+
 interface ICommandHandler<T> {
-  activate: (command: T) => boolean;
-  parseCommand: (command: T) => any;
-  handleCommand: (command: T) => Promise<void>;
+  activate: (payload: T) => boolean;
+  parseCommandPayload: (payload: T) => any;
+  handleCommand: (command: Command<T>) => Promise<void>;
 }
 
 export default ICommandHandler;
