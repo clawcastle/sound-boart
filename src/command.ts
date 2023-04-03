@@ -2,10 +2,10 @@ import { Span } from "@opentelemetry/api";
 
 export class Command<T> {
   payload: T;
-  telemetry: CommandTelemetry;
+  tracing: CommandTelemetry;
   constructor(payload: T, span: Span) {
     this.payload = payload;
-    this.telemetry = { span };
+    this.tracing = { span };
   }
 }
 

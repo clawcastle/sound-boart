@@ -8,8 +8,8 @@ import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
-import { tracer } from "../tracing/tracer.js";
 import { Command } from "../command.js";
+import { tracer } from "../tracing/tracer.js";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -46,7 +46,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload, telemetry }: Command<Discord.Message>) {
+  async handleCommand({ payload, tracing }: Command<Discord.Message>) {
     const params = this.parseCommandPayload(payload);
     const textChannel = payload.channel as Discord.TextChannel;
 
@@ -60,8 +60,8 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    telemetry.span?.setAttribute("sound-names", params.soundNames);
-    telemetry.span?.setAttribute("user.id", params.userId);
+    tracing.span?.setAttribute("sound-names", params.soundNames);
+    tracing.span?.setAttribute("user.id", params.userId);
 
     const voiceChannel = payload.member?.voice?.channel;
 

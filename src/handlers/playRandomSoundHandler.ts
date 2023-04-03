@@ -51,7 +51,7 @@ class PlayRandomSoundCommandHandler
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
+  async handleCommand({ payload, tracing }: Command<Discord.Message>) {
     const params = this.parseCommandPayload(payload);
     const textChannel = payload.channel as Discord.TextChannel;
     const voiceChannel = payload.member?.voice?.channel;
@@ -86,6 +86,9 @@ class PlayRandomSoundCommandHandler
 
     const index = Math.ceil(Math.random() * soundNames.length - 1);
     const soundName = soundNames[index];
+
+    tracing.span?.setAttribute("sound-name", soundName);
+    tracing.span?.setAttribute("user.id", params.userId);
 
     const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
 
