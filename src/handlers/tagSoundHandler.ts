@@ -8,6 +8,7 @@ import {
   getSettings,
   updateSettings,
 } from "../serverSettings/settingsManager.js";
+import { Command } from "../command.js";
 
 type TagSoundCommandHandlerArgs = {
   serverId: string;
@@ -16,15 +17,19 @@ type TagSoundCommandHandlerArgs = {
 };
 
 class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return commandParts.length > 2;
   }
-  parseCommand(command: Discord.Message): TagSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(command.content);
 
-    const serverId = command.guild?.id;
+  parseCommandPayload({
+    content,
+    guild,
+  }: Discord.Message): TagSoundCommandHandlerArgs | null {
+    const commandParts = getCommandParts(content);
+
+    const serverId = guild?.id;
 
     if (!serverId || commandParts.length < 3) return null;
 
@@ -37,9 +42,10 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
       tagName,
     };
   }
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
-    const textChannel = command.channel as Discord.TextChannel;
+
+  async handleCommand({ payload }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
+    const textChannel = payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage("Could not tag sound.", textChannel);

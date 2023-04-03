@@ -7,13 +7,34 @@ import {
   createAudioPlayer,
   createAudioResource,
   AudioPlayerStatus,
+  getVoiceConnection,
+  joinVoiceChannel,
 } from "@discordjs/voice";
+import { VoiceBasedChannel } from "discord.js";
+import { tracer } from "../tracing/tracer.js";
 
 export function playSound(
   soundFilePath: string,
-  voiceConnection: VoiceConnection
+  voiceChannel: VoiceBasedChannel
 ) {
   return new Promise<void>((resolve, reject) => {
+    const span = tracer.startSpan("play-sound");
+
+    const { id: channelId, guildId: serverId } = voiceChannel;
+
+    let voiceConnection = getVoiceConnection(serverId);
+
+    if (
+      !voiceConnection ||
+      voiceConnection.joinConfig.channelId !== channelId
+    ) {
+      voiceConnection = joinVoiceChannel({
+        channelId,
+        guildId: serverId,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+      });
+    }
+
     const audioPlayer = createAudioPlayer();
     const audioResource = createAudioResource(soundFilePath);
 
@@ -23,11 +44,15 @@ export function playSound(
 
     audioPlayer.on("error", (e) => {
       console.log("An error occurred while playing sound.", e);
+
+      span.end();
       reject();
     });
 
     audioPlayer.on(AudioPlayerStatus.Idle, (_) => {
       subscription?.unsubscribe();
+
+      span.end();
       resolve();
     });
   });
@@ -64,9 +89,16 @@ export async function getClosestSoundNames(
   maxResults: number = 5,
   threshold: number = 6
 ) {
+  const span = tracer.startSpan("find-closest-sound-names");
+
   const soundNames = await getSoundNamesForServer(serverId);
 
-  if (!soundNames || soundNames.length === 0) return [];
+  span.setAttribute("sound-names.amount", soundNames.length);
+
+  if (!soundNames || soundNames.length === 0) {
+    span.end();
+    return [];
+  }
 
   const buckets: { [diff: number]: string[] } = {};
 
@@ -149,6 +181,8 @@ export async function getClosestSoundNames(
         closestNames.push(buckets[diff][i]);
       }
     });
+
+  span.end();
 
   return closestNames;
 }

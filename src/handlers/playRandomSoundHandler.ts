@@ -11,7 +11,7 @@ import {
 } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
-import { joinVoiceChannel } from "@discordjs/voice";
+import { Command } from "../command.js";
 
 type PlayRandomSoundCommandHandlerArgs = {
   serverId: string;
@@ -22,18 +22,21 @@ type PlayRandomSoundCommandHandlerArgs = {
 class PlayRandomSoundCommandHandler
   implements ICommandHandler<Discord.Message>
 {
-  activate(command: Discord.Message) {
-    const commandParts = getCommandParts(command.content);
+  activate({ content }: Discord.Message) {
+    const commandParts = getCommandParts(content);
 
     return commandParts.length > 0;
   }
-  parseCommand(
-    command: Discord.Message
-  ): PlayRandomSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(command.content);
 
-    const serverId = command.guild?.id;
-    const userId = command.author.id;
+  parseCommandPayload({
+    content,
+    guild,
+    author,
+  }: Discord.Message): PlayRandomSoundCommandHandlerArgs | null {
+    const commandParts = getCommandParts(content);
+
+    const serverId = guild?.id;
+    const userId = author.id;
 
     if (!serverId || !userId || commandParts.length === 0) return null;
 
@@ -47,10 +50,11 @@ class PlayRandomSoundCommandHandler
       tagName,
     };
   }
-  async handleCommand(command: Discord.Message) {
-    const params = this.parseCommand(command);
-    const textChannel = command.channel as Discord.TextChannel;
-    const voiceChannel = command.member?.voice?.channel;
+
+  async handleCommand({ payload, tracing }: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(payload);
+    const textChannel = payload.channel as Discord.TextChannel;
+    const voiceChannel = payload.member?.voice?.channel;
 
     if (!params) {
       sendMessage(
@@ -83,16 +87,13 @@ class PlayRandomSoundCommandHandler
     const index = Math.ceil(Math.random() * soundNames.length - 1);
     const soundName = soundNames[index];
 
-    const conn = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guildId,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    });
+    tracing.span?.setAttribute("sound-name", soundName);
+    tracing.span?.setAttribute("user.id", params.userId);
 
     const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
 
     try {
-      await playSound(soundFilePath, conn);
+      await playSound(soundFilePath, voiceChannel);
 
       if (soundPlayedEvent.aliases?.length > 0) {
         soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {
