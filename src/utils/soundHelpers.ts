@@ -87,7 +87,7 @@ export async function getClosestSoundNames(
   soundName: string,
   serverId: string,
   maxResults: number = 5,
-  threshold: number = 6
+  threshold: number = 5
 ) {
   const span = tracer.startSpan("find-closest-sound-names");
 
@@ -100,7 +100,13 @@ export async function getClosestSoundNames(
     return [];
   }
 
-  const buckets: { [diff: number]: string[] } = {};
+  const actualThreshold = Math.min(soundName.length, threshold);
+
+  const buckets: { [distance: number]: string[] } = {};
+
+  for (let i = 0; i <= actualThreshold; i++) {
+    buckets[i] = [];
+  }
 
   const soundNameCharCounts: { [char: string]: number } = {};
 
@@ -114,75 +120,78 @@ export async function getClosestSoundNames(
     soundNameCharCounts[char] += 1;
   }
 
-  const otherSoundNameCharCounts: { [char: string]: number } = {};
-  let previousCounts: { [char: string]: number } = {};
-
-  const computeSoundNameDistance = (otherName: string) => {
-    let diff = 0;
-
-    for (let i = 0; i < otherName.length; i++) {
-      const char = otherName[i];
-
-      if (!otherSoundNameCharCounts[char]) {
-        otherSoundNameCharCounts[char] = 0;
-      }
-
-      if (i < soundName.length && soundName[i] !== otherName[i]) {
-        diff += 1;
-      }
-
-      otherSoundNameCharCounts[char] += 1;
-    }
-
-    // All characters were in the same place as sound name to be compared with, so either this other name is a prefix of the sound name,
-    // or it begins with the entirety of the sound name and then contains additional characters afterwards.
-    const isPrefixOrContainsSoundName = diff === 0;
-    if (isPrefixOrContainsSoundName) {
-      return 0;
-    }
-
-    diff += Math.abs(soundName.length - otherName.length);
-
-    Object.keys(soundNameCharCounts).forEach((char) => {
-      const currentCharCount = otherSoundNameCharCounts[char] ?? 0;
-      const previousCharCount = previousCounts[char] ?? 0;
-
-      const count = currentCharCount - previousCharCount;
-
-      diff += Math.abs(soundNameCharCounts[char] - count);
-    });
-
-    previousCounts = { ...otherSoundNameCharCounts };
-
-    return diff;
-  };
-
   soundNames.forEach((otherName) => {
-    const diff = computeSoundNameDistance(otherName);
+    const distance = levenshteinDistance(soundName, otherName);
 
-    if (diff <= threshold) {
-      if (!buckets[diff]) {
-        buckets[diff] = [];
-      }
-
-      buckets[diff].push(otherName);
+    if (distance <= actualThreshold) {
+      buckets[distance].push(otherName);
     }
   });
 
+  console.log(buckets);
+
   const closestNames: string[] = [];
 
-  Object.keys(buckets)
-    .map((key) => Number.parseInt(key, 10))
-    .sort((a, b) => a - b)
-    .forEach((diff) => {
-      for (let i = 0; i < buckets[diff].length; i++) {
-        if (closestNames.length >= maxResults) return;
+  let i = 0;
+  while (i <= actualThreshold && closestNames.length < maxResults) {
+    for (let j = 0; j < buckets[i].length; j++) {
+      closestNames.push(buckets[i][j]);
 
-        closestNames.push(buckets[diff][i]);
+      if (closestNames.length >= maxResults) {
+        break;
       }
-    });
+    }
+
+    i++;
+  }
 
   span.end();
 
   return closestNames;
+}
+
+function levenshteinDistance(a: string, b: string) {
+  const n = a.length;
+  const m = b.length;
+
+  const matrix = createMatrix(n + 1, m + 1);
+
+  if (n === 0) return m;
+  if (m === 0) return n;
+
+  for (let i = 0; i <= n; i++) {
+    matrix[i][0] = i;
+  }
+
+  for (let i = 0; i <= m; i++) {
+    matrix[0][i] = i;
+  }
+
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      const deletionCost = matrix[i - 1][j] + 1;
+      const insertionCost = matrix[i][j - 1] + 1;
+      const substitutionCost =
+        matrix[i - 1][j - 1] + (b[j - 1] === a[i - 1] ? 0 : 1);
+
+      matrix[i][j] = Math.min(deletionCost, insertionCost, substitutionCost);
+    }
+  }
+
+  return matrix[n][m];
+}
+
+function createMatrix(nRows: number, nColumns: number): number[][] {
+  const matrix: number[][] = [];
+
+  for (let index = 0; index < nRows; index++) {
+    const row = new Array<number>(nColumns);
+
+    for (let index = 0; index < row.length; index++) {
+      row[index] = 0;
+    }
+    matrix.push(row);
+  }
+
+  return matrix;
 }
