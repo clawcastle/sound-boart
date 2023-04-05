@@ -100,7 +100,7 @@ export async function getClosestSoundNames(
     return [];
   }
 
-  const actualThreshold = Math.min(soundName.length, threshold);
+  const actualThreshold = Math.min(soundName.length - 1, threshold);
 
   const buckets: { [distance: number]: string[] } = {};
 
@@ -121,14 +121,13 @@ export async function getClosestSoundNames(
   }
 
   soundNames.forEach((otherName) => {
-    const distance = levenshteinDistance(soundName, otherName);
+    const calculateDistance = levenshteinDistanceMemoized();
+    const distance = calculateDistance(soundName, otherName);
 
     if (distance <= actualThreshold) {
       buckets[distance].push(otherName);
     }
   });
-
-  console.log(buckets);
 
   const closestNames: string[] = [];
 
@@ -150,11 +149,28 @@ export async function getClosestSoundNames(
   return closestNames;
 }
 
-function levenshteinDistance(a: string, b: string) {
+function levenshteinDistanceMemoized() {
+  let matrix: number[][] = [];
+
+  return (a: string, b: string) => {
+    const n = a.length;
+    const m = b.length;
+    if (matrix.length <= n || matrix[0].length <= m) {
+      matrix = createMatrix(n + 1, m + 1);
+    }
+    return levenshteinDistance(a, b, matrix);
+  };
+}
+
+function levenshteinDistance(
+  a: string,
+  b: string,
+  distance_matrix?: number[][]
+) {
   const n = a.length;
   const m = b.length;
 
-  const matrix = createMatrix(n + 1, m + 1);
+  const matrix = distance_matrix ?? createMatrix(n + 1, m + 1);
 
   if (n === 0) return m;
   if (m === 0) return n;
