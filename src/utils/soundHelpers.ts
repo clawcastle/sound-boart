@@ -120,8 +120,9 @@ export async function getClosestSoundNames(
     soundNameCharCounts[char] += 1;
   }
 
+  const calculateDistance = levenshteinDistanceMemoized();
+
   soundNames.forEach((otherName) => {
-    const calculateDistance = levenshteinDistanceMemoized();
     const distance = calculateDistance(soundName, otherName);
 
     if (distance <= actualThreshold) {
