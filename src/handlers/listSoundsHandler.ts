@@ -57,6 +57,10 @@ class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
   }
 
   private chunkMessage(soundNames: string[]) {
+    if (soundNames.length === 0) {
+      return [];
+    }
+
     const allSounds = soundNames.reduce(
       (a, b) => a + `, ${b.replace(".mp3", "")}`
     );
