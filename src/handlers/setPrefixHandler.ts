@@ -48,6 +48,20 @@ class SetPrefixCommandHandler implements ICommandHandler<Discord.Message> {
         "Something went wrong while trying to set a custom prefix.",
         textChannel
       );
+      return;
     }
+
+    const settings = await getSettings(params.serverId);
+
+    const updatedSettings = {
+      ...settings,
+      prefix: params.prefix,
+    };
+
+    await updateSettings(params.serverId, updatedSettings);
+
+    sendMessage(`The prefix has been set to '${params.prefix}'.`, textChannel);
   }
 }
+
+export default SetPrefixCommandHandler;

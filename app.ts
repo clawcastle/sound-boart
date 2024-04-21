@@ -35,6 +35,7 @@ import {
   searchEvent,
   soundPlayedEvent,
   listTopSoundsEvent,
+  setPrefixEvent,
 } from "./src/soundBoartEvents.js";
 import { getCommandParts } from "./src/utils/messageHelpers.js";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler.js";
@@ -47,6 +48,7 @@ import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHan
 import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
 import { soundboartConfig } from "./src/config.js";
 import { tracingSdk } from "./src/tracing/tracing.js";
+import SetPrefixCommandHandler from "./src/handlers/setPrefixHandler.js";
 
 tracingSdk().start();
 
@@ -152,6 +154,9 @@ soundBoartEventEmitter.registerHandler(
   listTopSoundsEvent,
   listTopSoundsHandler
 );
+
+const setPrefixHandler = new SetPrefixCommandHandler();
+soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 
 discordClient.on(Events.MessageCreate, (message) => {
   if (!message.content.startsWith(soundboartConfig.defaultPrefix)) return;
