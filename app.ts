@@ -1,4 +1,3 @@
-import { tracingSdk } from "./src/tracing/tracing.js";
 import {
   Client as DiscordClient,
   Events,
@@ -47,8 +46,9 @@ import SearchCommandHandler from "./src/handlers/searchHandler.js";
 import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler.js";
 import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
 import { soundboartConfig } from "./src/config.js";
+import { tracingSdk } from "./src/tracing/tracing.js";
 
-tracingSdk.start();
+tracingSdk().start();
 
 const eventAliasesSet = new Set<string>();
 

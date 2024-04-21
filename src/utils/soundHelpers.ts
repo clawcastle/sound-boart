@@ -3,7 +3,6 @@ const fsAsync = fs.promises;
 import { soundboartConfig } from "../config.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
 import {
-  VoiceConnection,
   createAudioPlayer,
   createAudioResource,
   AudioPlayerStatus,
