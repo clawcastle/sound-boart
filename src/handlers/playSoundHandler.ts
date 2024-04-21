@@ -1,6 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
@@ -74,7 +74,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     for (const soundName of params.soundNames) {
-      const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
+      const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${soundName}.mp3`;
 
       if (!fs.existsSync(soundFilePath)) {
         const closestSoundNames = await getClosestSoundNames(

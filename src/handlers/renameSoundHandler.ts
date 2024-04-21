@@ -1,6 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
@@ -48,8 +48,8 @@ class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    const currentSoundFilePath = `${soundsDirPath}/${params.serverId}/${params.currentSoundName}.mp3`;
-    const newSoundFilePath = `${soundsDirPath}/${params.serverId}/${params.newSoundName}.mp3`;
+    const currentSoundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.currentSoundName}.mp3`;
+    const newSoundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.newSoundName}.mp3`;
 
     await fsAsync.rename(currentSoundFilePath, newSoundFilePath);
 

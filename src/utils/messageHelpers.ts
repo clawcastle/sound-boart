@@ -1,7 +1,10 @@
-import { prefix, commandPartsCacheSize } from "../config.js";
+import { soundboartConfig } from "../config.js";
 
 export function splitCommandContent(commandContent: string) {
-  return commandContent.replace(prefix, "").trimStart().split(" ");
+  return commandContent
+    .replace(soundboartConfig.defaultPrefix, "")
+    .trimStart()
+    .split(" ");
 }
 
 function getCommandPartsMemoized() {
@@ -10,7 +13,7 @@ function getCommandPartsMemoized() {
   return (commandContent: string) => {
     if (!cache[commandContent]) {
       //Clear cache when we reach a certain limit to not end up keeping too many arrays in memory
-      if (Object.keys(cache).length >= commandPartsCacheSize) {
+      if (Object.keys(cache).length >= 200) {
         cache = {};
       }
       cache[commandContent] = splitCommandContent(commandContent);

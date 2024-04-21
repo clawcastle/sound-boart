@@ -4,14 +4,14 @@ import {
   insertSettings as insertSettingsInCache,
 } from "./serverSettingsCache.js";
 import fs from "fs";
-import { serverSettingsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 const fsAsync = fs.promises;
 
 export async function getSettings(serverId: string): Promise<ServerSettings> {
   const cacheValue = getSettingsFromCache(serverId);
   if (cacheValue) return cacheValue;
 
-  const filePath = `${serverSettingsDirPath}/${serverId}/settings.json`;
+  const filePath = `${soundboartConfig.serverSettingsDirectory}/${serverId}/settings.json`;
 
   if (!fs.existsSync(filePath)) return defaultSettings;
   const fileContent = await fsAsync.readFile(filePath, "utf-8");
@@ -30,7 +30,7 @@ export async function updateSettings(
   serverId: string,
   updatedSettings: ServerSettings
 ) {
-  const filePath = `${serverSettingsDirPath}/${serverId}`;
+  const filePath = `${soundboartConfig.serverSettingsDirectory}/${serverId}`;
 
   if (!fs.existsSync(filePath)) {
     await fsAsync.mkdir(filePath, {

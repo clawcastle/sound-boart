@@ -3,7 +3,7 @@ import {
   defaultUsageMetrics,
   SoundPlayedByUser,
 } from "./usageMetrics.js";
-import { usageMetricsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 const fsAsync = fs.promises;
 
@@ -12,7 +12,7 @@ export async function updateSoundPlayedMetrics(
   userId: string,
   soundName: string
 ) {
-  const directoryPath = `${usageMetricsDirPath}/${serverId}`;
+  const directoryPath = `${soundboartConfig.usageMetricsDirectory}/${serverId}`;
   const filePath = `${directoryPath}/metrics.json`;
 
   if (!fs.existsSync(directoryPath)) {
@@ -38,7 +38,7 @@ export async function updateSoundPlayedMetrics(
 }
 
 export async function getUsageMetricsForServer(serverId: string) {
-  const filePath = `${usageMetricsDirPath}/${serverId}/metrics.json`;
+  const filePath = `${soundboartConfig.usageMetricsDirectory}/${serverId}/metrics.json`;
 
   if (!fs.existsSync(filePath)) return defaultUsageMetrics;
   const fileContent = await fsAsync.readFile(filePath, "utf-8");

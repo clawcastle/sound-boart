@@ -1,7 +1,30 @@
-export const soundsDirPath = "/app/data/sounds";
-export const serverSettingsDirPath = "/app/data/serverSettings";
-export const usageMetricsDirPath = "/app/data/usageMetrics";
-export const prefix = "$";
-export const leaveTimeoutInMilliseconds = 600_000;
-export const commandPartsCacheSize = 200;
-export const maxFileSizeInBytes = 5_242_880; //5 MiB
+import fs from "fs";
+
+export interface SoundboartConfig {
+  botToken: string;
+  soundsDirectory: string;
+  serverSettingsDirectory: string;
+  usageMetricsDirectory: string;
+  defaultPrefix: string;
+  leaveTimeoutMilliseconds: number;
+  maxFileSizeInBytes: number;
+}
+
+const readSoundboartConfig: () => SoundboartConfig = () => {
+  const configFileContent = fs.readFileSync(
+    "./soundboart-config.json",
+    "utf-8"
+  );
+
+  const configJson = JSON.parse(configFileContent) as SoundboartConfig;
+
+  if (!configJson) {
+    throw new Error(
+      `Failed to parse soundboart config from json: '${configFileContent}'.`
+    );
+  }
+
+  return configJson;
+};
+
+export const soundboartConfig = readSoundboartConfig();

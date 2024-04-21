@@ -1,6 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
@@ -39,7 +39,7 @@ class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
     const params = this.parseCommandPayload(payload);
     if (!params) return;
 
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${params.soundName}.mp3`;
+    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.soundName}.mp3`;
 
     if (!fs.existsSync(soundFilePath)) {
       sendMessage(

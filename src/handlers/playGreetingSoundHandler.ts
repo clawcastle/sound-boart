@@ -1,7 +1,7 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { playSound } from "../utils/soundHelpers.js";
@@ -51,7 +51,7 @@ class PlayGreetingSoundCommandHandler
     if (!serverSettings || !serverSettings.greetings[params.userId]) return;
 
     const userGreetingSoundName = serverSettings.greetings[params.userId];
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${userGreetingSoundName}.mp3`;
+    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${userGreetingSoundName}.mp3`;
 
     if (!fs.existsSync(soundFilePath)) return;
 

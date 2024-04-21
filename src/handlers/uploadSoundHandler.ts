@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import fs from "fs";
-import { soundsDirPath, prefix, maxFileSizeInBytes } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
@@ -79,7 +79,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    if (params.size > maxFileSizeInBytes) {
+    if (params.size > soundboartConfig.maxFileSizeInBytes) {
       sendMessage("Max file size is 5 MB", textChannel);
       return;
     }
@@ -98,8 +98,10 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     discordCdnFilePath: string,
     textChannel: Discord.TextChannel
   ) {
-    if (!fs.existsSync(`${soundsDirPath}/${serverId}`)) {
-      await fsAsync.mkdir(`${soundsDirPath}/${serverId}`, { recursive: true });
+    if (!fs.existsSync(`${soundboartConfig.soundsDirectory}/${serverId}`)) {
+      await fsAsync.mkdir(`${soundboartConfig.soundsDirectory}/${serverId}`, {
+        recursive: true,
+      });
     }
 
     await this.downloadSoundFromDiscordAttachment(
@@ -117,7 +119,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     textChannel: Discord.TextChannel
   ) {
     const writeStream = fs.createWriteStream(
-      `${soundsDirPath}/${serverId}/${soundName}.mp3`
+      `${soundboartConfig.soundsDirectory}/${serverId}/${soundName}.mp3`
     );
 
     const response = await fetch(discordCdnFilePath);
@@ -134,7 +136,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       .on("finish", () => {
         writeStream.close();
         sendMessage(
-          `Sound uploaded succesfully. Type ${prefix}${soundName} to play it.`,
+          `Sound uploaded succesfully. Type ${soundboartConfig.defaultPrefix}${soundName} to play it.`,
           textChannel
         );
       })

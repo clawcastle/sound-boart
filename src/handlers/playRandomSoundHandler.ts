@@ -1,6 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getCommandParts } from "../utils/messageHelpers.js";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
@@ -90,7 +90,7 @@ class PlayRandomSoundCommandHandler
     tracing.span?.setAttribute("sound-name", soundName);
     tracing.span?.setAttribute("user.id", params.userId);
 
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
+    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${soundName}.mp3`;
 
     try {
       await playSound(soundFilePath, voiceChannel);

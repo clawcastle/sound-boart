@@ -1,6 +1,6 @@
 import fs from "fs";
 const fsAsync = fs.promises;
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
 import {
   VoiceConnection,
@@ -59,7 +59,7 @@ export function playSound(
 }
 
 export async function getSoundNamesForServer(serverId: string) {
-  const soundsDirectory = `${soundsDirPath}/${serverId}`;
+  const soundsDirectory = `${soundboartConfig.soundsDirectory}/${serverId}`;
   if (!fs.existsSync(soundsDirectory)) {
     return [];
   }

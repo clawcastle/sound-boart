@@ -5,7 +5,6 @@ import {
   GatewayIntentBits,
   Partials,
 } from "discord.js";
-import { prefix } from "./src/config.js";
 import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter.js";
 import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler.js";
 import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler.js";
@@ -47,7 +46,7 @@ import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler
 import SearchCommandHandler from "./src/handlers/searchHandler.js";
 import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler.js";
 import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
-import opentelemetry from "@opentelemetry/api";
+import { soundboartConfig } from "./src/config.js";
 
 tracingSdk.start();
 
@@ -155,7 +154,7 @@ soundBoartEventEmitter.registerHandler(
 );
 
 discordClient.on(Events.MessageCreate, (message) => {
-  if (!message.content.startsWith(prefix)) return;
+  if (!message.content.startsWith(soundboartConfig.defaultPrefix)) return;
 
   const messageParts = getCommandParts(message.content);
   if (messageParts.length === 0) return;
