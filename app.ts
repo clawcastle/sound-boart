@@ -51,6 +51,7 @@ import { soundboartConfig } from "./src/config.js";
 import { tracingSdk } from "./src/tracing/tracing.js";
 import SetPrefixCommandHandler from "./src/handlers/setPrefixHandler.js";
 import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
+import { Command, CommandContext } from "./src/command.js";
 
 tracingSdk().start();
 
@@ -160,6 +161,8 @@ soundBoartEventEmitter.registerHandler(
 const setPrefixHandler = new SetPrefixCommandHandler();
 soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 
+
+
 const getPrefix = async (message: Message) => {
   if (!message.guild?.id) {
     return soundboartConfig.defaultPrefix;
@@ -173,22 +176,39 @@ const getPrefix = async (message: Message) => {
 discordClient.on(Events.MessageCreate, async (message) => {
   const prefix = await getPrefix(message);
 
-  if (!message.content.startsWith(prefix)) return;
+  if (!message.content.startsWith(prefix) || !message.guild?.id) return;
 
   const messageParts = getCommandParts(prefix, message.content);
+
   if (messageParts.length === 0) return;
 
-  //There is no alias for play, so we just try and invoke it if no other aliases match
-  if (!eventAliasesSet.has(messageParts[0])) {
-    soundBoartEventEmitter.emit("play", message);
-    return;
-  }
+  const commandContext: CommandContext = { prefix, messageParts, serverId: message.guild.id };
 
-  soundBoartEventEmitter.emit(messageParts[0], message);
+  const eventAlias = messageParts[0];
+  const command = new Command(message, commandContext);
+
+  if (eventAliasesSet.has(eventAlias)) {
+    soundBoartEventEmitter.emit(eventAlias, command);
+  } else {
+    //There is no alias for play, so we just try and invoke it if no other aliases match
+    soundBoartEventEmitter.emit("play", command);
+  }
 });
 
-discordClient.on(Events.VoiceStateUpdate, (oldVoiceState, newVoiceState) => {
-  soundBoartEventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
+discordClient.on(Events.VoiceStateUpdate, async (oldVoiceState, newVoiceState) => {
+  const serverId = newVoiceState.guild.id;
+
+  const settings = await getSettings(serverId);
+
+  const commandContext: CommandContext = {
+    prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
+    messageParts: [],
+    serverId
+  }
+
+  const command = new Command({ oldVoiceState, newVoiceState }, commandContext);
+
+  soundBoartEventEmitter.emit("play-greet", command);
 });
 
 await discordClient.login(botToken);
