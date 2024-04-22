@@ -2,6 +2,7 @@ import {
   Client as DiscordClient,
   Events,
   GatewayIntentBits,
+  Message,
   Partials,
 } from "discord.js";
 import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter.js";
@@ -49,6 +50,7 @@ import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js"
 import { soundboartConfig } from "./src/config.js";
 import { tracingSdk } from "./src/tracing/tracing.js";
 import SetPrefixCommandHandler from "./src/handlers/setPrefixHandler.js";
+import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
 
 tracingSdk().start();
 
@@ -158,10 +160,22 @@ soundBoartEventEmitter.registerHandler(
 const setPrefixHandler = new SetPrefixCommandHandler();
 soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 
-discordClient.on(Events.MessageCreate, (message) => {
-  if (!message.content.startsWith(soundboartConfig.defaultPrefix)) return;
+const getPrefix = async (message: Message) => {
+  if (!message.guild?.id) {
+    return soundboartConfig.defaultPrefix;
+  }
 
-  const messageParts = getCommandParts(message.content);
+  const serverSettings = await getSettings(message.guild.id);
+
+  return serverSettings?.prefix ?? soundboartConfig.defaultPrefix;
+};
+
+discordClient.on(Events.MessageCreate, async (message) => {
+  const prefix = await getPrefix(message);
+
+  if (!message.content.startsWith(prefix)) return;
+
+  const messageParts = getCommandParts(prefix, message.content);
   if (messageParts.length === 0) return;
 
   //There is no alias for play, so we just try and invoke it if no other aliases match
