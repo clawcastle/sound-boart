@@ -3,7 +3,7 @@ import { Span } from "@opentelemetry/api";
 export interface CommandContext {
   prefix: string;
   serverId: string;
-  messageParts: string[];
+  commandParts: string[];
 }
 
 export class Command<T> {

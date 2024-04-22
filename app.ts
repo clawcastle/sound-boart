@@ -202,7 +202,7 @@ discordClient.on(Events.VoiceStateUpdate, async (oldVoiceState, newVoiceState) =
 
   const commandContext: CommandContext = {
     prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
-    messageParts: [],
+    commandParts: [],
     serverId
   }
 

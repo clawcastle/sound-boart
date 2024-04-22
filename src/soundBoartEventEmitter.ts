@@ -14,7 +14,7 @@ class SoundBoartEventEmitter {
   registerHandler<T>(event: SoundBoartEvent, handler: ICommandHandler<T>) {
     event.aliases.forEach((eventAlias) => {
       this._eventEmitter.on(eventAlias, async (command: Command<T>) => {
-        if (handler.activate(command.payload)) {
+        if (handler.activate(command)) {
           tracer.startActiveSpan(`command.${eventAlias}`, async (span) => {
             try {
               const commandWithTracing = command.withSpan(span);
