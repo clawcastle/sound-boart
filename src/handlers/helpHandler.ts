@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { helpInfo } from "../utils/helpResults.js";
 import { Command } from "../command.js";
 
@@ -10,21 +9,18 @@ type HelpCommandHandlerArgs = {
 };
 
 class HelpCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(_: Discord.Message) {
+  activate(_: Command<Discord.Message>) {
     return true;
   }
-  parseCommandPayload({
-    content,
-  }: Discord.Message): HelpCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
-    if (commandParts.length === 0) return null;
+  parseCommandPayload(command: Command<Discord.Message>): HelpCommandHandlerArgs | null {
+    if (command.context.commandParts.length === 0) return null;
 
-    return commandParts.length > 1 ? { specifiedCommand: commandParts[1] } : {};
+    return command.context.commandParts.length > 1 ? { specifiedCommand: command.context.commandParts[1] } : {};
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) return;
 

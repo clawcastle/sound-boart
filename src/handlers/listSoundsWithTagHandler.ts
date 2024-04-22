@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { getSoundNamesWithTagForServer } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";
 
@@ -13,20 +12,14 @@ type ListSoundsWithTagCommandHandlerArgs = {
 class ListSoundsWithTagCommandHandler
   implements ICommandHandler<Discord.Message>
 {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 1;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload({
-    content,
-    guild,
-  }: Discord.Message): ListSoundsWithTagCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
-    const tagName = commandParts[1];
+  parseCommandPayload(command: Command<Discord.Message>): ListSoundsWithTagCommandHandlerArgs | null {
+    const tagName = command.context.commandParts[1];
 
-    const serverId = guild?.id;
+    const serverId = command.context.serverId;
 
     if (!serverId || !tagName) return null;
 
@@ -36,9 +29,9 @@ class ListSoundsWithTagCommandHandler
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(
