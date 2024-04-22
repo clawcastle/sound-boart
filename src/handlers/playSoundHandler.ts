@@ -18,22 +18,16 @@ type PlaySoundCommandHandlerArgs = {
 };
 
 class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(_: Discord.Message) {
+  activate(_: Command<Discord.Message>) {
     return true;
   }
 
-  parseCommandPayload({
-    author,
-    content,
-    guild,
-  }: Discord.Message): PlaySoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
-
+  parseCommandPayload(command: Command<Discord.Message>): PlaySoundCommandHandlerArgs | null {
+    const {serverId, commandParts} = command.context;
     if (commandParts.length === 0) return null;
 
-    const soundNames = commandParts;
-
-    const serverId = guild?.id;
+    const soundNames = command.context.commandParts;
+    const {author} = command.payload;
 
     const userId = author.id;
 
@@ -46,9 +40,9 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload, tracing }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) return;
 
@@ -60,10 +54,10 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    tracing.span?.setAttribute("sound-names", params.soundNames);
-    tracing.span?.setAttribute("user.id", params.userId);
+    command.span?.setAttribute("sound-names", params.soundNames);
+    command.span?.setAttribute("user.id", params.userId);
 
-    const voiceChannel = payload.member?.voice?.channel;
+    const voiceChannel = command.payload.member?.voice?.channel;
 
     if (!voiceChannel) {
       sendMessage(

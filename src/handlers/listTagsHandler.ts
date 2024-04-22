@@ -10,23 +10,17 @@ type ListTagsCommandHandlerArgs = {
 };
 
 class ListTagsCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length >= 1;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length >= 1;
   }
-  parseCommandPayload({
-    guild,
-  }: Discord.Message): ListTagsCommandHandlerArgs | null {
-    const serverId = guild?.id;
 
-    if (!serverId) return null;
-
-    return { serverId };
+  parseCommandPayload(command: Command<Discord.Message>): ListTagsCommandHandlerArgs | null {
+    return { serverId: command.context.serverId };
   }
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

@@ -21,14 +21,16 @@ type PlayGreetingSoundCommandHandlerArgs = {
 class PlayGreetingSoundCommandHandler
   implements ICommandHandler<VoiceStateUpdate>
 {
-  activate({ oldVoiceState, newVoiceState }: VoiceStateUpdate) {
+  activate(command: Command<VoiceStateUpdate>) {
+    const { oldVoiceState, newVoiceState } = command.payload;
+
     return !oldVoiceState.channel && !!newVoiceState.channel;
   }
 
-  parseCommandPayload({
-    newVoiceState,
-  }: VoiceStateUpdate): PlayGreetingSoundCommandHandlerArgs | null {
-    const serverId = newVoiceState.guild.id;
+  parseCommandPayload(command: Command<VoiceStateUpdate>): PlayGreetingSoundCommandHandlerArgs | null {
+    const { newVoiceState } = command.payload;
+
+    const serverId = command.context.serverId;
     const userId = newVoiceState.member?.id;
     const voiceChannel = newVoiceState.channel;
 
@@ -41,8 +43,8 @@ class PlayGreetingSoundCommandHandler
     };
   }
 
-  async handleCommand({ payload }: Command<VoiceStateUpdate>) {
-    const params = this.parseCommandPayload(payload);
+  async handleCommand(command: Command<VoiceStateUpdate>) {
+    const params = this.parseCommandPayload(command);
 
     if (!params) return;
 
