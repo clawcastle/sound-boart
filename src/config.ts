@@ -1,30 +1,62 @@
-import fs from "fs";
-
 export interface SoundboartConfig {
   botToken: string;
   soundsDirectory: string;
   serverSettingsDirectory: string;
   usageMetricsDirectory: string;
   defaultPrefix: string;
-  leaveTimeoutMilliseconds: number;
+  leaveTimeoutSeconds: number;
   maxFileSizeInBytes: number;
 }
 
-const readSoundboartConfig: () => SoundboartConfig = () => {
-  const configFileContent = fs.readFileSync(
-    "./soundboart-config.json",
-    "utf-8"
-  );
+const readOptionalEnvironmentVariable = (variableName: string): string | undefined => {
+  const value = process.env[variableName];
 
-  const configJson = JSON.parse(configFileContent) as SoundboartConfig;
+  return value;
+}
 
-  if (!configJson) {
-    throw new Error(
-      `Failed to parse soundboart config from json: '${configFileContent}'.`
-    );
+const readOptionalEnvironmentVariableAs = <T>(variableName: string): T | undefined => {
+  const value = readOptionalEnvironmentVariable(variableName) as T;
+
+  return value;
+}
+
+const readEnvironmentVariable = (variableName: string): string => {
+  const value = process.env[variableName];
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: '${variableName}'.`);
   }
 
-  return configJson;
-};
+  return value;
+}
 
-export const soundboartConfig = readSoundboartConfig();
+const readEnvironmentVariableAs = <T>(variableName: string): T => {
+  const value = readEnvironmentVariable(variableName) as T;
+
+  if (!value) {
+    throw new Error(`Failed to convert environment variable '${variableName}' to desired type.`)
+  }
+
+  return value;
+}
+
+const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
+  const botToken = readEnvironmentVariable("BOT_TOKEN");
+  const dataDirectory = readEnvironmentVariable("DATA_DIRECTORY");
+  const defaultPrefix = readEnvironmentVariable("DEFAULT_PREFIX");
+
+  const leaveTimeoutSeconds = readOptionalEnvironmentVariableAs<number>("LEAVE_TIMEOUT_SECONDS") ?? 300;
+  const maxFileSizeInBytes = readOptionalEnvironmentVariableAs<number>("MAX_FILE_SIZE_IN_BYTES") ?? 5000000;
+
+  return {
+    botToken,
+    defaultPrefix,
+    leaveTimeoutSeconds,
+    maxFileSizeInBytes,
+    soundsDirectory: `${dataDirectory}/sounds`,
+    serverSettingsDirectory: `${dataDirectory}/serverSettings`,
+    usageMetricsDirectory: `${dataDirectory}/usageMetrics`
+  }
+}
+
+export const soundboartConfig = readSoundboartConfigFromEnv();
