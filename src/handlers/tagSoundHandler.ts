@@ -35,9 +35,9 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage("Could not tag sound.", textChannel);
