@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import {
   getSettings,
   updateSettings,
@@ -17,17 +16,12 @@ type RemoveGreetingSoundCommandHandlerArgs = {
 class RemoveGreetingSoundCommandHandler
   implements ICommandHandler<Discord.Message>
 {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 0;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 0;
   }
-  parseCommandPayload({
-    guild,
-    member,
-  }: Discord.Message): RemoveGreetingSoundCommandHandlerArgs | null {
-    const serverId = guild?.id;
-    const userId = member?.id;
+  parseCommandPayload(command: Command<Discord.Message>): RemoveGreetingSoundCommandHandlerArgs | null {
+    const serverId = command.context.serverId;
+    const userId = command.payload.member?.id;
 
     if (!serverId || !userId) return null;
 
@@ -36,9 +30,9 @@ class RemoveGreetingSoundCommandHandler
       userId,
     };
   }
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

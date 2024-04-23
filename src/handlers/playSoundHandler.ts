@@ -99,12 +99,14 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       try {
         await playSound(soundFilePath, voiceChannel);
 
-        if (soundPlayedEvent.aliases?.length > 0) {
-          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {
+        if (soundPlayedEvent.aliases.length > 0) {
+          const soundPlayedCommand = new Command({
             soundName,
             serverId: params.serverId,
             userId: params.userId,
-          });
+          }, command.context);
+
+          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], soundPlayedCommand);
         }
       } catch (err) {
         sendMessage(

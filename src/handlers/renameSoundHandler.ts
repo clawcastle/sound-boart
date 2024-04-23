@@ -3,7 +3,6 @@ import Discord from "discord.js";
 import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { Command } from "../command.js";
 
 const fsAsync = fs.promises;
@@ -15,19 +14,14 @@ type RenameSoundCommandHandlerArgs = {
 };
 
 class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 2;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 2;
   }
 
-  parseCommandPayload({
-    content,
-    guild,
-  }: Discord.Message): RenameSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
+  parseCommandPayload(command: Command<Discord.Message>): RenameSoundCommandHandlerArgs | null {
+    const commandParts = command.context.commandParts;
 
-    const serverId = guild?.id;
+    const serverId = command.payload.guild?.id;
 
     if (!serverId) return null;
 
@@ -37,13 +31,13 @@ class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
     return { serverId, currentSoundName, newSoundName };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
 
     if (!params || params.currentSoundName === params.newSoundName) {
       sendMessage(
         "Could not rename sound.",
-        payload.channel as Discord.TextChannel
+        command.payload.channel as Discord.TextChannel
       );
       return;
     }
@@ -55,7 +49,7 @@ class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     sendMessage(
       "Sound renamed successfully.",
-      payload.channel as Discord.TextChannel
+      command.payload.channel as Discord.TextChannel
     );
   }
 }

@@ -3,7 +3,6 @@ import Discord from "discord.js";
 import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import {
   getSettings,
   updateSettings,
@@ -17,19 +16,12 @@ type TagSoundCommandHandlerArgs = {
 };
 
 class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 2;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 2;
   }
 
-  parseCommandPayload({
-    content,
-    guild,
-  }: Discord.Message): TagSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
-
-    const serverId = guild?.id;
+  parseCommandPayload(command: Command<Discord.Message>): TagSoundCommandHandlerArgs | null {
+    const {serverId, commandParts} = command.context;
 
     if (!serverId || commandParts.length < 3) return null;
 
