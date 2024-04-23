@@ -83,7 +83,8 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       params.soundName,
       params.serverId,
       params.discordCdnFilePath,
-      textChannel
+      textChannel,
+      command.context.prefix
     );
   }
 
@@ -91,7 +92,8 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     soundName: string,
     serverId: string,
     discordCdnFilePath: string,
-    textChannel: Discord.TextChannel
+    textChannel: Discord.TextChannel,
+    prefix: string
   ) {
     if (!fs.existsSync(`${soundboartConfig.soundsDirectory}/${serverId}`)) {
       await fsAsync.mkdir(`${soundboartConfig.soundsDirectory}/${serverId}`, {
@@ -103,7 +105,8 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       discordCdnFilePath,
       serverId,
       soundName,
-      textChannel
+      textChannel,
+      prefix
     );
   }
 
@@ -111,7 +114,8 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     discordCdnFilePath: string,
     serverId: string,
     soundName: string,
-    textChannel: Discord.TextChannel
+    textChannel: Discord.TextChannel,
+    prefix: string
   ) {
     const writeStream = fs.createWriteStream(
       `${soundboartConfig.soundsDirectory}/${serverId}/${soundName}.mp3`
@@ -131,7 +135,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       .on("finish", () => {
         writeStream.close();
         sendMessage(
-          `Sound uploaded succesfully. Type ${soundboartConfig.defaultPrefix}${soundName} to play it.`,
+          `Sound uploaded succesfully. Type ${prefix}${soundName} to play it.`,
           textChannel
         );
       })

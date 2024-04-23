@@ -178,13 +178,13 @@ discordClient.on(Events.MessageCreate, async (message) => {
 
   if (!message.content.startsWith(prefix) || !message.guild?.id) return;
 
-  const messageParts = getCommandParts(prefix, message.content);
+  const commandParts = getCommandParts(prefix, message.content);
 
-  if (messageParts.length === 0) return;
+  if (commandParts.length === 0) return;
 
-  const commandContext: CommandContext = { prefix, messageParts, serverId: message.guild.id };
+  const commandContext: CommandContext = { prefix, commandParts, serverId: message.guild.id };
 
-  const eventAlias = messageParts[0];
+  const eventAlias = commandParts[0];
   const command = new Command(message, commandContext);
 
   if (eventAliasesSet.has(eventAlias)) {

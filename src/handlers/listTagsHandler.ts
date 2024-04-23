@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
 import { Command } from "../command.js";
 

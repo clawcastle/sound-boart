@@ -3,7 +3,6 @@ import Discord from "discord.js";
 import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
