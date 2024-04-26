@@ -11,18 +11,16 @@ type RecordSoundPlayedCommandHandlerArgs = {
 class RecordSoundPlayedCommandHandler
   implements ICommandHandler<RecordSoundPlayedCommandHandlerArgs>
 {
-  activate(_: RecordSoundPlayedCommandHandlerArgs) {
+  activate(_: Command<RecordSoundPlayedCommandHandlerArgs>) {
     return true;
   }
 
-  parseCommandPayload(payload: RecordSoundPlayedCommandHandlerArgs) {
-    return payload;
+  parseCommandPayload(command: Command<RecordSoundPlayedCommandHandlerArgs>) {
+    return command.payload;
   }
 
-  async handleCommand({
-    payload,
-  }: Command<RecordSoundPlayedCommandHandlerArgs>) {
-    const { serverId, userId, soundName } = this.parseCommandPayload(payload);
+  async handleCommand(command: Command<RecordSoundPlayedCommandHandlerArgs>) {
+    const { serverId, userId, soundName } = this.parseCommandPayload(command);
 
     await updateSoundPlayedMetrics(serverId, userId, soundName);
   }

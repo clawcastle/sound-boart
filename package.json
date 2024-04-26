@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./dist/app.js",
+    "start": "node ./dist/app.js",
+    "monitor": "nodemon ./dist/app.js",
     "build": "tsc"
   },
   "author": "",

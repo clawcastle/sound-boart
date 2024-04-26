@@ -1,14 +1,27 @@
 import { Span } from "@opentelemetry/api";
 
-export class Command<T> {
-  payload: T;
-  tracing: CommandTelemetry;
-  constructor(payload: T, span: Span) {
-    this.payload = payload;
-    this.tracing = { span };
-  }
+export interface CommandContext {
+  prefix: string;
+  serverId: string;
+  commandParts: string[];
 }
 
-export type CommandTelemetry = {
-  span: Span;
-};
+export class Command<T> {
+  payload: T;
+  context: CommandContext;
+  span?: Span;
+
+  constructor(
+    payload: T,
+    commandContext: CommandContext,
+    span: Span | undefined = undefined
+  ) {
+    this.payload = payload;
+    this.context = commandContext;
+    this.span = span;
+  }
+
+  withSpan(span: Span): Command<T> {
+    return new Command(this.payload, this.context, span);
+  }
+}

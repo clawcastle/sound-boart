@@ -1,6 +1,5 @@
 import ICommandHandler from "./commandHandler.js";
 import { getUsageMetricsForServer } from "../usageMetrics/usageMetricsManager.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { SoundPlayedByUser } from "../usageMetrics/usageMetrics.js";
@@ -14,19 +13,14 @@ type ListTopSoundsCommandHandlerArgs = {
 };
 
 class ListTopSoundsCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 0;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 0;
   }
 
-  parseCommandPayload({
-    content,
-    guild,
-  }: Discord.Message): ListTopSoundsCommandHandlerArgs | null {
-    const serverId = guild?.id;
-
-    const commandParts = getCommandParts(content);
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): ListTopSoundsCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
 
     let topNSounds = topNSoundsDefault;
 
@@ -42,9 +36,9 @@ class ListTopSoundsCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

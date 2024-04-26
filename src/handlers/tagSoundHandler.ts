@@ -1,9 +1,8 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import {
   getSettings,
   updateSettings,
@@ -17,19 +16,14 @@ type TagSoundCommandHandlerArgs = {
 };
 
 class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 2;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 2;
   }
 
-  parseCommandPayload({
-    content,
-    guild,
-  }: Discord.Message): TagSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
-
-    const serverId = guild?.id;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): TagSoundCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
 
     if (!serverId || commandParts.length < 3) return null;
 
@@ -43,9 +37,9 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage("Could not tag sound.", textChannel);
@@ -53,7 +47,7 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     const soundExists = fs.existsSync(
-      `${soundsDirPath}/${params.serverId}/${params.soundName}.mp3`
+      `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.soundName}.mp3`
     );
 
     if (!soundExists) {

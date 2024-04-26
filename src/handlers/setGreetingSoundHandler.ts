@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import {
   getSettings,
   updateSettings,
@@ -17,22 +16,17 @@ type SetGreetingSoundCommandHandlerArgs = {
 class SetGreetingSoundCommandHandler
   implements ICommandHandler<Discord.Message>
 {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 1;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload({
-    content,
-    guild,
-    member,
-  }: Discord.Message): SetGreetingSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): SetGreetingSoundCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
     const soundName = commandParts[1];
 
-    const serverId = guild?.id;
-    const userId = member?.id;
+    const userId = command.payload.member?.id;
 
     if (!soundName || !serverId || !userId) return null;
 
@@ -43,9 +37,9 @@ class SetGreetingSoundCommandHandler
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

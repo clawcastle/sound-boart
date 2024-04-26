@@ -1,9 +1,8 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { Command } from "../command.js";
 const fsAsync = fs.promises;
 
@@ -13,17 +12,15 @@ type DeleteSoundCommandHandlerArgs = {
 };
 
 class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 1;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 1;
   }
 
   parseCommandPayload(
-    payload: Discord.Message
+    command: Command<Discord.Message>
   ): DeleteSoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(payload.content);
-    const serverId = payload.guild?.id;
+    const serverId = command.payload.guild?.id;
+    const { commandParts } = command.context;
 
     if (commandParts.length < 1 || !serverId) return null;
 
@@ -35,16 +32,16 @@ class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
     if (!params) return;
 
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${params.soundName}.mp3`;
+    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.soundName}.mp3`;
 
     if (!fs.existsSync(soundFilePath)) {
       sendMessage(
         "Sound does not exist.",
-        payload.channel as Discord.TextChannel
+        command.payload.channel as Discord.TextChannel
       );
       return;
     }
@@ -53,7 +50,7 @@ class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     sendMessage(
       "Sound deleted successfully.",
-      payload.channel as Discord.TextChannel
+      command.payload.channel as Discord.TextChannel
     );
   }
 }

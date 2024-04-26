@@ -1,9 +1,8 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
@@ -18,22 +17,18 @@ type PlaySoundCommandHandlerArgs = {
 };
 
 class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
-  activate(_: Discord.Message) {
+  activate(_: Command<Discord.Message>) {
     return true;
   }
 
-  parseCommandPayload({
-    author,
-    content,
-    guild,
-  }: Discord.Message): PlaySoundCommandHandlerArgs | null {
-    const commandParts = getCommandParts(content);
-
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): PlaySoundCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
     if (commandParts.length === 0) return null;
 
-    const soundNames = commandParts;
-
-    const serverId = guild?.id;
+    const soundNames = command.context.commandParts;
+    const { author } = command.payload;
 
     const userId = author.id;
 
@@ -46,9 +41,9 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload, tracing }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) return;
 
@@ -60,10 +55,10 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    tracing.span?.setAttribute("sound-names", params.soundNames);
-    tracing.span?.setAttribute("user.id", params.userId);
+    command.span?.setAttribute("sound-names", params.soundNames);
+    command.span?.setAttribute("user.id", params.userId);
 
-    const voiceChannel = payload.member?.voice?.channel;
+    const voiceChannel = command.payload.member?.voice?.channel;
 
     if (!voiceChannel) {
       sendMessage(
@@ -74,7 +69,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     for (const soundName of params.soundNames) {
-      const soundFilePath = `${soundsDirPath}/${params.serverId}/${soundName}.mp3`;
+      const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${soundName}.mp3`;
 
       if (!fs.existsSync(soundFilePath)) {
         const closestSoundNames = await getClosestSoundNames(
@@ -105,12 +100,20 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       try {
         await playSound(soundFilePath, voiceChannel);
 
-        if (soundPlayedEvent.aliases?.length > 0) {
-          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], {
-            soundName,
-            serverId: params.serverId,
-            userId: params.userId,
-          });
+        if (soundPlayedEvent.aliases.length > 0) {
+          const soundPlayedCommand = new Command(
+            {
+              soundName,
+              serverId: params.serverId,
+              userId: params.userId,
+            },
+            command.context
+          );
+
+          soundBoartEventEmitter.emit(
+            soundPlayedEvent.aliases[0],
+            soundPlayedCommand
+          );
         }
       } catch (err) {
         sendMessage(

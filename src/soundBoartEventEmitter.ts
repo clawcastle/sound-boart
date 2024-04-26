@@ -4,16 +4,22 @@ import ICommandHandler from "./handlers/commandHandler.js";
 import { SoundBoartEvent } from "./soundBoartEvents.js";
 import { tracer } from "./tracing/tracer.js";
 
-class SoundBoartEventEmitter extends EventEmitter {
+class SoundBoartEventEmitter {
+  private _eventEmitter: EventEmitter;
+
+  constructor() {
+    this._eventEmitter = new EventEmitter();
+  }
+
   registerHandler<T>(event: SoundBoartEvent, handler: ICommandHandler<T>) {
     event.aliases.forEach((eventAlias) => {
-      this.on(eventAlias, async (message: T) => {
-        if (handler.activate(message)) {
+      this._eventEmitter.on(eventAlias, async (command: Command<T>) => {
+        if (handler.activate(command)) {
           tracer.startActiveSpan(`command.${eventAlias}`, async (span) => {
-            const command = new Command(message, span);
-
             try {
-              await handler.handleCommand(command);
+              const commandWithTracing = command.withSpan(span);
+
+              await handler.handleCommand(commandWithTracing);
             } catch (err) {
               //TODO: add proper logging
               console.log("An error occurred", err);
@@ -24,6 +30,10 @@ class SoundBoartEventEmitter extends EventEmitter {
         }
       });
     });
+  }
+
+  emit<T>(eventAlias: string, command: Command<T>) {
+    this._eventEmitter.emit(eventAlias, command);
   }
 }
 

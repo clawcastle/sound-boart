@@ -1,5 +1,4 @@
-import Discord from "discord.js";
-import { leaveTimeoutInMilliseconds } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import { getVoiceConnection } from "@discordjs/voice";
 
 const timerMap: { [channelId: string]: NodeJS.Timeout } = {};
@@ -15,8 +14,9 @@ export function resetVoiceChannelTimer(serverId: string) {
     if (voiceConnection) {
       voiceConnection.destroy();
     }
+
     delete timerMap[serverId];
-  }, leaveTimeoutInMilliseconds);
+  }, soundboartConfig.leaveTimeoutSeconds * 1000);
 
   timerMap[serverId] = timerHandle;
 }

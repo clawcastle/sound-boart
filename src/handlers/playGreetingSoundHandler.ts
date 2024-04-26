@@ -1,7 +1,7 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
-import { soundsDirPath } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { playSound } from "../utils/soundHelpers.js";
@@ -21,14 +21,18 @@ type PlayGreetingSoundCommandHandlerArgs = {
 class PlayGreetingSoundCommandHandler
   implements ICommandHandler<VoiceStateUpdate>
 {
-  activate({ oldVoiceState, newVoiceState }: VoiceStateUpdate) {
+  activate(command: Command<VoiceStateUpdate>) {
+    const { oldVoiceState, newVoiceState } = command.payload;
+
     return !oldVoiceState.channel && !!newVoiceState.channel;
   }
 
-  parseCommandPayload({
-    newVoiceState,
-  }: VoiceStateUpdate): PlayGreetingSoundCommandHandlerArgs | null {
-    const serverId = newVoiceState.guild.id;
+  parseCommandPayload(
+    command: Command<VoiceStateUpdate>
+  ): PlayGreetingSoundCommandHandlerArgs | null {
+    const { newVoiceState } = command.payload;
+
+    const serverId = command.context.serverId;
     const userId = newVoiceState.member?.id;
     const voiceChannel = newVoiceState.channel;
 
@@ -41,8 +45,8 @@ class PlayGreetingSoundCommandHandler
     };
   }
 
-  async handleCommand({ payload }: Command<VoiceStateUpdate>) {
-    const params = this.parseCommandPayload(payload);
+  async handleCommand(command: Command<VoiceStateUpdate>) {
+    const params = this.parseCommandPayload(command);
 
     if (!params) return;
 
@@ -51,7 +55,7 @@ class PlayGreetingSoundCommandHandler
     if (!serverSettings || !serverSettings.greetings[params.userId]) return;
 
     const userGreetingSoundName = serverSettings.greetings[params.userId];
-    const soundFilePath = `${soundsDirPath}/${params.serverId}/${userGreetingSoundName}.mp3`;
+    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${userGreetingSoundName}.mp3`;
 
     if (!fs.existsSync(soundFilePath)) return;
 

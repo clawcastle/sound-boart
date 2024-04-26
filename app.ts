@@ -1,11 +1,10 @@
-import { tracingSdk } from "./src/tracing/tracing.js";
 import {
   Client as DiscordClient,
   Events,
   GatewayIntentBits,
+  Message,
   Partials,
 } from "discord.js";
-import { prefix } from "./src/config.js";
 import { soundBoartEventEmitter } from "./src/soundBoartEventEmitter.js";
 import UploadSoundCommandHandler from "./src/handlers/uploadSoundHandler.js";
 import ListSoundsCommandHandler from "./src/handlers/listSoundsHandler.js";
@@ -37,6 +36,7 @@ import {
   searchEvent,
   soundPlayedEvent,
   listTopSoundsEvent,
+  setPrefixEvent,
 } from "./src/soundBoartEvents.js";
 import { getCommandParts } from "./src/utils/messageHelpers.js";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler.js";
@@ -47,9 +47,13 @@ import PlayRandomSoundCommandHandler from "./src/handlers/playRandomSoundHandler
 import SearchCommandHandler from "./src/handlers/searchHandler.js";
 import RecordSoundPlayedCommandHandler from "./src/handlers/recordSoundPlayedHandler.js";
 import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js";
-import opentelemetry from "@opentelemetry/api";
+import { soundboartConfig } from "./src/config.js";
+import { tracingSdk } from "./src/tracing/tracing.js";
+import SetPrefixCommandHandler from "./src/handlers/setPrefixHandler.js";
+import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
+import { Command, CommandContext } from "./src/command.js";
 
-tracingSdk.start();
+tracingSdk().start();
 
 const eventAliasesSet = new Set<string>();
 
@@ -154,23 +158,65 @@ soundBoartEventEmitter.registerHandler(
   listTopSoundsHandler
 );
 
-discordClient.on(Events.MessageCreate, (message) => {
-  if (!message.content.startsWith(prefix)) return;
+const setPrefixHandler = new SetPrefixCommandHandler();
+soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 
-  const messageParts = getCommandParts(message.content);
-  if (messageParts.length === 0) return;
-
-  //There is no alias for play, so we just try and invoke it if no other aliases match
-  if (!eventAliasesSet.has(messageParts[0])) {
-    soundBoartEventEmitter.emit("play", message);
-    return;
+const getPrefix = async (message: Message) => {
+  if (!message.guild?.id) {
+    return soundboartConfig.defaultPrefix;
   }
 
-  soundBoartEventEmitter.emit(messageParts[0], message);
+  const serverSettings = await getSettings(message.guild.id);
+
+  return serverSettings?.prefix ?? soundboartConfig.defaultPrefix;
+};
+
+discordClient.on(Events.MessageCreate, async (message) => {
+  const prefix = await getPrefix(message);
+
+  if (!message.content.startsWith(prefix) || !message.guild?.id) return;
+
+  const commandParts = getCommandParts(prefix, message.content);
+
+  if (commandParts.length === 0) return;
+
+  const commandContext: CommandContext = {
+    prefix,
+    commandParts,
+    serverId: message.guild.id,
+  };
+
+  const eventAlias = commandParts[0];
+  const command = new Command(message, commandContext);
+
+  if (eventAliasesSet.has(eventAlias)) {
+    soundBoartEventEmitter.emit(eventAlias, command);
+  } else {
+    //There is no alias for play, so we just try and invoke it if no other aliases match
+    soundBoartEventEmitter.emit("play", command);
+  }
 });
 
-discordClient.on(Events.VoiceStateUpdate, (oldVoiceState, newVoiceState) => {
-  soundBoartEventEmitter.emit("play-greet", { oldVoiceState, newVoiceState });
-});
+discordClient.on(
+  Events.VoiceStateUpdate,
+  async (oldVoiceState, newVoiceState) => {
+    const serverId = newVoiceState.guild.id;
+
+    const settings = await getSettings(serverId);
+
+    const commandContext: CommandContext = {
+      prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
+      commandParts: [],
+      serverId,
+    };
+
+    const command = new Command(
+      { oldVoiceState, newVoiceState },
+      commandContext
+    );
+
+    soundBoartEventEmitter.emit("play-greet", command);
+  }
+);
 
 await discordClient.login(botToken);

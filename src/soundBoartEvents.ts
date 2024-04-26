@@ -72,6 +72,10 @@ export const listTopSoundsEvent = {
   aliases: ["top"],
 };
 
+export const setPrefixEvent = {
+  aliases: ["set-prefix"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -91,4 +95,5 @@ export const events = [
   searchEvent,
   soundPlayedEvent,
   listTopSoundsEvent,
+  setPrefixEvent,
 ];

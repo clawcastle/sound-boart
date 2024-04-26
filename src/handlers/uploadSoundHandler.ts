@@ -1,11 +1,10 @@
 import Discord from "discord.js";
 import fs from "fs";
-import { soundsDirPath, prefix, maxFileSizeInBytes } from "../config.js";
+import { soundboartConfig } from "../config.js";
 import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { uploadEvent, events } from "../soundBoartEvents.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { Command } from "../command.js";
 const fsAsync = fs.promises;
 
@@ -27,26 +26,24 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     });
   }
 
-  activate({ content, attachments }: Discord.Message) {
-    const commandParts = getCommandParts(content);
+  activate(command: Command<Discord.Message>) {
+    const { commandParts } = command.context;
 
     return (
       commandParts.length > 1 &&
       uploadEvent.aliases.includes(commandParts[0]) &&
-      Boolean(attachments)
+      Boolean(command.payload.attachments)
     );
   }
 
-  parseCommandPayload({
-    attachments,
-    content,
-    guild,
-  }: Discord.Message): UploadSoundCommandHandlerParams | null {
-    const commandParts = getCommandParts(content);
-    const attachment = attachments.first();
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): UploadSoundCommandHandlerParams | null {
+    const { serverId, commandParts } = command.context;
+
+    const attachment = command.payload.attachments.first();
 
     const soundName = commandParts[1];
-    const serverId = guild?.id;
 
     if (!serverId || !attachment?.url || !attachment.url.includes(".mp3"))
       return null;
@@ -59,9 +56,9 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(
@@ -79,7 +76,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    if (params.size > maxFileSizeInBytes) {
+    if (params.size > soundboartConfig.maxFileSizeInBytes) {
       sendMessage("Max file size is 5 MB", textChannel);
       return;
     }
@@ -88,7 +85,8 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       params.soundName,
       params.serverId,
       params.discordCdnFilePath,
-      textChannel
+      textChannel,
+      command.context.prefix
     );
   }
 
@@ -96,17 +94,21 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     soundName: string,
     serverId: string,
     discordCdnFilePath: string,
-    textChannel: Discord.TextChannel
+    textChannel: Discord.TextChannel,
+    prefix: string
   ) {
-    if (!fs.existsSync(`${soundsDirPath}/${serverId}`)) {
-      await fsAsync.mkdir(`${soundsDirPath}/${serverId}`, { recursive: true });
+    if (!fs.existsSync(`${soundboartConfig.soundsDirectory}/${serverId}`)) {
+      await fsAsync.mkdir(`${soundboartConfig.soundsDirectory}/${serverId}`, {
+        recursive: true,
+      });
     }
 
     await this.downloadSoundFromDiscordAttachment(
       discordCdnFilePath,
       serverId,
       soundName,
-      textChannel
+      textChannel,
+      prefix
     );
   }
 
@@ -114,10 +116,11 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     discordCdnFilePath: string,
     serverId: string,
     soundName: string,
-    textChannel: Discord.TextChannel
+    textChannel: Discord.TextChannel,
+    prefix: string
   ) {
     const writeStream = fs.createWriteStream(
-      `${soundsDirPath}/${serverId}/${soundName}.mp3`
+      `${soundboartConfig.soundsDirectory}/${serverId}/${soundName}.mp3`
     );
 
     const response = await fetch(discordCdnFilePath);

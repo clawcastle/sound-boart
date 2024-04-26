@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import {
   getSettings,
   updateSettings,
@@ -15,29 +14,24 @@ type DeleteTagCommandHandlerArgs = {
 };
 
 class DeleteTagCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 1;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 1;
   }
   parseCommandPayload(
-    payload: Discord.Message
+    command: Command<Discord.Message>
   ): DeleteTagCommandHandlerArgs | null {
-    const commandParts = getCommandParts(payload.content);
-    const tagName = commandParts[1];
+    const tagName = command.context.commandParts[1];
 
-    const serverId = payload.guild?.id;
-
-    if (!tagName || !serverId) return null;
+    if (!tagName) return null;
 
     return {
-      serverId,
+      serverId: command.context.serverId,
       tagName,
     };
   }
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(

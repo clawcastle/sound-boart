@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { getCommandParts } from "../utils/messageHelpers.js";
 import { getSoundNamesForServer } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";
 
@@ -11,15 +10,12 @@ type SearchCommandHandlerArgs = {
 };
 
 class SearchCommandHandler implements ICommandHandler<Discord.Message> {
-  activate({ content }: Discord.Message) {
-    const commandParts = getCommandParts(content);
-
-    return commandParts.length > 1;
+  activate(command: Command<Discord.Message>) {
+    return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload({ content, guild }: Discord.Message) {
-    const serverId = guild?.id;
-    const commandParts = getCommandParts(content);
+  parseCommandPayload(command: Command<Discord.Message>) {
+    const { serverId, commandParts } = command.context;
 
     if (commandParts.length < 2 || !serverId) return null;
 
@@ -28,9 +24,9 @@ class SearchCommandHandler implements ICommandHandler<Discord.Message> {
     return { serverId, query };
   }
 
-  async handleCommand({ payload }: Command<Discord.Message>) {
-    const params = this.parseCommandPayload(payload);
-    const textChannel = payload.channel as Discord.TextChannel;
+  async handleCommand(command: Command<Discord.Message>) {
+    const params = this.parseCommandPayload(command);
+    const textChannel = command.payload.channel as Discord.TextChannel;
 
     if (!params) {
       sendMessage(
