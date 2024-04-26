@@ -161,8 +161,6 @@ soundBoartEventEmitter.registerHandler(
 const setPrefixHandler = new SetPrefixCommandHandler();
 soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 
-
-
 const getPrefix = async (message: Message) => {
   if (!message.guild?.id) {
     return soundboartConfig.defaultPrefix;
@@ -182,7 +180,11 @@ discordClient.on(Events.MessageCreate, async (message) => {
 
   if (commandParts.length === 0) return;
 
-  const commandContext: CommandContext = { prefix, commandParts, serverId: message.guild.id };
+  const commandContext: CommandContext = {
+    prefix,
+    commandParts,
+    serverId: message.guild.id,
+  };
 
   const eventAlias = commandParts[0];
   const command = new Command(message, commandContext);
@@ -195,20 +197,26 @@ discordClient.on(Events.MessageCreate, async (message) => {
   }
 });
 
-discordClient.on(Events.VoiceStateUpdate, async (oldVoiceState, newVoiceState) => {
-  const serverId = newVoiceState.guild.id;
+discordClient.on(
+  Events.VoiceStateUpdate,
+  async (oldVoiceState, newVoiceState) => {
+    const serverId = newVoiceState.guild.id;
 
-  const settings = await getSettings(serverId);
+    const settings = await getSettings(serverId);
 
-  const commandContext: CommandContext = {
-    prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
-    commandParts: [],
-    serverId
+    const commandContext: CommandContext = {
+      prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
+      commandParts: [],
+      serverId,
+    };
+
+    const command = new Command(
+      { oldVoiceState, newVoiceState },
+      commandContext
+    );
+
+    soundBoartEventEmitter.emit("play-greet", command);
   }
-
-  const command = new Command({ oldVoiceState, newVoiceState }, commandContext);
-
-  soundBoartEventEmitter.emit("play-greet", command);
-});
+);
 
 await discordClient.login(botToken);

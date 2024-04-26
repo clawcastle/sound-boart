@@ -27,7 +27,9 @@ class PlayGreetingSoundCommandHandler
     return !oldVoiceState.channel && !!newVoiceState.channel;
   }
 
-  parseCommandPayload(command: Command<VoiceStateUpdate>): PlayGreetingSoundCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<VoiceStateUpdate>
+  ): PlayGreetingSoundCommandHandlerArgs | null {
     const { newVoiceState } = command.payload;
 
     const serverId = command.context.serverId;

@@ -10,8 +10,12 @@ export class Command<T> {
   payload: T;
   context: CommandContext;
   span?: Span;
-  
-  constructor(payload: T, commandContext: CommandContext, span: Span | undefined = undefined) {
+
+  constructor(
+    payload: T,
+    commandContext: CommandContext,
+    span: Span | undefined = undefined
+  ) {
     this.payload = payload;
     this.context = commandContext;
     this.span = span;

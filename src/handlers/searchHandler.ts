@@ -15,7 +15,7 @@ class SearchCommandHandler implements ICommandHandler<Discord.Message> {
   }
 
   parseCommandPayload(command: Command<Discord.Message>) {
-    const {serverId, commandParts} = command.context;
+    const { serverId, commandParts } = command.context;
 
     if (commandParts.length < 2 || !serverId) return null;
 

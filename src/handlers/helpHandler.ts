@@ -12,10 +12,14 @@ class HelpCommandHandler implements ICommandHandler<Discord.Message> {
   activate(_: Command<Discord.Message>) {
     return true;
   }
-  parseCommandPayload(command: Command<Discord.Message>): HelpCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): HelpCommandHandlerArgs | null {
     if (command.context.commandParts.length === 0) return null;
 
-    return command.context.commandParts.length > 1 ? { specifiedCommand: command.context.commandParts[1] } : {};
+    return command.context.commandParts.length > 1
+      ? { specifiedCommand: command.context.commandParts[1] }
+      : {};
   }
 
   async handleCommand(command: Command<Discord.Message>) {

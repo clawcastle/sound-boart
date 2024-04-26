@@ -14,7 +14,7 @@ export function resetVoiceChannelTimer(serverId: string) {
     if (voiceConnection) {
       voiceConnection.destroy();
     }
-    
+
     delete timerMap[serverId];
   }, soundboartConfig.leaveTimeoutSeconds * 1000);
 

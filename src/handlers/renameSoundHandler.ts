@@ -18,7 +18,9 @@ class RenameSoundCommandHandler implements ICommandHandler<Discord.Message> {
     return command.context.commandParts.length > 2;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): RenameSoundCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): RenameSoundCommandHandlerArgs | null {
     const commandParts = command.context.commandParts;
 
     const serverId = command.payload.guild?.id;

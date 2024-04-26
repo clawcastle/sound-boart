@@ -19,7 +19,9 @@ class RemoveGreetingSoundCommandHandler
   activate(command: Command<Discord.Message>) {
     return command.context.commandParts.length > 0;
   }
-  parseCommandPayload(command: Command<Discord.Message>): RemoveGreetingSoundCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): RemoveGreetingSoundCommandHandlerArgs | null {
     const serverId = command.context.serverId;
     const userId = command.payload.member?.id;
 

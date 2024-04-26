@@ -16,7 +16,8 @@ class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
     return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>
+  parseCommandPayload(
+    command: Command<Discord.Message>
   ): DeleteSoundCommandHandlerArgs | null {
     const serverId = command.payload.guild?.id;
     const { commandParts } = command.context;

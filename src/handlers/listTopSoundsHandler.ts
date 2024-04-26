@@ -17,8 +17,10 @@ class ListTopSoundsCommandHandler implements ICommandHandler<Discord.Message> {
     return command.context.commandParts.length > 0;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): ListTopSoundsCommandHandlerArgs | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): ListTopSoundsCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
 
     let topNSounds = topNSoundsDefault;
 

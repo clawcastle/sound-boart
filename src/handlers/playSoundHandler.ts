@@ -21,12 +21,14 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     return true;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): PlaySoundCommandHandlerArgs | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): PlaySoundCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
     if (commandParts.length === 0) return null;
 
     const soundNames = command.context.commandParts;
-    const {author} = command.payload;
+    const { author } = command.payload;
 
     const userId = author.id;
 
@@ -99,13 +101,19 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
         await playSound(soundFilePath, voiceChannel);
 
         if (soundPlayedEvent.aliases.length > 0) {
-          const soundPlayedCommand = new Command({
-            soundName,
-            serverId: params.serverId,
-            userId: params.userId,
-          }, command.context);
+          const soundPlayedCommand = new Command(
+            {
+              soundName,
+              serverId: params.serverId,
+              userId: params.userId,
+            },
+            command.context
+          );
 
-          soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], soundPlayedCommand);
+          soundBoartEventEmitter.emit(
+            soundPlayedEvent.aliases[0],
+            soundPlayedCommand
+          );
         }
       } catch (err) {
         sendMessage(

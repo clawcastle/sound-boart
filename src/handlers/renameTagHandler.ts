@@ -18,7 +18,9 @@ class RenameTagCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Command<Discord.Message>) {
     return command.context.commandParts.length > 2;
   }
-  parseCommandPayload(command: Command<Discord.Message>): RenameTagCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): RenameTagCommandHandlerArgs | null {
     const currentTagName = command.context.commandParts[1];
     const newTagName = command.context.commandParts[2];
 

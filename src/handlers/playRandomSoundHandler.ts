@@ -25,7 +25,9 @@ class PlayRandomSoundCommandHandler
     return command.context.commandParts.length > 0;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): PlayRandomSoundCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): PlayRandomSoundCommandHandlerArgs | null {
     const { serverId, commandParts } = command.context;
 
     const userId = command.payload.author.id;
@@ -88,13 +90,19 @@ class PlayRandomSoundCommandHandler
       await playSound(soundFilePath, voiceChannel);
 
       if (soundPlayedEvent.aliases?.length > 0) {
-        const soundPlayedCommand = new Command({
-          soundName,
-          serverId: params.serverId,
-          userId: params.userId,
-        }, command.context);
+        const soundPlayedCommand = new Command(
+          {
+            soundName,
+            serverId: params.serverId,
+            userId: params.userId,
+          },
+          command.context
+        );
 
-        soundBoartEventEmitter.emit(soundPlayedEvent.aliases[0], soundPlayedCommand);
+        soundBoartEventEmitter.emit(
+          soundPlayedEvent.aliases[0],
+          soundPlayedCommand
+        );
       }
     } catch (err) {
       sendMessage(

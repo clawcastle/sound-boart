@@ -12,12 +12,15 @@ type ListSoundsCommandHandlerParams = {
 class ListSoundsCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Command<Discord.Message>) {
     return (
-      command.context.commandParts.length > 0 && listEvent.aliases.includes(command.context.commandParts[0])
+      command.context.commandParts.length > 0 &&
+      listEvent.aliases.includes(command.context.commandParts[0])
     );
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): ListSoundsCommandHandlerParams | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): ListSoundsCommandHandlerParams | null {
+    const { serverId, commandParts } = command.context;
 
     return {
       serverId,

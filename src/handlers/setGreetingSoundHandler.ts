@@ -20,8 +20,10 @@ class SetGreetingSoundCommandHandler
     return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): SetGreetingSoundCommandHandlerArgs | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): SetGreetingSoundCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
     const soundName = commandParts[1];
 
     const userId = command.payload.member?.id;

@@ -16,7 +16,9 @@ class ListSoundsWithTagCommandHandler
     return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): ListSoundsWithTagCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): ListSoundsWithTagCommandHandlerArgs | null {
     const tagName = command.context.commandParts[1];
 
     const serverId = command.context.serverId;

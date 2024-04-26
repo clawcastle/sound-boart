@@ -27,7 +27,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
   }
 
   activate(command: Command<Discord.Message>) {
-    const {commandParts} = command.context;
+    const { commandParts } = command.context;
 
     return (
       commandParts.length > 1 &&
@@ -36,8 +36,10 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     );
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): UploadSoundCommandHandlerParams | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): UploadSoundCommandHandlerParams | null {
+    const { serverId, commandParts } = command.context;
 
     const attachment = command.payload.attachments.first();
 

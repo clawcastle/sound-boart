@@ -20,8 +20,10 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
     return command.context.commandParts.length > 2;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): TagSoundCommandHandlerArgs | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): TagSoundCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
 
     if (!serverId || commandParts.length < 3) return null;
 

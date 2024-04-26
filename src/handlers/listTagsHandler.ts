@@ -13,7 +13,9 @@ class ListTagsCommandHandler implements ICommandHandler<Discord.Message> {
     return command.context.commandParts.length >= 1;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): ListTagsCommandHandlerArgs | null {
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): ListTagsCommandHandlerArgs | null {
     return { serverId: command.context.serverId };
   }
 

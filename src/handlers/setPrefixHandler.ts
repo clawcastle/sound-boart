@@ -17,8 +17,10 @@ class SetPrefixCommandHandler implements ICommandHandler<Discord.Message> {
     return command.context.commandParts.length > 1;
   }
 
-  parseCommandPayload(command: Command<Discord.Message>): SetPrefixCommandHandlerArgs | null {
-    const {serverId, commandParts} = command.context;
+  parseCommandPayload(
+    command: Command<Discord.Message>
+  ): SetPrefixCommandHandlerArgs | null {
+    const { serverId, commandParts } = command.context;
     const prefix = commandParts[1];
 
     if (!prefix || !serverId) return null;
@@ -29,7 +31,9 @@ class SetPrefixCommandHandler implements ICommandHandler<Discord.Message> {
     };
   }
 
-  async handleCommand(command: Command<Discord.Message<boolean>>): Promise<void> {
+  async handleCommand(
+    command: Command<Discord.Message<boolean>>
+  ): Promise<void> {
     const params = this.parseCommandPayload(command);
     const textChannel = command.payload.channel as Discord.TextChannel;
 
