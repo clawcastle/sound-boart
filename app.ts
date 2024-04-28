@@ -219,4 +219,13 @@ discordClient.on(
   }
 );
 
+const onProcessExit = () => {
+  console.log("Soundboart shutting down.");
+
+  discordClient.destroy();
+};
+
+process.addListener("SIGINT", onProcessExit);
+process.addListener("SIGTERM", onProcessExit);
+
 await discordClient.login(botToken);
