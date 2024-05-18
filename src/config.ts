@@ -1,3 +1,10 @@
+interface S3Config {
+  accessKeyId: string;
+  secretAccessKey: string;
+  endpoint: string;
+  region: string;
+}
+
 export interface SoundboartConfig {
   botToken: string;
   soundsDirectory: string;
@@ -6,6 +13,7 @@ export interface SoundboartConfig {
   defaultPrefix: string;
   leaveTimeoutSeconds: number;
   maxFileSizeInBytes: number;
+  s3Config?: S3Config;
 }
 
 const readOptionalEnvironmentVariable = (
@@ -48,6 +56,25 @@ const readEnvironmentVariableAs = <T>(variableName: string): T => {
   return value;
 };
 
+const readS3Config = (): S3Config | undefined => {
+  const accessKeyId = readOptionalEnvironmentVariable("S3_ACCESS_KEY_ID");
+  const secretAccessKey = readOptionalEnvironmentVariable(
+    "S3_SECRET_ACCESS_KEY"
+  );
+  const endpoint = readOptionalEnvironmentVariable("S3_ENDPOINT");
+
+  if (!accessKeyId || !secretAccessKey || !endpoint) return undefined;
+
+  const region = readOptionalEnvironmentVariable("S3_REGION") ?? "auto";
+
+  return {
+    accessKeyId,
+    secretAccessKey,
+    endpoint,
+    region,
+  };
+};
+
 const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
   const botToken = readEnvironmentVariable("BOT_TOKEN");
   const dataDirectory = readEnvironmentVariable("DATA_DIRECTORY");
@@ -59,6 +86,8 @@ const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
     readOptionalEnvironmentVariableAs<number>("MAX_FILE_SIZE_IN_BYTES") ??
     5000000;
 
+  const s3Config = readS3Config();
+
   return {
     botToken,
     defaultPrefix,
@@ -67,6 +96,7 @@ const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
     soundsDirectory: `${dataDirectory}/sounds`,
     serverSettingsDirectory: `${dataDirectory}/serverSettings`,
     usageMetricsDirectory: `${dataDirectory}/usageMetrics`,
+    s3Config,
   };
 };
 
