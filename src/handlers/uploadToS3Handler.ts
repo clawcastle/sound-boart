@@ -6,11 +6,14 @@ import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { uploadEvent, events } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
-import { S3Client } from "@aws-sdk/client-s3";
+import { S3Client, UploadPartCommand } from "@aws-sdk/client-s3";
 const fsAsync = fs.promises;
 
+type FileKind = "sound" | "settings" | "usageMetrics";
+
 type UploadToS3HandlerParams = {
-  filePath: string;
+  localFilePath: string;
+  kind: FileKind;
 };
 
 class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
@@ -39,7 +42,27 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
 
   async handleCommand(
     command: Command<UploadToS3HandlerParams>
-  ): Promise<void> {}
+  ): Promise<void> {
+    const { kind, localFilePath } = command.payload;
+
+    const fileExists = await this.fileExists(localFilePath);
+
+    if (!fileExists) {
+      console.log(
+        `Received event to upload file with path '${localFilePath}' to s3, but file does not exist.`
+      );
+      return;
+    }
+
+    const fileContent = await fsAsync.readFile(localFilePath);
+  }
+
+  private fileExists(filePath: string): Promise<boolean> {
+    return fsAsync
+      .access(filePath, fs.constants.F_OK)
+      .then(() => true)
+      .catch(() => false);
+  }
 }
 
 export default UploadToS3Handler;
