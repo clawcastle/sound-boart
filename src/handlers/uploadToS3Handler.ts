@@ -6,7 +6,11 @@ import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { uploadEvent, events } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
-import { S3Client, UploadPartCommand } from "@aws-sdk/client-s3";
+import {
+  PutObjectCommand,
+  S3Client,
+  UploadPartCommand,
+} from "@aws-sdk/client-s3";
 const fsAsync = fs.promises;
 
 type FileKind = "sound" | "settings" | "usageMetrics";
@@ -55,6 +59,18 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
     }
 
     const fileContent = await fsAsync.readFile(localFilePath);
+
+    const putObjectCommand = new PutObjectCommand({
+      Bucket: "",
+      Key: "",
+      Body: fileContent,
+    });
+
+    try {
+      const response = await this._s3Client.send(putObjectCommand);
+    } catch (error) {
+      console.error("An error occured while uploading file to s3.", error);
+    }
   }
 
   private fileExists(filePath: string): Promise<boolean> {
