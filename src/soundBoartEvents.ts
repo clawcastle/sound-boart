@@ -95,6 +95,10 @@ export const setPrefixEvent: SoundBoartEvent = {
   internal: false,
 };
 
+export const uploadToS3Event = {
+  aliases: ["upload-to-s3"],
+};
+
 export const events = [
   uploadEvent,
   listEvent,
