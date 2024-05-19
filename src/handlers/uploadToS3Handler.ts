@@ -22,8 +22,11 @@ type UploadToS3HandlerParams = {
 
 class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
   private _s3Client: S3Client;
+  private _bucketName: string;
 
   constructor(s3config: S3Config) {
+    this._bucketName = s3config.bucketName;
+
     this._s3Client = new S3Client({
       region: s3config.region,
       endpoint: s3config.endpoint,
@@ -61,7 +64,7 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
     const fileContent = await fsAsync.readFile(localFilePath);
 
     const putObjectCommand = new PutObjectCommand({
-      Bucket: "",
+      Bucket: this._bucketName,
       Key: "",
       Body: fileContent,
     });
@@ -73,8 +76,8 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
     }
   }
 
-  private fileExists(filePath: string): Promise<boolean> {
-    return fsAsync
+  private async fileExists(filePath: string): Promise<boolean> {
+    return await fsAsync
       .access(filePath, fs.constants.F_OK)
       .then(() => true)
       .catch(() => false);

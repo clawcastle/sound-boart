@@ -1,6 +1,7 @@
 export interface S3Config {
   accessKeyId: string;
   secretAccessKey: string;
+  bucketName: string;
   endpoint: string;
   region: string;
 }
@@ -62,14 +63,17 @@ const readS3Config = (): S3Config | undefined => {
     "S3_SECRET_ACCESS_KEY"
   );
   const endpoint = readOptionalEnvironmentVariable("S3_ENDPOINT");
+  const bucketName = readOptionalEnvironmentVariable("S3_BUCKET_NAME");
 
-  if (!accessKeyId || !secretAccessKey || !endpoint) return undefined;
+  if (!accessKeyId || !secretAccessKey || !endpoint || !bucketName)
+    return undefined;
 
   const region = readOptionalEnvironmentVariable("S3_REGION") ?? "auto";
 
   return {
     accessKeyId,
     secretAccessKey,
+    bucketName,
     endpoint,
     region,
   };
