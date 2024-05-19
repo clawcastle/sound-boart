@@ -4,7 +4,7 @@ import { soundboartConfig } from "../config.js";
 import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { uploadEvent, events } from "../soundBoartEvents.js";
+import { uploadEvent, publicEventAliases } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
 const fsAsync = fs.promises;
 
@@ -16,16 +16,6 @@ type UploadSoundCommandHandlerParams = {
 };
 
 class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
-  private _reservedWords: Set<string>;
-  constructor() {
-    this._reservedWords = new Set();
-    events.forEach((event) => {
-      event.aliases.forEach((alias) => {
-        this._reservedWords.add(alias);
-      });
-    });
-  }
-
   activate(command: Command<Discord.Message>) {
     const { commandParts } = command.context;
 
@@ -68,7 +58,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    if (this._reservedWords.has(params.soundName)) {
+    if (publicEventAliases.has(params.soundName)) {
       sendMessage(
         `The name '${params.soundName}' is reserved by a command for the bot. Please pick something else.`,
         textChannel

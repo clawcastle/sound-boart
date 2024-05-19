@@ -21,7 +21,6 @@ import {
   listEvent,
   playEvent,
   deleteEvent,
-  events,
   renameEvent,
   tagSoundEvent,
   listTagsEvent,
@@ -37,6 +36,7 @@ import {
   soundPlayedEvent,
   listTopSoundsEvent,
   setPrefixEvent,
+  publicEventAliases,
 } from "./src/soundBoartEvents.js";
 import { getCommandParts } from "./src/utils/messageHelpers.js";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler.js";
@@ -54,14 +54,6 @@ import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
 import { Command, CommandContext } from "./src/command.js";
 
 tracingSdk().start();
-
-const eventAliasesSet = new Set<string>();
-
-events.forEach((e) => {
-  e.aliases.forEach((alias) => {
-    eventAliasesSet.add(alias);
-  });
-});
 
 const discordClient = new DiscordClient({
   intents: [
@@ -189,7 +181,7 @@ discordClient.on(Events.MessageCreate, async (message) => {
   const eventAlias = commandParts[0];
   const command = new Command(message, commandContext);
 
-  if (eventAliasesSet.has(eventAlias)) {
+  if (publicEventAliases.has(eventAlias)) {
     soundBoartEventEmitter.emit(eventAlias, command);
   } else {
     //There is no alias for play, so we just try and invoke it if no other aliases match
