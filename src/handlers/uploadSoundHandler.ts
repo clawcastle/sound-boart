@@ -6,6 +6,7 @@ import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { uploadEvent, publicEventAliases } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
 type UploadSoundCommandHandlerParams = {
@@ -87,7 +88,11 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     textChannel: Discord.TextChannel,
     prefix: string
   ) {
-    if (!fs.existsSync(`${soundboartConfig.soundsDirectory}/${serverId}`)) {
+    const serverSoundsDirectoryExists = await fileOrDirectoryExists(
+      `${soundboartConfig.soundsDirectory}/${serverId}`
+    );
+
+    if (!serverSoundsDirectoryExists) {
       await fsAsync.mkdir(`${soundboartConfig.soundsDirectory}/${serverId}`, {
         recursive: true,
       });

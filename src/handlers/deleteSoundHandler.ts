@@ -4,6 +4,7 @@ import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { Command } from "../command.js";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
 type DeleteSoundCommandHandlerArgs = {
@@ -38,7 +39,9 @@ class DeleteSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.soundName}.mp3`;
 
-    if (!fs.existsSync(soundFilePath)) {
+    const soundExists = await fileOrDirectoryExists(soundFilePath);
+
+    if (!soundExists) {
       sendMessage(
         "Sound does not exist.",
         command.payload.channel as Discord.TextChannel

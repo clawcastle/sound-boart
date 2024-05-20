@@ -5,6 +5,7 @@ import {
 } from "./serverSettingsCache.js";
 import fs from "fs";
 import { soundboartConfig } from "../config.js";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
 export async function getSettings(serverId: string): Promise<ServerSettings> {
@@ -13,7 +14,9 @@ export async function getSettings(serverId: string): Promise<ServerSettings> {
 
   const filePath = `${soundboartConfig.serverSettingsDirectory}/${serverId}/settings.json`;
 
-  if (!fs.existsSync(filePath)) return defaultSettings;
+  const fileExists = await fileOrDirectoryExists(filePath);
+
+  if (!fileExists) return defaultSettings;
   const fileContent = await fsAsync.readFile(filePath, "utf-8");
 
   const settings = JSON.parse(fileContent) as ServerSettings;
@@ -32,7 +35,9 @@ export async function updateSettings(
 ) {
   const filePath = `${soundboartConfig.serverSettingsDirectory}/${serverId}`;
 
-  if (!fs.existsSync(filePath)) {
+  const fileExists = await fileOrDirectoryExists(filePath);
+
+  if (!fileExists) {
     await fsAsync.mkdir(filePath, {
       recursive: true,
     });
