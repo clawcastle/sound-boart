@@ -1,3 +1,5 @@
+import internal from "stream";
+
 export type SoundBoartEvent = { aliases: string[]; internal: boolean };
 
 export const uploadEvent: SoundBoartEvent = {
@@ -95,8 +97,9 @@ export const setPrefixEvent: SoundBoartEvent = {
   internal: false,
 };
 
-export const uploadToS3Event = {
+export const uploadToS3Event: SoundBoartEvent = {
   aliases: ["upload-to-s3"],
+  internal: true,
 };
 
 export const events = [
