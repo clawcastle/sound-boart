@@ -4,9 +4,15 @@ import { soundboartConfig } from "../config.js";
 import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { uploadEvent, publicEventAliases } from "../soundBoartEvents.js";
-import { Command } from "../command.js";
+import {
+  uploadEvent,
+  publicEventAliases,
+  uploadToS3Event,
+} from "../soundBoartEvents.js";
+import { Command, CommandContext } from "../command.js";
 import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
+import { UploadToS3HandlerParams } from "./uploadToS3Handler.js";
 const fsAsync = fs.promises;
 
 type UploadSoundCommandHandlerParams = {
@@ -74,20 +80,20 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     await this.uploadSound(
       params.soundName,
-      params.serverId,
       params.discordCdnFilePath,
       textChannel,
-      command.context.prefix
+      command.context
     );
   }
 
   private async uploadSound(
     soundName: string,
-    serverId: string,
     discordCdnFilePath: string,
     textChannel: Discord.TextChannel,
-    prefix: string
+    context: CommandContext
   ) {
+    const { serverId, prefix } = context;
+
     const serverSoundsDirectoryExists = await fileOrDirectoryExists(
       `${soundboartConfig.soundsDirectory}/${serverId}`
     );
@@ -100,23 +106,22 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     await this.downloadSoundFromDiscordAttachment(
       discordCdnFilePath,
-      serverId,
       soundName,
       textChannel,
-      prefix
+      context
     );
   }
 
   private async downloadSoundFromDiscordAttachment(
     discordCdnFilePath: string,
-    serverId: string,
     soundName: string,
     textChannel: Discord.TextChannel,
-    prefix: string
+    context: CommandContext
   ) {
-    const writeStream = fs.createWriteStream(
-      `${soundboartConfig.soundsDirectory}/${serverId}/${soundName}.mp3`
-    );
+    const { serverId, prefix } = context;
+
+    const filePath = `${soundboartConfig.soundsDirectory}/${serverId}/${soundName}.mp3`;
+    const writeStream = fs.createWriteStream(filePath);
 
     const response = await fetch(discordCdnFilePath);
 
@@ -135,6 +140,19 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
           `Sound uploaded succesfully. Type ${prefix}${soundName} to play it.`,
           textChannel
         );
+
+        if (soundboartConfig.s3Config) {
+          soundBoartEventEmitter.emit(
+            uploadToS3Event.aliases[0],
+            new Command<UploadToS3HandlerParams>(
+              {
+                soundName,
+                localFilePath: filePath,
+              },
+              context
+            )
+          );
+        }
       })
       .on("error", (err) => {
         console.log(err);

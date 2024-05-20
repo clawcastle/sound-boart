@@ -7,7 +7,6 @@ import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
-import { tracer } from "../tracing/tracer.js";
 import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 
 type PlaySoundCommandHandlerArgs = {
