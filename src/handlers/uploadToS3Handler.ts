@@ -11,13 +11,12 @@ import {
   S3Client,
   UploadPartCommand,
 } from "@aws-sdk/client-s3";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
-type FileKind = "sound" | "settings" | "usageMetrics";
-
-type UploadToS3HandlerParams = {
+export type UploadToS3HandlerParams = {
   localFilePath: string;
-  kind: FileKind;
+  soundName: string;
 };
 
 class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
@@ -50,9 +49,9 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
   async handleCommand(
     command: Command<UploadToS3HandlerParams>
   ): Promise<void> {
-    const { kind, localFilePath } = command.payload;
+    const { localFilePath, soundName } = command.payload;
 
-    const fileExists = await this.fileExists(localFilePath);
+    const fileExists = await fileOrDirectoryExists(localFilePath);
 
     if (!fileExists) {
       console.log(
@@ -61,26 +60,37 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
       return;
     }
 
-    const fileContent = await fsAsync.readFile(localFilePath);
-
-    const putObjectCommand = new PutObjectCommand({
-      Bucket: this._bucketName,
-      Key: "",
-      Body: fileContent,
-    });
+    const putObjectCommand = await this.createPutObjectCommand(
+      command.context.serverId,
+      soundName,
+      localFilePath
+    );
 
     try {
-      const response = await this._s3Client.send(putObjectCommand);
+      await this._s3Client.send(putObjectCommand);
+
+      console.log(
+        `Uploaded sound file '${soundName}' for server ${command.context.serverId} to S3.`
+      );
     } catch (error) {
       console.error("An error occured while uploading file to s3.", error);
     }
   }
 
-  private async fileExists(filePath: string): Promise<boolean> {
-    return await fsAsync
-      .access(filePath, fs.constants.F_OK)
-      .then(() => true)
-      .catch(() => false);
+  private async createPutObjectCommand(
+    serverId: string,
+    soundName: string,
+    localFilePath: string
+  ): Promise<PutObjectCommand> {
+    const fileContent = await fsAsync.readFile(localFilePath);
+
+    const key = `servers/${serverId}/sounds/${soundName}.mp3`;
+
+    return new PutObjectCommand({
+      Bucket: this._bucketName,
+      Key: key,
+      Body: fileContent,
+    });
   }
 }
 
