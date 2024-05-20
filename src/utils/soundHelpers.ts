@@ -11,6 +11,7 @@ import {
 } from "@discordjs/voice";
 import { VoiceBasedChannel } from "discord.js";
 import { tracer } from "../tracing/tracer.js";
+import { fileOrDirectoryExists } from "./fsHelpers.js";
 
 export function playSound(
   soundFilePath: string,
@@ -59,7 +60,12 @@ export function playSound(
 
 export async function getSoundNamesForServer(serverId: string) {
   const soundsDirectory = `${soundboartConfig.soundsDirectory}/${serverId}`;
-  if (!fs.existsSync(soundsDirectory)) {
+
+  const serverSoundsDirectoryExists = await fileOrDirectoryExists(
+    soundsDirectory
+  );
+
+  if (!serverSoundsDirectoryExists) {
     return [];
   }
   const soundNames = await fsAsync.readdir(soundsDirectory);

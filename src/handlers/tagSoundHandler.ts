@@ -1,13 +1,13 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { soundboartConfig } from "../config.js";
-import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import {
   getSettings,
   updateSettings,
 } from "../serverSettings/settingsManager.js";
 import { Command } from "../command.js";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 
 type TagSoundCommandHandlerArgs = {
   serverId: string;
@@ -46,7 +46,7 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
       return;
     }
 
-    const soundExists = fs.existsSync(
+    const soundExists = await fileOrDirectoryExists(
       `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.soundName}.mp3`
     );
 

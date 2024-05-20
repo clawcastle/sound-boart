@@ -2,10 +2,10 @@ import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
 import { soundboartConfig } from "../config.js";
-import fs from "fs";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { playSound } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 
 type VoiceStateUpdate = {
   oldVoiceState: Discord.VoiceState;
@@ -57,7 +57,8 @@ class PlayGreetingSoundCommandHandler
     const userGreetingSoundName = serverSettings.greetings[params.userId];
     const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${userGreetingSoundName}.mp3`;
 
-    if (!fs.existsSync(soundFilePath)) return;
+    const soundExists = await fileOrDirectoryExists(soundFilePath);
+    if (!soundExists) return;
 
     await playSound(soundFilePath, params.voiceChannel);
     resetVoiceChannelTimer(params.voiceChannel.guildId);

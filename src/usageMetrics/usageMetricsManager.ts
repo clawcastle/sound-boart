@@ -5,6 +5,7 @@ import {
 } from "./usageMetrics.js";
 import { soundboartConfig } from "../config.js";
 import fs from "fs";
+import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
 export async function updateSoundPlayedMetrics(
@@ -15,7 +16,9 @@ export async function updateSoundPlayedMetrics(
   const directoryPath = `${soundboartConfig.usageMetricsDirectory}/${serverId}`;
   const filePath = `${directoryPath}/metrics.json`;
 
-  if (!fs.existsSync(directoryPath)) {
+  const directoryExists = await fileOrDirectoryExists(directoryPath);
+
+  if (!directoryExists) {
     await fsAsync.mkdir(directoryPath, {
       recursive: true,
     });
@@ -40,7 +43,9 @@ export async function updateSoundPlayedMetrics(
 export async function getUsageMetricsForServer(serverId: string) {
   const filePath = `${soundboartConfig.usageMetricsDirectory}/${serverId}/metrics.json`;
 
-  if (!fs.existsSync(filePath)) return defaultUsageMetrics;
+  const fileExists = await fileOrDirectoryExists(filePath);
+
+  if (!fileExists) return defaultUsageMetrics;
   const fileContent = await fsAsync.readFile(filePath, "utf-8");
 
   const usageMetrics = JSON.parse(fileContent) as ServerUsageMetrics;
