@@ -5,14 +5,14 @@ import {
 } from "./serverSettingsCache.js";
 import fs from "fs";
 import { soundboartConfig } from "../config.js";
-import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
 export async function getSettings(serverId: string): Promise<ServerSettings> {
   const cacheValue = getSettingsFromCache(serverId);
   if (cacheValue) return cacheValue;
 
-  const filePath = `${soundboartConfig.serverSettingsDirectory}/${serverId}/settings.json`;
+  const filePath = Paths.serverSettingsFile(serverId);
 
   const fileExists = await fileOrDirectoryExists(filePath);
 
@@ -33,7 +33,7 @@ export async function updateSettings(
   serverId: string,
   updatedSettings: ServerSettings
 ) {
-  const filePath = `${soundboartConfig.serverSettingsDirectory}/${serverId}`;
+  const filePath = Paths.serverSettingsFile(serverId);
 
   const fileExists = await fileOrDirectoryExists(filePath);
 

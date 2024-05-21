@@ -10,7 +10,7 @@ import {
   uploadToS3Event,
 } from "../soundBoartEvents.js";
 import { Command, CommandContext } from "../command.js";
-import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { UploadToS3HandlerParams } from "./uploadToS3Handler.js";
 const fsAsync = fs.promises;
@@ -92,14 +92,14 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
     textChannel: Discord.TextChannel,
     context: CommandContext
   ) {
-    const { serverId, prefix } = context;
+    const soundsDirectoryPath = Paths.soundFilesDirectory(context.serverId);
 
     const serverSoundsDirectoryExists = await fileOrDirectoryExists(
-      `${soundboartConfig.soundsDirectory}/${serverId}`
+      soundsDirectoryPath
     );
 
     if (!serverSoundsDirectoryExists) {
-      await fsAsync.mkdir(`${soundboartConfig.soundsDirectory}/${serverId}`, {
+      await fsAsync.mkdir(soundsDirectoryPath, {
         recursive: true,
       });
     }
@@ -120,7 +120,7 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
   ) {
     const { serverId, prefix } = context;
 
-    const filePath = `${soundboartConfig.soundsDirectory}/${serverId}/${soundName}.mp3`;
+    const filePath = Paths.soundFile(serverId, soundName);
     const writeStream = fs.createWriteStream(filePath);
 
     const response = await fetch(discordCdnFilePath);
