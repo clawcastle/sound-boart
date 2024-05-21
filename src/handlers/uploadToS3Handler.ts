@@ -12,6 +12,7 @@ import {
   UploadPartCommand,
 } from "@aws-sdk/client-s3";
 import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { S3InfoService } from "../s3/s3InfoService.js";
 const fsAsync = fs.promises;
 
 export type UploadToS3HandlerParams = {
@@ -20,12 +21,14 @@ export type UploadToS3HandlerParams = {
 };
 
 class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
+  private _s3InfoService: S3InfoService;
   private _s3Client: S3Client;
   private _bucketName: string;
 
   constructor(s3config: S3Config) {
     this._bucketName = s3config.bucketName;
 
+    this._s3InfoService = new S3InfoService();
     this._s3Client = new S3Client({
       region: s3config.region,
       endpoint: s3config.endpoint,
@@ -68,6 +71,10 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
 
     try {
       await this._s3Client.send(putObjectCommand);
+      await this._s3InfoService.addSoundFilesUploadedToS3(
+        command.context.serverId,
+        [soundName]
+      );
 
       console.log(
         `Uploaded sound file '${soundName}' for server ${command.context.serverId} to S3.`

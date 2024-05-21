@@ -1,4 +1,5 @@
 import fs from "fs";
+import { soundboartConfig } from "../config";
 const fsAsync = fs.promises;
 
 export const fileOrDirectoryExists = async (
@@ -9,3 +10,37 @@ export const fileOrDirectoryExists = async (
     .then(() => true)
     .catch(() => false);
 };
+
+export class Paths {
+  static soundFilesDirectory(serverId: string): string {
+    return `${soundboartConfig.soundsDirectory}/${serverId}`;
+  }
+
+  static soundFile(serverId: string, soundName: string): string {
+    return `${this.soundFilesDirectory(serverId)}/${soundName}.mp3`;
+  }
+
+  static serverSettingsDirectory(serverId: string): string {
+    return `${soundboartConfig.serverSettingsDirectory}/${serverId}`;
+  }
+
+  static serverSettingsFile(serverId: string): string {
+    return `${this.serverSettingsDirectory(serverId)}/settings.json`;
+  }
+
+  static s3InfoDirectory(serverId: string): string {
+    return `${soundboartConfig.serverSettingsDirectory}/${serverId}`;
+  }
+
+  static s3InfoFile(serverId: string): string {
+    return `${this.s3InfoDirectory(serverId)}/s3Info.json`;
+  }
+
+  static usageMetricsDirectory(serverId: string) {
+    return `${soundboartConfig.usageMetricsDirectory}/${serverId}`;
+  }
+
+  static usageMetricsFile(serverId: string) {
+    return `${this.usageMetricsDirectory(serverId)}/metrics.json`;
+  }
+}
