@@ -11,6 +11,7 @@ export interface SoundboartConfig {
   soundsDirectory: string;
   serverSettingsDirectory: string;
   usageMetricsDirectory: string;
+  s3InfoDirectory: string;
   defaultPrefix: string;
   leaveTimeoutSeconds: number;
   maxFileSizeInBytes: number;
@@ -100,6 +101,7 @@ const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
     soundsDirectory: `${dataDirectory}/sounds`,
     serverSettingsDirectory: `${dataDirectory}/serverSettings`,
     usageMetricsDirectory: `${dataDirectory}/usageMetrics`,
+    s3InfoDirectory: `${dataDirectory}/s3`,
     s3Config,
   };
 };

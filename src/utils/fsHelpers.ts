@@ -1,5 +1,5 @@
 import fs from "fs";
-import { soundboartConfig } from "../config";
+import { soundboartConfig } from "../config.js";
 const fsAsync = fs.promises;
 
 export const fileOrDirectoryExists = async (
@@ -29,18 +29,18 @@ export class Paths {
   }
 
   static s3InfoDirectory(serverId: string): string {
-    return `${soundboartConfig.serverSettingsDirectory}/${serverId}`;
+    return `${soundboartConfig.s3InfoDirectory}/${serverId}`;
   }
 
   static s3InfoFile(serverId: string): string {
     return `${this.s3InfoDirectory(serverId)}/s3Info.json`;
   }
 
-  static usageMetricsDirectory(serverId: string) {
+  static usageMetricsDirectory(serverId: string): string {
     return `${soundboartConfig.usageMetricsDirectory}/${serverId}`;
   }
 
-  static usageMetricsFile(serverId: string) {
+  static usageMetricsFile(serverId: string): string {
     return `${this.usageMetricsDirectory(serverId)}/metrics.json`;
   }
 }
