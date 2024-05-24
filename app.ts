@@ -38,6 +38,7 @@ import {
   setPrefixEvent,
   publicEventAliases,
   uploadToS3Event,
+  deleteFromS3Event,
 } from "./src/soundBoartEvents.js";
 import { getCommandParts } from "./src/utils/messageHelpers.js";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler.js";
@@ -54,6 +55,7 @@ import SetPrefixCommandHandler from "./src/handlers/setPrefixHandler.js";
 import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
 import { Command, CommandContext } from "./src/command.js";
 import UploadToS3Handler from "./src/handlers/uploadToS3Handler.js";
+import DeleteFromS3Handler from "./src/handlers/deleteFromS3Handler.js";
 
 tracingSdk().start();
 
@@ -158,6 +160,14 @@ soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 if (soundboartConfig.s3Config) {
   const uploadToS3Handler = new UploadToS3Handler(soundboartConfig.s3Config);
   soundBoartEventEmitter.registerHandler(uploadToS3Event, uploadToS3Handler);
+
+  const deleteFromS3Handler = new DeleteFromS3Handler(
+    soundboartConfig.s3Config
+  );
+  soundBoartEventEmitter.registerHandler(
+    deleteFromS3Event,
+    deleteFromS3Handler
+  );
 }
 
 const getPrefix = async (message: Message) => {

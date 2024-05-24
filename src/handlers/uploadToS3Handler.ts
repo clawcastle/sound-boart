@@ -1,21 +1,12 @@
-import Discord from "discord.js";
 import fs from "fs";
 import { S3Config } from "../config.js";
-import fetch from "node-fetch";
 import ICommandHandler from "./commandHandler.js";
-import { sendMessage } from "../utils/textChannelHelpers.js";
-import { uploadEvent, events } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
-import {
-  PutObjectCommand,
-  S3Client,
-  UploadPartCommand,
-} from "@aws-sdk/client-s3";
-import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
 export type UploadToS3HandlerParams = {
-  localFilePath: string;
   soundName: string;
 };
 
@@ -49,13 +40,15 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
   async handleCommand(
     command: Command<UploadToS3HandlerParams>
   ): Promise<void> {
-    const { localFilePath, soundName } = command.payload;
+    const { soundName } = command.payload;
 
-    const fileExists = await fileOrDirectoryExists(localFilePath);
+    const soundFilePath = Paths.soundFile(command.context.serverId, soundName);
+
+    const fileExists = await fileOrDirectoryExists(soundFilePath);
 
     if (!fileExists) {
       console.log(
-        `Received event to upload file with path '${localFilePath}' to s3, but file does not exist.`
+        `Received event to upload file with path '${soundFilePath}' to s3, but file does not exist.`
       );
       return;
     }
@@ -63,7 +56,7 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
     const putObjectCommand = await this.createPutObjectCommand(
       command.context.serverId,
       soundName,
-      localFilePath
+      soundFilePath
     );
 
     try {

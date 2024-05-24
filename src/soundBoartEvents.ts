@@ -102,6 +102,11 @@ export const uploadToS3Event: SoundBoartEvent = {
   internal: true,
 };
 
+export const deleteFromS3Event: SoundBoartEvent = {
+  aliases: ["delete-from-s3"],
+  internal: true,
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -122,6 +127,8 @@ export const events = [
   soundPlayedEvent,
   listTopSoundsEvent,
   setPrefixEvent,
+  uploadToS3Event,
+  deleteFromS3Event,
 ];
 
 export const publicEventAliases = new Set(
