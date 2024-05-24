@@ -5,7 +5,7 @@ import { soundboartConfig } from "../config.js";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { playSound } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";
-import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 
 type VoiceStateUpdate = {
   oldVoiceState: Discord.VoiceState;
@@ -55,7 +55,10 @@ class PlayGreetingSoundCommandHandler
     if (!serverSettings || !serverSettings.greetings[params.userId]) return;
 
     const userGreetingSoundName = serverSettings.greetings[params.userId];
-    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${userGreetingSoundName}.mp3`;
+    const soundFilePath = Paths.soundFile(
+      params.serverId,
+      userGreetingSoundName
+    );
 
     const soundExists = await fileOrDirectoryExists(soundFilePath);
     if (!soundExists) return;

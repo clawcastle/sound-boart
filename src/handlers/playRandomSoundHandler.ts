@@ -11,6 +11,7 @@ import {
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
+import { Paths } from "../utils/fsHelpers.js";
 
 type PlayRandomSoundCommandHandlerArgs = {
   serverId: string;
@@ -84,7 +85,7 @@ class PlayRandomSoundCommandHandler
     command.span?.setAttribute("sound-name", soundName);
     command.span?.setAttribute("user.id", params.userId);
 
-    const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${soundName}.mp3`;
+    const soundFilePath = Paths.soundFile(params.serverId, soundName);
 
     try {
       await playSound(soundFilePath, voiceChannel);

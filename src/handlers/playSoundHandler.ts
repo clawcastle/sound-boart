@@ -7,7 +7,7 @@ import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
-import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 
 type PlaySoundCommandHandlerArgs = {
   serverId: string;
@@ -68,7 +68,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     for (const soundName of params.soundNames) {
-      const soundFilePath = `${soundboartConfig.soundsDirectory}/${params.serverId}/${soundName}.mp3`;
+      const soundFilePath = Paths.soundFile(params.serverId, soundName);
 
       const soundExists = await fileOrDirectoryExists(soundFilePath);
 

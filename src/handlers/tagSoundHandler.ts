@@ -7,7 +7,7 @@ import {
   updateSettings,
 } from "../serverSettings/settingsManager.js";
 import { Command } from "../command.js";
-import { fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 
 type TagSoundCommandHandlerArgs = {
   serverId: string;
@@ -47,7 +47,7 @@ class TagSoundCommandHandler implements ICommandHandler<Discord.Message> {
     }
 
     const soundExists = await fileOrDirectoryExists(
-      `${soundboartConfig.soundsDirectory}/${params.serverId}/${params.soundName}.mp3`
+      Paths.soundFile(params.serverId, params.soundName)
     );
 
     if (!soundExists) {
