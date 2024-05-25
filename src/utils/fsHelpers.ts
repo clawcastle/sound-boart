@@ -1,5 +1,5 @@
 import fs from "fs";
-import { soundboartConfig } from "../config";
+import { soundboartConfig } from "../config.js";
 const fsAsync = fs.promises;
 
 export const fileOrDirectoryExists = async (

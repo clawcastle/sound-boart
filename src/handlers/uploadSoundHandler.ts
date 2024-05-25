@@ -149,7 +149,6 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
             new Command<UploadToS3HandlerParams>(
               {
                 soundName,
-                localFilePath: filePath,
               },
               context
             )
