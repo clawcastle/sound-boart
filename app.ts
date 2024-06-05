@@ -206,6 +206,20 @@ discordClient.on(Events.MessageCreate, async (message) => {
   }
 });
 
+discordClient.on(Events.Error, (err) => {
+  console.error(
+    `[Source: Events.Error handler] Soundboart encountered an error that was not caught elsewhere in the application.`,
+    err
+  );
+});
+
+discordClient.on(Events.ShardError, (err) => {
+  console.error(
+    `[Source: Events.ShardError handler] Soundboart encountered an error that was not caught elsewhere in the application.`,
+    err
+  );
+});
+
 discordClient.on(
   Events.VoiceStateUpdate,
   async (oldVoiceState, newVoiceState) => {
