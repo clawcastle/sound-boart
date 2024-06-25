@@ -1,7 +1,11 @@
 import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
-import { S3Config } from "../config.js";
+import { S3Config, soundboartConfig } from "../config.js";
 import fs from "fs";
+import { SoundObjectKey } from "../utils/s3.js";
+import { Paths } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
+
+type SoundNamesGroupedByServers = Map<string, string[]>;
 
 export class S3SynchronizationJob {
   private _s3Client: S3Client;
@@ -21,11 +25,31 @@ export class S3SynchronizationJob {
   }
 
   async run(): Promise<void> {
-    const servers = 
+    const soundObjectKeys = await this.listSoundObjects();
+    const soundNamesGroupedByServerId =
+      await this.listSoundNamesGroupedByServer();
   }
 
-  private async fetchObjectKeysForServer(serverId: string): Promise<string[]> {
-    const prefix = `servers/${serverId}/sounds/`;
+  private async listSoundNamesGroupedByServer(): Promise<SoundNamesGroupedByServers> {
+    const serverIds = await fsAsync.readdir(soundboartConfig.soundsDirectory);
+
+    const soundNamesGroupedByServers = await Promise.all(
+      serverIds.map(async (serverId) => {
+        const soundNames = await fsAsync.readdir(
+          Paths.soundFilesDirectory(serverId)
+        );
+
+        return { serverId, soundNames };
+      })
+    );
+
+    return new Map(
+      soundNamesGroupedByServers.map((x) => [x.serverId, x.soundNames])
+    );
+  }
+
+  private async listSoundObjects(): Promise<SoundObjectKey[]> {
+    const prefix = "sounds/";
 
     const listCommand = new ListObjectsV2Command({
       Bucket: this._bucketName,
@@ -34,7 +58,7 @@ export class S3SynchronizationJob {
 
     let continuationToken: string | undefined;
 
-    const result = [];
+    const result: SoundObjectKey[] = [];
 
     do {
       const response = await this._s3Client.send(listCommand);
@@ -43,7 +67,13 @@ export class S3SynchronizationJob {
         (key) => !!key
       ) ?? []) as string[];
 
-      result.push(...objectKeys);
+      const soundObjectKeys = objectKeys
+        .map((objectKey) => SoundObjectKey.deserialize(objectKey))
+        .filter(
+          (soundObjectKey) => soundObjectKey !== null
+        ) as SoundObjectKey[];
+
+      result.push(...soundObjectKeys);
 
       continuationToken = response.ContinuationToken;
     } while (continuationToken);
