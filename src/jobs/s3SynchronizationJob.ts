@@ -29,6 +29,11 @@ export class S3SynchronizationJob {
     const soundNamesGroupedByServerId =
       await this.listSoundNamesGroupedByServer();
 
+    const serverIds = new Set(
+      ...soundObjectKeys.map((objectKey) => objectKey.serverId),
+      ...soundNamesGroupedByServerId.keys()
+    );
+
     const findSoundsToDownloadForServer = (
       serverId: string
     ): SoundObjectKey[] => {
@@ -66,6 +71,13 @@ export class S3SynchronizationJob {
 
       return toUpload;
     };
+
+    serverIds.forEach(async (serverId) => {
+      const toDownload = await findSoundsToDownloadForServer(serverId);
+      const toUpload = await findSoundsToUploadForServer(serverId);
+
+      // TODO: Actually upload and download sounds
+    });
   }
 
   private async listSoundNamesGroupedByServer(): Promise<SoundNamesGroupedByServers> {
