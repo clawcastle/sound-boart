@@ -11,6 +11,10 @@ export class SoundObjectKey {
     this.soundName = soundName;
   }
 
+  serialize(): string {
+    return `/sounds/${this.serverId}/${this.soundName}`;
+  }
+
   static deserialize(objectKey: string): SoundObjectKey | null {
     if (!soundObjectKeyPattern.test(objectKey)) return null;
 

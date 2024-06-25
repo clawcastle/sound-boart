@@ -5,7 +5,7 @@ import { SoundObjectKey } from "../utils/s3.js";
 import { Paths } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
-type SoundNamesGroupedByServers = Map<string, string[]>;
+type SoundNamesGroupedByServers = Map<string, Set<string>>;
 
 export class S3SynchronizationJob {
   private _s3Client: S3Client;
@@ -28,6 +28,44 @@ export class S3SynchronizationJob {
     const soundObjectKeys = await this.listSoundObjects();
     const soundNamesGroupedByServerId =
       await this.listSoundNamesGroupedByServer();
+
+    const findSoundsToDownloadForServer = (
+      serverId: string
+    ): SoundObjectKey[] => {
+      const soundNamesExistingLocally =
+        soundNamesGroupedByServerId.get(serverId) ?? new Set();
+
+      const soundNamesFromS3 = new Set(
+        soundObjectKeys
+          .filter((objectKey) => objectKey.serverId === serverId)
+          .map((objectKey) => objectKey.soundName)
+      );
+
+      const toDownload = new Array(...soundNamesFromS3)
+        .filter((s) => !soundNamesExistingLocally.has(s))
+        .map((soundName) => new SoundObjectKey(serverId, soundName));
+
+      return toDownload;
+    };
+
+    const findSoundsToUploadForServer = (
+      serverId: string
+    ): SoundObjectKey[] => {
+      const alreadyUploadedSoundNames = new Set(
+        soundObjectKeys
+          .filter((objectKey) => objectKey.serverId === serverId)
+          .map((objectKey) => objectKey.soundName)
+      );
+
+      const existingSoundNamesForServer =
+        soundNamesGroupedByServerId.get(serverId) ?? new Set();
+
+      const toUpload = new Array(...existingSoundNamesForServer)
+        .filter((s) => !alreadyUploadedSoundNames.has(s))
+        .map((soundName) => new SoundObjectKey(serverId, soundName));
+
+      return toUpload;
+    };
   }
 
   private async listSoundNamesGroupedByServer(): Promise<SoundNamesGroupedByServers> {
@@ -39,7 +77,7 @@ export class S3SynchronizationJob {
           Paths.soundFilesDirectory(serverId)
         );
 
-        return { serverId, soundNames };
+        return { serverId, soundNames: new Set(soundNames) };
       })
     );
 
