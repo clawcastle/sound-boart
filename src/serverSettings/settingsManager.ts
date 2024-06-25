@@ -43,10 +43,7 @@ export async function updateSettings(
     });
   }
 
-  await fsAsync.writeFile(
-    `${filePath}/settings.json`,
-    JSON.stringify(updatedSettings)
-  );
+  await fsAsync.writeFile(filePath, JSON.stringify(updatedSettings));
 
   insertSettingsInCache(serverId, updatedSettings);
 }
