@@ -15,6 +15,8 @@ import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { UploadToS3HandlerParams } from "./uploadToS3Handler.js";
 const fsAsync = fs.promises;
 
+const MAX_SOUND_NAME_LENGTH = 100;
+
 type UploadSoundCommandHandlerParams = {
   discordCdnFilePath: string;
   serverId: string;
@@ -75,6 +77,14 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
 
     if (params.size > soundboartConfig.maxFileSizeInBytes) {
       sendMessage("Max file size is 5 MB", textChannel);
+      return;
+    }
+
+    if (params.soundName.length > MAX_SOUND_NAME_LENGTH) {
+      sendMessage(
+        `Sound name can not be more than ${MAX_SOUND_NAME_LENGTH} characters long.`,
+        textChannel
+      );
       return;
     }
 
