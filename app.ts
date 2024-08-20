@@ -76,7 +76,7 @@ if (!botToken) {
 }
 
 discordClient.once(Events.ClientReady, () => {
-  console.log("Soundboart is ready");
+  console.log("Soundboart is ready.");
 });
 
 const uploadSoundHandler = new UploadSoundCommandHandler();
