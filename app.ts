@@ -56,6 +56,7 @@ import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
 import { Command, CommandContext } from "./src/command.js";
 import UploadToS3Handler from "./src/handlers/uploadToS3Handler.js";
 import DeleteFromS3Handler from "./src/handlers/deleteFromS3Handler.js";
+import { S3SynchronizationJob } from "./src/jobs/s3SynchronizationJob.js";
 
 tracingSdk().start();
 
@@ -164,10 +165,17 @@ if (soundboartConfig.s3Config) {
   const deleteFromS3Handler = new DeleteFromS3Handler(
     soundboartConfig.s3Config
   );
+
   soundBoartEventEmitter.registerHandler(
     deleteFromS3Event,
     deleteFromS3Handler
   );
+
+  const s3SynchronizationJob = new S3SynchronizationJob(
+    soundboartConfig.s3Config
+  );
+
+  await s3SynchronizationJob.run();
 }
 
 const getPrefix = async (message: Message) => {

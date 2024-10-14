@@ -1,4 +1,9 @@
-import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { S3Config, soundboartConfig } from "../config.js";
 import fs from "fs";
 import { SoundObjectKey } from "../utils/s3.js";
@@ -25,13 +30,19 @@ export class S3SynchronizationJob {
   }
 
   async run(): Promise<void> {
+    console.log("Starting S3 synchronization job.");
+
     const soundObjectKeys = await this.listSoundObjects();
     const soundNamesGroupedByServerId =
       await this.listSoundNamesGroupedByServer();
 
+    console.log("sounds grouped", soundNamesGroupedByServerId);
+    console.log("sound object keys", soundObjectKeys);
+
     const serverIds = new Set(
-      ...soundObjectKeys.map((objectKey) => objectKey.serverId),
-      ...soundNamesGroupedByServerId.keys()
+      soundObjectKeys
+        .map((objectKey) => objectKey.serverId)
+        .concat([...soundNamesGroupedByServerId.keys()])
     );
 
     const findSoundsToDownloadForServer = (
@@ -73,10 +84,62 @@ export class S3SynchronizationJob {
     };
 
     serverIds.forEach(async (serverId) => {
-      const toDownload = await findSoundsToDownloadForServer(serverId);
-      const toUpload = await findSoundsToUploadForServer(serverId);
+      const toDownload = findSoundsToDownloadForServer(serverId);
+      const toUpload = findSoundsToUploadForServer(serverId);
 
-      // TODO: Actually upload and download sounds
+      console.log(
+        `Found ${toUpload.length} files to upload and ${toDownload.length} files to download for server ${serverId}.`
+      );
+
+      toDownload.forEach(async (soundToDownload) => {
+        const objectKey = soundToDownload.serialize();
+
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: this._bucketName,
+          Key: objectKey,
+        });
+
+        const response = await this._s3Client.send(getObjectCommand);
+
+        const localFilePath = Paths.soundFile(
+          soundToDownload.serverId,
+          soundToDownload.soundName.replace(".mp3", "")
+        );
+
+        if (!response.Body) {
+          console.error(
+            `Could not download file with key ${objectKey} from S3.`
+          );
+          return;
+        }
+
+        response.Body.transformToByteArray().then(async (buffer) => {
+          await fsAsync.writeFile(localFilePath, buffer);
+
+          console.log(`Downloaded file with key ${objectKey} from S3.`);
+        });
+      });
+
+      toUpload.forEach(async (soundToUpload) => {
+        const objectKey = soundToUpload.serialize();
+
+        const localFilePath = Paths.soundFile(
+          soundToUpload.serverId,
+          soundToUpload.soundName.replace(".mp3", "")
+        );
+
+        const fileContent = await fsAsync.readFile(localFilePath);
+
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: this._bucketName,
+          Key: objectKey,
+          Body: fileContent,
+        });
+
+        await this._s3Client.send(putObjectCommand);
+
+        console.log(`Uploaded file with key ${objectKey} to S3.`);
+      });
     });
   }
 
@@ -99,7 +162,7 @@ export class S3SynchronizationJob {
   }
 
   private async listSoundObjects(): Promise<SoundObjectKey[]> {
-    const prefix = "sounds/";
+    const prefix = "/sounds/";
 
     const listCommand = new ListObjectsV2Command({
       Bucket: this._bucketName,

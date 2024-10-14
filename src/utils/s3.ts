@@ -18,7 +18,9 @@ export class SoundObjectKey {
   static deserialize(objectKey: string): SoundObjectKey | null {
     if (!soundObjectKeyPattern.test(objectKey)) return null;
 
-    const [_, serverId, soundName] = objectKey.split("/");
+    console.log("key", objectKey);
+
+    const [_1, _2, serverId, soundName] = objectKey.split("/");
 
     return new SoundObjectKey(serverId, soundName);
   }
