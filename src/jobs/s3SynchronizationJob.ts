@@ -30,14 +30,13 @@ export class S3SynchronizationJob {
   }
 
   async run(): Promise<void> {
+    const startedAt = new Date();
+
     console.log("Starting S3 synchronization job.");
 
     const soundObjectKeys = await this.listSoundObjects();
     const soundNamesGroupedByServerId =
       await this.listSoundNamesGroupedByServer();
-
-    console.log("sounds grouped", soundNamesGroupedByServerId);
-    console.log("sound object keys", soundObjectKeys);
 
     const serverIds = new Set(
       soundObjectKeys
@@ -141,6 +140,10 @@ export class S3SynchronizationJob {
         console.log(`Uploaded file with key ${objectKey} to S3.`);
       });
     });
+
+    const elapsedTime = new Date().getTime() - startedAt.getTime();
+
+    console.log(`S3 synchronization finished. Elapsed time: ${elapsedTime}ms`);
   }
 
   private async listSoundNamesGroupedByServer(): Promise<SoundNamesGroupedByServers> {
