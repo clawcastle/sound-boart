@@ -4,6 +4,7 @@ import ICommandHandler from "./commandHandler.js";
 import { Command } from "../command.js";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import { SoundObjectKey } from "../utils/s3.js";
 const fsAsync = fs.promises;
 
 export type UploadToS3HandlerParams = {
@@ -77,7 +78,7 @@ class UploadToS3Handler implements ICommandHandler<UploadToS3HandlerParams> {
   ): Promise<PutObjectCommand> {
     const fileContent = await fsAsync.readFile(localFilePath);
 
-    const key = `servers/${serverId}/sounds/${soundName}.mp3`;
+    const key = new SoundObjectKey(serverId, soundName).serialize();
 
     return new PutObjectCommand({
       Bucket: this._bucketName,
