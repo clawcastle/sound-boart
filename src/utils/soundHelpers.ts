@@ -8,6 +8,7 @@ import {
   AudioPlayerStatus,
   getVoiceConnection,
   joinVoiceChannel,
+  DiscordGatewayAdapterCreator,
 } from "@discordjs/voice";
 import { VoiceBasedChannel } from "discord.js";
 import { tracer } from "../tracing/tracer.js";
@@ -31,7 +32,7 @@ export function playSound(
       voiceConnection = joinVoiceChannel({
         channelId,
         guildId: serverId,
-        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
       });
     }
 
