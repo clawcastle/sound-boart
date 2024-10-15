@@ -44,6 +44,18 @@ export class S3SynchronizationJob {
         .concat([...soundNamesGroupedByServerId.keys()])
     );
 
+    const chunkObjects = (array: SoundObjectKey[], chunkSize: number) => {
+      if (array.length < chunkSize) return [array];
+
+      const chunks = [];
+
+      for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+      }
+
+      return chunks;
+    };
+
     const findSoundsToDownloadForServer = (
       serverId: string
     ): SoundObjectKey[] => {
@@ -90,54 +102,66 @@ export class S3SynchronizationJob {
         `Found ${toUpload.length} files to upload and ${toDownload.length} files to download for server ${serverId}.`
       );
 
-      toDownload.forEach(async (soundToDownload) => {
-        const objectKey = soundToDownload.serialize();
+      chunkObjects(toDownload, 10).forEach(async (soundsToDownloadBatch) => {
+        const downloadBatchPromises = soundsToDownloadBatch.map(
+          async (soundToDownload) => {
+            const objectKey = soundToDownload.serialize();
 
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: this._bucketName,
-          Key: objectKey,
-        });
+            const getObjectCommand = new GetObjectCommand({
+              Bucket: this._bucketName,
+              Key: objectKey,
+            });
 
-        const response = await this._s3Client.send(getObjectCommand);
+            const response = await this._s3Client.send(getObjectCommand);
 
-        const localFilePath = Paths.soundFile(
-          soundToDownload.serverId,
-          soundToDownload.soundName.replace(".mp3", "")
+            const localFilePath = Paths.soundFile(
+              soundToDownload.serverId,
+              soundToDownload.soundName.replace(".mp3", "")
+            );
+
+            if (!response.Body) {
+              console.error(
+                `Could not download file with key ${objectKey} from S3.`
+              );
+              return;
+            }
+
+            response.Body.transformToByteArray().then(async (buffer) => {
+              await fsAsync.writeFile(localFilePath, buffer);
+
+              console.log(`Downloaded file with key ${objectKey} from S3.`);
+            });
+          }
         );
 
-        if (!response.Body) {
-          console.error(
-            `Could not download file with key ${objectKey} from S3.`
-          );
-          return;
-        }
-
-        response.Body.transformToByteArray().then(async (buffer) => {
-          await fsAsync.writeFile(localFilePath, buffer);
-
-          console.log(`Downloaded file with key ${objectKey} from S3.`);
-        });
+        await Promise.all(downloadBatchPromises);
       });
 
-      toUpload.forEach(async (soundToUpload) => {
-        const objectKey = soundToUpload.serialize();
+      chunkObjects(toUpload, 10).forEach(async (soundsToUploadBatch) => {
+        const uploadBatchPromises = soundsToUploadBatch.map(
+          async (soundToUpload) => {
+            const objectKey = soundToUpload.serialize();
 
-        const localFilePath = Paths.soundFile(
-          soundToUpload.serverId,
-          soundToUpload.soundName.replace(".mp3", "")
+            const localFilePath = Paths.soundFile(
+              soundToUpload.serverId,
+              soundToUpload.soundName.replace(".mp3", "")
+            );
+
+            const fileContent = await fsAsync.readFile(localFilePath);
+
+            const putObjectCommand = new PutObjectCommand({
+              Bucket: this._bucketName,
+              Key: objectKey,
+              Body: fileContent,
+            });
+
+            await this._s3Client.send(putObjectCommand);
+
+            console.log(`Uploaded file with key ${objectKey} to S3.`);
+          }
         );
 
-        const fileContent = await fsAsync.readFile(localFilePath);
-
-        const putObjectCommand = new PutObjectCommand({
-          Bucket: this._bucketName,
-          Key: objectKey,
-          Body: fileContent,
-        });
-
-        await this._s3Client.send(putObjectCommand);
-
-        console.log(`Uploaded file with key ${objectKey} to S3.`);
+        await Promise.all(uploadBatchPromises);
       });
     });
 
