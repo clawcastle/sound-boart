@@ -16,6 +16,8 @@ import { UploadToS3HandlerParams } from "./uploadToS3Handler.js";
 const fsAsync = fs.promises;
 
 const MAX_SOUND_NAME_LENGTH = 100;
+const SOUND_NAME_ALLOWED_CHARACTERS =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
 
 type UploadSoundCommandHandlerParams = {
   discordCdnFilePath: string;
@@ -85,6 +87,19 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
         `Sound name can not be more than ${MAX_SOUND_NAME_LENGTH} characters long.`,
         textChannel
       );
+      return;
+    }
+
+    if (
+      ![...params.soundName].every((char) =>
+        SOUND_NAME_ALLOWED_CHARACTERS.includes(char)
+      )
+    ) {
+      sendMessage(
+        `Sound name can only contain the following characters: ${SOUND_NAME_ALLOWED_CHARACTERS}`,
+        textChannel
+      );
+
       return;
     }
 
