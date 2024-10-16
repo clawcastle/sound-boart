@@ -17,7 +17,7 @@ const fsAsync = fs.promises;
 
 const MAX_SOUND_NAME_LENGTH = 100;
 const SOUND_NAME_ALLOWED_CHARACTERS =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-!.*'()";
 
 type UploadSoundCommandHandlerParams = {
   discordCdnFilePath: string;
