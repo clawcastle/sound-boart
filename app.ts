@@ -57,6 +57,7 @@ import { Command, CommandContext } from "./src/command.js";
 import UploadToS3Handler from "./src/handlers/uploadToS3Handler.js";
 import DeleteFromS3Handler from "./src/handlers/deleteFromS3Handler.js";
 import { S3SynchronizationJob } from "./src/jobs/s3SynchronizationJob.js";
+import { JobContext } from "./src/jobs/job.js";
 
 tracingSdk().start();
 
@@ -158,6 +159,8 @@ soundBoartEventEmitter.registerHandler(
 const setPrefixHandler = new SetPrefixCommandHandler();
 soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
 
+const jobContext = new JobContext();
+
 if (soundboartConfig.s3Config) {
   const uploadToS3Handler = new UploadToS3Handler(soundboartConfig.s3Config);
   soundBoartEventEmitter.registerHandler(uploadToS3Event, uploadToS3Handler);
@@ -175,8 +178,10 @@ if (soundboartConfig.s3Config) {
     soundboartConfig.s3Config
   );
 
-  await s3SynchronizationJob.run();
+  jobContext.addJob(s3SynchronizationJob);
 }
+
+await jobContext.runJobs();
 
 const getPrefix = async (message: Message) => {
   if (!message.guild?.id) {

@@ -8,15 +8,20 @@ import { S3Config, soundboartConfig } from "../config.js";
 import fs from "fs";
 import { SoundObjectKey } from "../utils/s3.js";
 import { Paths } from "../utils/fsHelpers.js";
+import { Job } from "./job.js";
 const fsAsync = fs.promises;
 
 type SoundNamesGroupedByServers = Map<string, Set<string>>;
 
-export class S3SynchronizationJob {
+export class S3SynchronizationJob extends Job {
   private _s3Client: S3Client;
   private _bucketName: string;
 
   constructor(s3config: S3Config) {
+    super("S3SynchronizationJob", {
+      runInBackground: false,
+    });
+
     this._bucketName = s3config.bucketName;
 
     this._s3Client = new S3Client({
