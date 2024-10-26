@@ -107,6 +107,11 @@ export const deleteFromS3Event: SoundBoartEvent = {
   internal: true,
 };
 
+export const transcribeSoundEvent: SoundBoartEvent = {
+  aliases: ["transcribe-sound"],
+  internal: true,
+};
+
 export const events = [
   uploadEvent,
   listEvent,
@@ -129,6 +134,7 @@ export const events = [
   setPrefixEvent,
   uploadToS3Event,
   deleteFromS3Event,
+  transcribeSoundEvent,
 ];
 
 export const publicEventAliases = new Set(

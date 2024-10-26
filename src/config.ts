@@ -6,15 +6,21 @@ export interface S3Config {
   region: string;
 }
 
+export interface OpenAiConfig {
+  apiKey: string;
+}
+
 export interface SoundboartConfig {
   botToken: string;
   soundsDirectory: string;
   serverSettingsDirectory: string;
   usageMetricsDirectory: string;
+  transcriptionsDirectory: string;
   defaultPrefix: string;
   leaveTimeoutSeconds: number;
   maxFileSizeInBytes: number;
   s3Config?: S3Config;
+  openAiConfig?: OpenAiConfig;
 }
 
 const readOptionalEnvironmentVariable = (
@@ -79,6 +85,16 @@ const readS3Config = (): S3Config | undefined => {
   };
 };
 
+const readOpenAiConfig = (): OpenAiConfig | undefined => {
+  const apiKey = readOptionalEnvironmentVariable("OPENAI_API_KEY");
+
+  if (!apiKey) return undefined;
+
+  return {
+    apiKey,
+  };
+};
+
 const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
   const botToken = readEnvironmentVariable("BOT_TOKEN");
   const dataDirectory = readEnvironmentVariable("DATA_DIRECTORY");
@@ -91,6 +107,7 @@ const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
     5000000;
 
   const s3Config = readS3Config();
+  const openAiConfig = readOpenAiConfig();
 
   return {
     botToken,
@@ -100,7 +117,9 @@ const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
     soundsDirectory: `${dataDirectory}/sounds`,
     serverSettingsDirectory: `${dataDirectory}/serverSettings`,
     usageMetricsDirectory: `${dataDirectory}/usageMetrics`,
+    transcriptionsDirectory: `${dataDirectory}/transcriptions`,
     s3Config,
+    openAiConfig,
   };
 };
 

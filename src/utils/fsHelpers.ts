@@ -35,4 +35,12 @@ export class Paths {
   static usageMetricsFile(serverId: string): string {
     return `${this.usageMetricsDirectory(serverId)}/metrics.json`;
   }
+
+  static transcriptionsDirectory(serverId: string): string {
+    return `${soundboartConfig.transcriptionsDirectory}/${serverId}`;
+  }
+
+  static transcriptionsFile(serverId: string, soundName: string): string {
+    return `${this.transcriptionsDirectory(serverId)}/${soundName}.json`;
+  }
 }
