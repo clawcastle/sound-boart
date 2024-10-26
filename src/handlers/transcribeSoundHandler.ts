@@ -35,7 +35,7 @@ class TranscribeSoundHandler
 
     if (!soundExists) {
       console.log(
-        `Received event to transcribe sound '${soundName}' for server ${serverId}, but file does not exist.`
+        `Received event to transcribe sound '${soundName}' for server ${serverId}, but sound file does not exist.`
       );
       return;
     }
@@ -43,5 +43,17 @@ class TranscribeSoundHandler
     const transcription = await this._transcriptionService.transcribeFile(
       soundFilePath
     );
+
+    await this._transcriptionService.saveTranscription(
+      serverId,
+      soundName,
+      transcription
+    );
+
+    console.log(
+      `Saved the following transcription of sound '${soundName}' for server ${serverId}: '${transcription}'.`
+    );
   }
 }
+
+export default TranscribeSoundHandler;
