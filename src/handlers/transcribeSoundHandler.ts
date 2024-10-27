@@ -1,9 +1,9 @@
-import { Command } from "../command";
-import { ITranscriptionService } from "../transcription/transcriptionService";
-import { fileOrDirectoryExists, Paths } from "../utils/fsHelpers";
-import ICommandHandler from "./commandHandler";
+import { Command } from "../command.js";
+import { ITranscriptionService } from "../transcription/transcriptionService.js";
+import { fileOrDirectoryExists, Paths } from "../utils/fsHelpers.js";
+import ICommandHandler from "./commandHandler.js";
 
-type TranscribeSoundCommand = {
+export type TranscribeSoundCommand = {
   serverId: string;
   soundName: string;
 };

@@ -8,11 +8,13 @@ import {
   uploadEvent,
   publicEventAliases,
   uploadToS3Event,
+  transcribeSoundEvent,
 } from "../soundBoartEvents.js";
 import { Command, CommandContext } from "../command.js";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { UploadToS3HandlerParams } from "./uploadToS3Handler.js";
+import { TranscribeSoundCommand } from "./transcribeSoundHandler.js";
 const fsAsync = fs.promises;
 
 const MAX_SOUND_NAME_LENGTH = 100;
@@ -179,6 +181,17 @@ class UploadSoundCommandHandler implements ICommandHandler<Discord.Message> {
             )
           );
         }
+
+        soundBoartEventEmitter.emit(
+          transcribeSoundEvent.aliases[0],
+          new Command<TranscribeSoundCommand>(
+            {
+              serverId: serverId,
+              soundName: soundName,
+            },
+            context
+          )
+        );
       })
       .on("error", (err) => {
         console.log(err);
