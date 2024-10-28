@@ -1,14 +1,15 @@
 import fs from "fs";
 import { fileOrDirectoryExists, Paths } from "../utils/fsHelpers.js";
 import { blobFrom } from "node-fetch";
+import { soundboartConfig } from "../config.js";
+import { chunkArray } from "../utils/arrayHelpers.js";
+
 const fsAsync = fs.promises;
 
 export interface ITranscriptionService {
   transcribeSound(serverId: string, soundName: string): Promise<string>;
 
-  buildWordsSpokenInSoundsIndex(
-    serverId: string
-  ): Promise<WordsSpokenInSoundsIndex>;
+  initializeSoundTranscriptionIndex(): Promise<void>;
 }
 
 const requestUrl = "https://api.openai.com/v1/audio/transcriptions";
@@ -18,18 +19,29 @@ type SoundTranscription = {
   transcription: string;
 };
 
-class WordsSpokenInSoundsIndex {
-  private _wordsToSoundNamesMap: Map<string, string[]> = new Map();
+type WordsSpokenInSoundsIndexEntry = {
+  serverId: string;
+  soundName: string;
+};
 
-  soundsWhereWordIsSpoken(word: string): string[] {
-    return this._wordsToSoundNamesMap.get(word) ?? [];
+class WordsSpokenInSoundsIndex {
+  private _wordsToSoundNamesMap: Map<string, WordsSpokenInSoundsIndexEntry[]> =
+    new Map();
+
+  soundsWhereWordIsSpoken(serverId: string, word: string): string[] {
+    return (
+      this._wordsToSoundNamesMap
+        .get(word)
+        ?.filter((x) => x.serverId === serverId)
+        .map((x) => x.soundName) ?? []
+    );
   }
 
-  addWordsForSound(soundName: string, words: string[]) {
+  addWordsForSound(serverId: string, soundName: string, words: string[]) {
     words.forEach((word) => {
       const soundNames = this._wordsToSoundNamesMap.get(word) ?? [];
 
-      soundNames.push(soundName);
+      soundNames.push({ serverId, soundName });
 
       this._wordsToSoundNamesMap.set(word, soundNames);
     });
@@ -40,6 +52,8 @@ export class OpenAiWhisperTranscriptionService
   implements ITranscriptionService
 {
   private _openAiApiKey: string;
+  private wordsSpokenInSoundsIndex: WordsSpokenInSoundsIndex =
+    new WordsSpokenInSoundsIndex();
 
   constructor(openAiApiKey: string) {
     this._openAiApiKey = openAiApiKey;
@@ -52,6 +66,34 @@ export class OpenAiWhisperTranscriptionService
     await this.saveTranscription(serverId, soundName, transcription);
 
     return transcription;
+  }
+
+  async initializeSoundTranscriptionIndex(): Promise<void> {
+    const serverIds = await fsAsync.readdir(
+      soundboartConfig.transcriptionsDirectory
+    );
+
+    serverIds.forEach(async (serverId) => {
+      const soundNames = await fsAsync.readdir(
+        Paths.transcriptionsDirectory(serverId)
+      );
+
+      chunkArray(soundNames, 10).forEach(async (soundNamesChunk) => {
+        const transcriptions = await Promise.all(
+          soundNamesChunk.map(async (soundName) => {
+            return await this.getTranscription(serverId, soundName);
+          })
+        );
+
+        transcriptions.forEach(({ soundName, transcription }) => {
+          this.wordsSpokenInSoundsIndex.addWordsForSound(
+            serverId,
+            soundName,
+            transcription.trim().split(" ")
+          );
+        });
+      });
+    });
   }
 
   private async generateTranscription(filePath: string): Promise<string> {
@@ -129,30 +171,5 @@ export class OpenAiWhisperTranscriptionService
     ) as SoundTranscription;
 
     return transcription;
-  }
-
-  async buildWordsSpokenInSoundsIndex(
-    serverId: string
-  ): Promise<WordsSpokenInSoundsIndex> {
-    const index = new WordsSpokenInSoundsIndex();
-
-    const transcriptionFiles = await fsAsync.readdir(
-      Paths.transcriptionsDirectory(serverId)
-    );
-
-    transcriptionFiles.forEach(async (transcriptionFile) => {
-      const soundTranscription = await this.getTranscription(
-        serverId,
-        transcriptionFile
-      );
-
-      const words = soundTranscription.transcription
-        .split(" ")
-        .filter((word) => word.length > 0);
-
-      index.addWordsForSound(soundTranscription.soundName, words);
-    });
-
-    return index;
   }
 }

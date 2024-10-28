@@ -1,7 +1,6 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
-import { soundboartConfig } from "../config.js";
 import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
 import { playSound } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";

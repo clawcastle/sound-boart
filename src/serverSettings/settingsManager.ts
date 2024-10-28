@@ -4,7 +4,6 @@ import {
   insertSettings as insertSettingsInCache,
 } from "./serverSettingsCache.js";
 import fs from "fs";
-import { soundboartConfig } from "../config.js";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 

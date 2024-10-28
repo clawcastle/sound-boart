@@ -1,6 +1,5 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
-import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { sendMessage } from "../utils/textChannelHelpers.js";
 import { Command } from "../command.js";

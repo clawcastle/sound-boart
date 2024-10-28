@@ -9,6 +9,7 @@ import fs from "fs";
 import { SoundObjectKey } from "../utils/s3.js";
 import { Paths } from "../utils/fsHelpers.js";
 import { Job } from "./job.js";
+import { chunkArray } from "../utils/arrayHelpers.js";
 const fsAsync = fs.promises;
 
 type SoundNamesGroupedByServers = Map<string, Set<string>>;
@@ -48,18 +49,6 @@ export class S3SynchronizationJob extends Job {
         .map((objectKey) => objectKey.serverId)
         .concat([...soundNamesGroupedByServerId.keys()])
     );
-
-    const chunkObjects = (array: SoundObjectKey[], chunkSize: number) => {
-      if (array.length < chunkSize) return [array];
-
-      const chunks = [];
-
-      for (let i = 0; i < array.length; i += chunkSize) {
-        chunks.push(array.slice(i, i + chunkSize));
-      }
-
-      return chunks;
-    };
 
     const findSoundsToDownloadForServer = (
       serverId: string
@@ -107,7 +96,7 @@ export class S3SynchronizationJob extends Job {
         `Found ${toUpload.length} files to upload and ${toDownload.length} files to download for server ${serverId}.`
       );
 
-      chunkObjects(toDownload, 10).forEach(async (soundsToDownloadBatch) => {
+      chunkArray(toDownload, 10).forEach(async (soundsToDownloadBatch) => {
         const downloadBatchPromises = soundsToDownloadBatch.map(
           async (soundToDownload) => {
             const objectKey = soundToDownload.serialize();
@@ -142,7 +131,7 @@ export class S3SynchronizationJob extends Job {
         await Promise.all(downloadBatchPromises);
       });
 
-      chunkObjects(toUpload, 10).forEach(async (soundsToUploadBatch) => {
+      chunkArray(toUpload, 10).forEach(async (soundsToUploadBatch) => {
         const uploadBatchPromises = soundsToUploadBatch.map(
           async (soundToUpload) => {
             const objectKey = soundToUpload.serialize();
