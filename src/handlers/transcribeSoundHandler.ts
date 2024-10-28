@@ -40,14 +40,9 @@ class TranscribeSoundHandler
       return;
     }
 
-    const transcription = await this._transcriptionService.transcribeFile(
-      soundFilePath
-    );
-
-    await this._transcriptionService.saveTranscription(
+    const transcription = await this._transcriptionService.transcribeSound(
       serverId,
-      soundName,
-      transcription
+      soundName
     );
 
     console.log(

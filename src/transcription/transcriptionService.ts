@@ -4,13 +4,7 @@ import { blobFrom } from "node-fetch";
 const fsAsync = fs.promises;
 
 export interface ITranscriptionService {
-  transcribeFile(filePath: string): Promise<string>;
-
-  saveTranscription(
-    serverId: string,
-    soundName: string,
-    transcription: string
-  ): Promise<void>;
+  transcribeSound(serverId: string, soundName: string): Promise<string>;
 
   buildWordsSpokenInSoundsIndex(
     serverId: string
@@ -24,6 +18,24 @@ type SoundTranscription = {
   transcription: string;
 };
 
+class WordsSpokenInSoundsIndex {
+  private _wordsToSoundNamesMap: Map<string, string[]> = new Map();
+
+  soundsWhereWordIsSpoken(word: string): string[] {
+    return this._wordsToSoundNamesMap.get(word) ?? [];
+  }
+
+  addWordsForSound(soundName: string, words: string[]) {
+    words.forEach((word) => {
+      const soundNames = this._wordsToSoundNamesMap.get(word) ?? [];
+
+      soundNames.push(soundName);
+
+      this._wordsToSoundNamesMap.set(word, soundNames);
+    });
+  }
+}
+
 export class OpenAiWhisperTranscriptionService
   implements ITranscriptionService
 {
@@ -33,7 +45,16 @@ export class OpenAiWhisperTranscriptionService
     this._openAiApiKey = openAiApiKey;
   }
 
-  async transcribeFile(filePath: string): Promise<string> {
+  async transcribeSound(serverId: string, soundName: string): Promise<string> {
+    const filePath = Paths.soundFile(serverId, soundName);
+    const transcription = await this.generateTranscription(filePath);
+
+    await this.saveTranscription(serverId, soundName, transcription);
+
+    return transcription;
+  }
+
+  private async generateTranscription(filePath: string): Promise<string> {
     if (!filePath.endsWith(".mp3")) {
       throw new Error("Only .mp3 files are supported");
     }
@@ -65,7 +86,7 @@ export class OpenAiWhisperTranscriptionService
     }
   }
 
-  async saveTranscription(
+  private async saveTranscription(
     serverId: string,
     soundName: string,
     transcription: string
@@ -133,23 +154,5 @@ export class OpenAiWhisperTranscriptionService
     });
 
     return index;
-  }
-}
-
-class WordsSpokenInSoundsIndex {
-  private _wordsToSoundNamesMap: Map<string, string[]> = new Map();
-
-  soundsWhereWordIsSpoken(word: string): string[] {
-    return this._wordsToSoundNamesMap.get(word) ?? [];
-  }
-
-  addWordsForSound(soundName: string, words: string[]) {
-    words.forEach((word) => {
-      const soundNames = this._wordsToSoundNamesMap.get(word) ?? [];
-
-      soundNames.push(soundName);
-
-      this._wordsToSoundNamesMap.set(word, soundNames);
-    });
   }
 }
