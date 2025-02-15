@@ -32,15 +32,19 @@ export async function updateSettings(
   serverId: string,
   updatedSettings: ServerSettings
 ) {
-  const filePath = Paths.serverSettingsFile(serverId);
+  const serverSettingsDirectory = Paths.serverSettingsDirectory(serverId);
 
-  const fileExists = await fileOrDirectoryExists(filePath);
+  const serverSettingsDirectoryExists = await fileOrDirectoryExists(
+    serverSettingsDirectory
+  );
 
-  if (!fileExists) {
-    await fsAsync.mkdir(filePath, {
+  if (!serverSettingsDirectoryExists) {
+    await fsAsync.mkdir(serverSettingsDirectory, {
       recursive: true,
     });
   }
+
+  const filePath = Paths.serverSettingsFile(serverId);
 
   await fsAsync.writeFile(filePath, JSON.stringify(updatedSettings));
 
