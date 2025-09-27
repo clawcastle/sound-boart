@@ -8,6 +8,14 @@ import fs from "fs";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
 
+const userSoundHistoryHeader = "\"userId\",\"soundName\",\"timestamp\"";
+
+interface UserSoundHistoryEntry {
+  userId: string,
+  soundName: string,
+  timestamp: number,
+}
+
 export async function updateSoundPlayedMetrics(
   serverId: string,
   userId: string,
@@ -23,7 +31,32 @@ export async function updateSoundPlayedMetrics(
     });
   }
 
-  await updateServerUsageMetrics(serverId, soundName);
+  const promises = [
+    updateServerUsageMetrics(serverId, soundName),
+    updateUserSoundHistory(serverId, userId, soundName),
+  ];
+  
+  await Promise.all(promises);
+}
+
+async function updateUserSoundHistory(serverId: string, userId: string, soundName: string) {
+  const filePath = Paths.userSoundHistoryFile(serverId, userId);
+
+  if (!fileOrDirectoryExists(filePath)) {
+    await fsAsync.writeFile(filePath, userSoundHistoryHeader);
+  }
+
+  const timestamp = Date.now();
+
+  const entry = {
+    userId,
+    soundName,
+    timestamp,
+  };
+
+  const rowData = userSoundHistoryRow(entry);
+
+  await fsAsync.appendFile(filePath, rowData);
 }
 
 async function updateServerUsageMetrics(serverId: string, soundName: string) {
@@ -56,4 +89,8 @@ export async function getUsageMetricsForServer(serverId: string) {
   const usageMetrics = JSON.parse(fileContent) as ServerUsageMetrics;
 
   return usageMetrics ?? defaultUsageMetrics;
+}
+
+function userSoundHistoryRow(entry: UserSoundHistoryEntry): string {
+  return `\"${entry.userId}\",\"${entry.soundName}\",\"${entry.timestamp}\"`;
 }
