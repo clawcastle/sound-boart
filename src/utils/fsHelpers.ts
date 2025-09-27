@@ -43,4 +43,8 @@ export class Paths {
   static transcriptionsFile(serverId: string, soundName: string): string {
     return `${this.transcriptionsDirectory(serverId)}/${soundName}.json`;
   }
+
+  static userSoundPlayedHistoryFile(serverId: string, userId: string): string {
+    return `${this.usageMetricsDirectory(serverId)}/${userId}-sound-history.json`;
+  }
 }

@@ -14,7 +14,6 @@ export async function updateSoundPlayedMetrics(
   soundName: string
 ) {
   const directoryPath = Paths.usageMetricsDirectory(serverId);
-  const filePath = Paths.usageMetricsFile(serverId);
 
   const directoryExists = await fileOrDirectoryExists(directoryPath);
 
@@ -24,6 +23,10 @@ export async function updateSoundPlayedMetrics(
     });
   }
 
+  await updateServerUsageMetrics(serverId, soundName);
+}
+
+async function updateServerUsageMetrics(serverId: string, soundName: string) {
   const usageMetrics = await getUsageMetricsForServer(serverId);
 
   const entryToUpdate = usageMetrics.soundsPlayed.find(
@@ -36,6 +39,8 @@ export async function updateSoundPlayedMetrics(
     const newEntry: SoundPlayedByUser = { soundName, timesPlayed: 1 };
     usageMetrics.soundsPlayed.push(newEntry);
   }
+
+  const filePath = Paths.usageMetricsFile(serverId);
 
   await fsAsync.writeFile(filePath, JSON.stringify(usageMetrics));
 }
