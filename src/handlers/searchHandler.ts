@@ -4,11 +4,6 @@ import { sendMessage } from "../utils/textChannelHelpers.js";
 import { getSoundNamesForServer } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";
 
-type SearchCommandHandlerArgs = {
-  serverId: string;
-  query: string;
-};
-
 class SearchCommandHandler implements ICommandHandler<Discord.Message> {
   activate(command: Command<Discord.Message>) {
     return command.context.commandParts.length > 1;

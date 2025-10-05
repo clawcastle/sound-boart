@@ -7,8 +7,9 @@ import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
+const readline = require('readline');
 
-const userSoundHistoryHeader = "\"userId\",\"soundName\",\"timestamp\"";
+const userSoundHistoryHeader = "\"userId\",\"soundName\",\"timestamp\"\n";
 
 interface UserSoundHistoryEntry {
   userId: string,
@@ -42,7 +43,8 @@ export async function updateSoundPlayedMetrics(
 async function updateUserSoundHistory(serverId: string, userId: string, soundName: string) {
   const filePath = Paths.userSoundHistoryFile(serverId, userId);
 
-  if (!fileOrDirectoryExists(filePath)) {
+  const fileExists = await fileOrDirectoryExists(filePath);
+  if (!fileExists) {
     await fsAsync.writeFile(filePath, userSoundHistoryHeader);
   }
 
@@ -57,6 +59,47 @@ async function updateUserSoundHistory(serverId: string, userId: string, soundNam
   const rowData = userSoundHistoryRow(entry);
 
   await fsAsync.appendFile(filePath, rowData);
+}
+
+export async function listUserSoundHistory(serverId: string, userId: string, nEntries: number) {
+  const filePath = Paths.userSoundHistoryFile(serverId, userId);
+
+  const fileExists = await fileOrDirectoryExists(filePath);
+  if (!fileExists) return [];
+
+  const fileStream = fs.createReadStream(filePath);
+
+  const readLineInterface = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+
+  const linesBuffer: string[] = [];
+
+  for await (const line of readLineInterface) {
+    if (linesBuffer.length >= nEntries) {
+      linesBuffer.pop();
+    }
+
+    linesBuffer.push(line);
+  }
+
+  // Newest entry is at the bottom of the file, so we reverse the list to get the newest entry first.
+  linesBuffer.reverse();
+
+  const entries: UserSoundHistoryEntry[] = [];
+
+  linesBuffer.forEach(line => {
+    const entry = parseUserSoundHistoryLine(line);
+
+    if (!!entry) {
+      entries.push(entry);
+    } else {
+      console.log("Failed to parse user sound history line: ", line);
+    }
+  });
+
+  return entries;
 }
 
 async function updateServerUsageMetrics(serverId: string, soundName: string) {
@@ -92,5 +135,19 @@ export async function getUsageMetricsForServer(serverId: string) {
 }
 
 function userSoundHistoryRow(entry: UserSoundHistoryEntry): string {
-  return `\"${entry.userId}\",\"${entry.soundName}\",\"${entry.timestamp}\"`;
+  return `\"${entry.userId}\",\"${entry.soundName}\",\"${entry.timestamp}\"\n`;
+}
+
+function parseUserSoundHistoryLine(line: string): UserSoundHistoryEntry | null {
+  const parts = line.split(",");
+
+  if (parts.length < 3) return null;
+
+  const [userId, soundName, timestampString] = parts;
+
+  if (isNaN(Number(timestampString))) return null;
+
+  const timestamp = Number(timestampString);
+
+  return { userId, soundName, timestamp };
 }
