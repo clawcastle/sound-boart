@@ -7,21 +7,21 @@ import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 const fsAsync = fs.promises;
-const readline = require('readline');
+const readline = require("readline");
 
-const userSoundHistoryHeader = "\"userId\",\"soundName\",\"timestamp\"\n";
+const userSoundHistoryHeader = '"userId","soundName","timestamp"\n';
 
 interface UserSoundHistoryEntry {
-  userId: string,
-  soundName: string,
-  timestamp: number,
+  userId: string;
+  soundName: string;
+  timestamp: number;
 }
 
 export async function updateSoundPlayedMetrics(
   serverId: string,
   userId: string,
   soundName: string,
-  isRandomSound: boolean,
+  isRandomSound: boolean
 ) {
   const directoryPath = Paths.usageMetricsDirectory(serverId);
 
@@ -37,11 +37,16 @@ export async function updateSoundPlayedMetrics(
     updateServerUsageMetrics(serverId, soundName),
     updateUserSoundHistory(serverId, userId, soundName, isRandomSound),
   ];
-  
+
   await Promise.all(promises);
 }
 
-async function updateUserSoundHistory(serverId: string, userId: string, soundName: string, isRandomSound: boolean) {
+async function updateUserSoundHistory(
+  serverId: string,
+  userId: string,
+  soundName: string,
+  isRandomSound: boolean
+) {
   const filePath = Paths.userSoundHistoryFile(serverId, userId);
 
   const fileExists = await fileOrDirectoryExists(filePath);
@@ -67,7 +72,11 @@ async function updateUserSoundHistory(serverId: string, userId: string, soundNam
   await fsAsync.appendFile(filePath, rowData);
 }
 
-export async function listUserSoundHistory(serverId: string, userId: string, nEntries: number) {
+export async function listUserSoundHistory(
+  serverId: string,
+  userId: string,
+  nEntries: number
+) {
   const filePath = Paths.userSoundHistoryFile(serverId, userId);
 
   const fileExists = await fileOrDirectoryExists(filePath);
@@ -77,7 +86,7 @@ export async function listUserSoundHistory(serverId: string, userId: string, nEn
 
   const readLineInterface = readline.createInterface({
     input: fileStream,
-    crlfDelay: Infinity
+    crlfDelay: Infinity,
   });
 
   const linesBuffer: string[] = [];
@@ -95,7 +104,7 @@ export async function listUserSoundHistory(serverId: string, userId: string, nEn
 
   const entries: UserSoundHistoryEntry[] = [];
 
-  linesBuffer.forEach(line => {
+  linesBuffer.forEach((line) => {
     const entry = parseUserSoundHistoryLine(line);
 
     if (!!entry) {

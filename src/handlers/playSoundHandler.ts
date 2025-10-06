@@ -102,15 +102,16 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
         await playSound(soundFilePath, voiceChannel);
 
         if (soundPlayedEvent.aliases.length > 0) {
-          const soundPlayedCommand = new Command<RecordSoundPlayedCommandHandlerArgs>(
-            {
-              soundName,
-              serverId: params.serverId,
-              userId: params.userId,
-              isRandomSound: false,
-            },
-            command.context
-          );
+          const soundPlayedCommand =
+            new Command<RecordSoundPlayedCommandHandlerArgs>(
+              {
+                soundName,
+                serverId: params.serverId,
+                userId: params.userId,
+                isRandomSound: false,
+              },
+              command.context
+            );
 
           soundBoartEventEmitter.emit(
             soundPlayedEvent.aliases[0],
