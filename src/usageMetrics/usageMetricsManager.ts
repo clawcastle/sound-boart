@@ -93,7 +93,7 @@ export async function listUserSoundHistory(
 
   for await (const line of readLineInterface) {
     if (linesBuffer.length >= nEntries) {
-      linesBuffer.pop();
+      linesBuffer.shift();
     }
 
     linesBuffer.push(line);
