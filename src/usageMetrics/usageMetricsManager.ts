@@ -20,7 +20,8 @@ interface UserSoundHistoryEntry {
 export async function updateSoundPlayedMetrics(
   serverId: string,
   userId: string,
-  soundName: string
+  soundName: string,
+  isRandomSound: boolean,
 ) {
   const directoryPath = Paths.usageMetricsDirectory(serverId);
 
@@ -34,13 +35,13 @@ export async function updateSoundPlayedMetrics(
 
   const promises = [
     updateServerUsageMetrics(serverId, soundName),
-    updateUserSoundHistory(serverId, userId, soundName),
+    updateUserSoundHistory(serverId, userId, soundName, isRandomSound),
   ];
   
   await Promise.all(promises);
 }
 
-async function updateUserSoundHistory(serverId: string, userId: string, soundName: string) {
+async function updateUserSoundHistory(serverId: string, userId: string, soundName: string, isRandomSound: boolean) {
   const filePath = Paths.userSoundHistoryFile(serverId, userId);
 
   const fileExists = await fileOrDirectoryExists(filePath);
@@ -50,9 +51,14 @@ async function updateUserSoundHistory(serverId: string, userId: string, soundNam
 
   const timestamp = Date.now();
 
+  let soundNameString = soundName;
+  if (isRandomSound) {
+    soundNameString = `${soundName} (random)`;
+  }
+
   const entry = {
     userId,
-    soundName,
+    soundName: soundNameString,
     timestamp,
   };
 
