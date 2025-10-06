@@ -34,12 +34,21 @@ class ListSoundHistoryHandler implements ICommandHandler<Discord.Message> {
   ): Promise<void> {
     const params = this.parseCommandPayload(command);
 
+    const textChannel = command.payload.channel as Discord.TextChannel;
+
     if (!params) {
       sendMessage(
         "Something went wrong while trying to list your sound history",
-        command.payload.channel as Discord.TextChannel
+        textChannel
       );
       return;
+    }
+
+    if (params.nEntries > 50) {
+      sendMessage(
+        "Cannot list more than 50 sound history entries",
+        textChannel
+      );
     }
 
     const historyEntries = await listUserSoundHistory(
@@ -48,17 +57,25 @@ class ListSoundHistoryHandler implements ICommandHandler<Discord.Message> {
       params.nEntries
     );
 
-    const message = historyEntries
+    if (!historyEntries.length) {
+      sendMessage("No sound history found.", textChannel);
+      return;
+    }
+
+    const header = "| Date | Sound |";
+    const separator = "|---|---|";
+
+    const table = historyEntries
       .map((entry) => {
         const timestamp = new Date(entry.timestamp);
         const dateString = timestamp.toLocaleDateString("da-DK");
 
-        return `${dateString} | ${entry.soundName}`;
+        return `| ${dateString} | ${entry.soundName} |`;
       })
       .join("\n");
 
-    const textChannel = command.payload.channel as Discord.TextChannel;
+    const message = `${header}\n${separator}\n${table}`;
 
-    textChannel.send(message);
+    textChannel.send(`${message}`);
   }
 }
