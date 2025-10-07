@@ -93,15 +93,20 @@ export async function listUserSoundHistory(
   });
 
   const linesBuffer: string[] = [];
+  let n = 0;
 
   for await (const line of readLineInterface) {
-    console.log(`buffer length: ${linesBuffer.length}. line: ${line}`);
+    if (n === 0) {
+      // skip header
+      continue;
+    }
 
     if (linesBuffer.length >= nEntries) {
       linesBuffer.shift();
     }
 
     linesBuffer.push(line);
+    n += 1;
   }
 
   // Newest entry is at the bottom of the file, so we reverse the list to get the newest entry first.
@@ -114,12 +119,8 @@ export async function listUserSoundHistory(
 
     if (!!entry) {
       entries.push(entry);
-    } else {
-      console.log("Failed to parse user sound history line: ", line);
     }
   });
-
-  console.log("entries", entries);
 
   return entries;
 }
