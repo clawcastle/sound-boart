@@ -6,8 +6,8 @@ import {
 import { soundboartConfig } from "../config.js";
 import fs from "fs";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
+import readline from "readline";
 const fsAsync = fs.promises;
-const readline = require("readline");
 
 const userSoundHistoryHeader = '"userId","soundName","timestamp"\n';
 
