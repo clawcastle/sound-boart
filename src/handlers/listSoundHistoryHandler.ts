@@ -4,7 +4,9 @@ import { sendMessage } from "../utils/textChannelHelpers.js";
 import { Command } from "../command.js";
 import { listUserSoundHistory } from "../usageMetrics/usageMetricsManager.js";
 
-class ListSoundHistoryHandler implements ICommandHandler<Discord.Message> {
+export class ListSoundHistoryHandler
+  implements ICommandHandler<Discord.Message>
+{
   activate(command: Command<Discord.Message<boolean>>): boolean {
     return true;
   }
