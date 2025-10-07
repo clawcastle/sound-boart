@@ -16,11 +16,9 @@ export class ListSoundHistoryHandler
 
     const userId = command.payload.author.id;
 
-    if (commandParts.length < 2 || !serverId) return null;
-
     let nEntries = 10;
 
-    if (!isNaN(Number(commandParts[1]))) {
+    if (commandParts.length > 1 && !isNaN(Number(commandParts[1]))) {
       nEntries = Number(commandParts[1]);
     }
 
@@ -59,25 +57,24 @@ export class ListSoundHistoryHandler
       params.nEntries
     );
 
-    if (!historyEntries.length) {
+    if (historyEntries.length === 0) {
       sendMessage("No sound history found.", textChannel);
       return;
     }
-
-    const header = "| Date | Sound |";
-    const separator = "|---|---|";
 
     const table = historyEntries
       .map((entry) => {
         const timestamp = new Date(entry.timestamp);
         const dateString = timestamp.toLocaleDateString("da-DK");
 
-        return `| ${dateString} | ${entry.soundName} |`;
+        return `${dateString} | ${entry.soundName}`;
       })
       .join("\n");
 
-    const message = `${header}\n${separator}\n${table}`;
+    const message = `History:\n\n${table}`;
 
-    textChannel.send(`${message}`);
+    textChannel.send({
+      embeds: [{ description: message }],
+    });
   }
 }

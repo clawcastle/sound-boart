@@ -9,7 +9,7 @@ import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
 import readline from "readline";
 const fsAsync = fs.promises;
 
-const userSoundHistoryHeader = '"userId","soundName","timestamp"\n';
+const userSoundHistoryHeader = "userId,soundName,timestamp\n";
 
 interface UserSoundHistoryEntry {
   userId: string;
@@ -80,7 +80,10 @@ export async function listUserSoundHistory(
   const filePath = Paths.userSoundHistoryFile(serverId, userId);
 
   const fileExists = await fileOrDirectoryExists(filePath);
-  if (!fileExists) return [];
+  if (!fileExists) {
+    console.log(`file ${filePath} does not exist`);
+    return [];
+  }
 
   const fileStream = fs.createReadStream(filePath);
 
@@ -92,6 +95,8 @@ export async function listUserSoundHistory(
   const linesBuffer: string[] = [];
 
   for await (const line of readLineInterface) {
+    console.log(`buffer length: ${linesBuffer.length}. line: ${line}`);
+
     if (linesBuffer.length >= nEntries) {
       linesBuffer.shift();
     }
@@ -113,6 +118,8 @@ export async function listUserSoundHistory(
       console.log("Failed to parse user sound history line: ", line);
     }
   });
+
+  console.log("entries", entries);
 
   return entries;
 }
@@ -150,7 +157,7 @@ export async function getUsageMetricsForServer(serverId: string) {
 }
 
 function userSoundHistoryRow(entry: UserSoundHistoryEntry): string {
-  return `\"${entry.userId}\",\"${entry.soundName}\",\"${entry.timestamp}\"\n`;
+  return `${entry.userId},${entry.soundName},${entry.timestamp}\n`;
 }
 
 function parseUserSoundHistoryLine(line: string): UserSoundHistoryEntry | null {

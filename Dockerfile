@@ -1,42 +1,24 @@
-# Builder stage
-FROM node:20-slim AS builder
+FROM node:latest
 
 ARG BOT_TOKEN
 
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-# Copy source code
+COPY package.json ./
 COPY tsconfig.json ./
 COPY app.ts ./
 COPY src/ ./src
 
-# Build the application
-RUN npm install -g typescript
-RUN tsc
+# RUN apt-get update --fix-missing \
+#     && apt-get -y install ffmpeg
 
-# Prune development dependencies
-RUN npm prune --production
-
-
-# Final stage
-FROM node:20-slim
-
-ARG BOT_TOKEN
-
-WORKDIR /app
-
-# Install ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg --no-install-recommends && rm -rf /var/lib/apt/lists/*
-
-# Copy built application and dependencies from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+RUN npm install -g npm@latest \
+    && npm install \
+    && npm install -g typescript
 
 ENV NODE_ENV production
 ENV BOT_TOKEN ${BOT_TOKEN}
+
+RUN tsc
 
 CMD [ "node", "./dist/app.js" ]

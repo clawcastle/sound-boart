@@ -45,6 +45,8 @@ export class Paths {
   }
 
   static userSoundHistoryFile(serverId: string, userId: string): string {
-    return `${this.usageMetricsDirectory(serverId)}/${userId}-sound-history.json`;
+    return `${this.usageMetricsDirectory(
+      serverId
+    )}/${userId}-sound-history.csv`;
   }
 }
