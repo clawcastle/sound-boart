@@ -164,11 +164,20 @@ function userSoundHistoryRow(entry: UserSoundHistoryEntry): string {
 function parseUserSoundHistoryLine(line: string): UserSoundHistoryEntry | null {
   const parts = line.split(",");
 
-  if (parts.length < 3) return null;
+  if (parts.length < 3) {
+    console.log(
+      "Splitting line by ',' did not yield 3 parts. Parts were: ",
+      parts
+    );
+    return null;
+  }
 
   const [userId, soundName, timestampString] = parts;
 
-  if (isNaN(Number(timestampString))) return null;
+  if (isNaN(Number(timestampString))) {
+    console.log(`Failed to parse ${timestampString} as number`);
+    return null;
+  }
 
   const timestamp = Number(timestampString);
 
