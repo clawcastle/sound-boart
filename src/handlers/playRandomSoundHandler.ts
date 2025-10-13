@@ -11,6 +11,7 @@ import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
 import { Command } from "../command.js";
 import { Paths } from "../utils/fsHelpers.js";
+import { RecordSoundPlayedCommandHandlerArgs } from "./recordSoundPlayedHandler.js";
 
 type PlayRandomSoundCommandHandlerArgs = {
   serverId: string;
@@ -90,14 +91,16 @@ class PlayRandomSoundCommandHandler
       await playSound(soundFilePath, voiceChannel);
 
       if (soundPlayedEvent.aliases?.length > 0) {
-        const soundPlayedCommand = new Command(
-          {
-            soundName,
-            serverId: params.serverId,
-            userId: params.userId,
-          },
-          command.context
-        );
+        const soundPlayedCommand =
+          new Command<RecordSoundPlayedCommandHandlerArgs>(
+            {
+              soundName,
+              serverId: params.serverId,
+              userId: params.userId,
+              isRandomSound: true,
+            },
+            command.context
+          );
 
         soundBoartEventEmitter.emit(
           soundPlayedEvent.aliases[0],

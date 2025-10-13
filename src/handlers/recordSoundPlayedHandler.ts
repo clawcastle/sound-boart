@@ -2,10 +2,11 @@ import ICommandHandler from "./commandHandler.js";
 import { updateSoundPlayedMetrics } from "../usageMetrics/usageMetricsManager.js";
 import { Command } from "../command.js";
 
-type RecordSoundPlayedCommandHandlerArgs = {
+export type RecordSoundPlayedCommandHandlerArgs = {
   serverId: string;
   userId: string;
   soundName: string;
+  isRandomSound: boolean;
 };
 
 class RecordSoundPlayedCommandHandler
@@ -20,9 +21,9 @@ class RecordSoundPlayedCommandHandler
   }
 
   async handleCommand(command: Command<RecordSoundPlayedCommandHandlerArgs>) {
-    const { serverId, userId, soundName } = this.parseCommandPayload(command);
+    const { serverId, userId, soundName, isRandomSound } = this.parseCommandPayload(command);
 
-    await updateSoundPlayedMetrics(serverId, userId, soundName);
+    await updateSoundPlayedMetrics(serverId, userId, soundName, isRandomSound);
   }
 }
 

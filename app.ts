@@ -40,6 +40,7 @@ import {
   uploadToS3Event,
   deleteFromS3Event,
   transcribeSoundEvent,
+  historyEvent,
 } from "./src/soundBoartEvents.js";
 import { getCommandParts } from "./src/utils/messageHelpers.js";
 import SetGreetSoundCommandHandler from "./src/handlers/setGreetingSoundHandler.js";
@@ -53,7 +54,6 @@ import ListTopSoundsCommandHandler from "./src/handlers/listTopSoundsHandler.js"
 import { soundboartConfig } from "./src/config.js";
 import { tracingSdk } from "./src/tracing/tracing.js";
 import SetPrefixCommandHandler from "./src/handlers/setPrefixHandler.js";
-import { getSettings } from "./src/serverSettings/serverSettingsCache.js";
 import { Command, CommandContext } from "./src/command.js";
 import UploadToS3Handler from "./src/handlers/uploadToS3Handler.js";
 import DeleteFromS3Handler from "./src/handlers/deleteFromS3Handler.js";
@@ -61,6 +61,8 @@ import { S3SynchronizationJob } from "./src/jobs/s3SynchronizationJob.js";
 import { JobContext } from "./src/jobs/job.js";
 import { OpenAiWhisperTranscriptionService } from "./src/transcription/transcriptionService.js";
 import TranscribeSoundHandler from "./src/handlers/transcribeSoundHandler.js";
+import { ListSoundHistoryHandler } from "./src/handlers/listSoundHistoryHandler.js";
+import { getSettings } from "./src/serverSettings/settingsManager.js";
 
 tracingSdk().start();
 
@@ -161,6 +163,9 @@ soundBoartEventEmitter.registerHandler(
 
 const setPrefixHandler = new SetPrefixCommandHandler();
 soundBoartEventEmitter.registerHandler(setPrefixEvent, setPrefixHandler);
+
+const historyHandler = new ListSoundHistoryHandler();
+soundBoartEventEmitter.registerHandler(historyEvent, historyHandler);
 
 const jobContext = new JobContext();
 
