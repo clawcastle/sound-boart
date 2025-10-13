@@ -96,7 +96,9 @@ export async function listUserSoundHistory(
   let n = 0;
 
   for await (const line of readLineInterface) {
-    if (n === 0) {
+    n += 1;
+
+    if (n === 1) {
       // skip header
       continue;
     }
@@ -106,7 +108,6 @@ export async function listUserSoundHistory(
     }
 
     linesBuffer.push(line);
-    n += 1;
   }
 
   // Newest entry is at the bottom of the file, so we reverse the list to get the newest entry first.
