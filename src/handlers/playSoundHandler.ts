@@ -101,6 +101,8 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       try {
         await playSound(soundFilePath, voiceChannel);
 
+        console.log(`Played sound with soundName='${soundName}'`);
+
         if (soundPlayedEvent.aliases.length > 0) {
           const soundPlayedCommand =
             new Command<RecordSoundPlayedCommandHandlerArgs>(

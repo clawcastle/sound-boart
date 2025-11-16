@@ -20,9 +20,11 @@ class SoundBoartEventEmitter {
               const commandWithTracing = command.withSpan(span);
 
               await handler.handleCommand(commandWithTracing);
+
+              console.log(`Handled command with commandName='${eventAlias}'`);
             } catch (err) {
               //TODO: add proper logging
-              console.log("An error occurred", err);
+              console.error("An error occurred", err);
             } finally {
               span.end();
             }
