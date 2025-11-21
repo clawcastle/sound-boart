@@ -175,7 +175,11 @@ export class S3SynchronizationJob extends Job {
           Paths.soundFilesDirectory(serverId)
         );
 
-        return { serverId, soundNames: new Set(soundNames) };
+        const normalizedSoundNames = new Set(
+          soundNames.map((name) => name.replace(".mp3", ""))
+        );
+
+        return { serverId, soundNames: normalizedSoundNames };
       })
     );
 
@@ -223,7 +227,7 @@ export class S3SynchronizationJob extends Job {
 
       fetchedObjectKeysCount += soundObjectKeys.length;
       continuationToken = response.ContinuationToken;
-    } while (continuationToken);
+    } while (!!continuationToken);
 
     console.log(
       `jobName='s3-sync-job' fetched objectKeysLength=${fetchedObjectKeysCount} object keys from S3`
