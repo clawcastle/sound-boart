@@ -85,13 +85,6 @@ export class S3SynchronizationJob extends Job {
 
       const toUpload = new Array(...existingSoundNamesForServer)
         .filter((s) => !alreadyUploadedSoundNames.has(s))
-        .map((soundName) => {
-          if (soundName.endsWith(".mp3")) {
-            return soundName;
-          } else {
-            return `${soundName}.mp3`;
-          }
-        })
         .map((soundName) => new SoundObjectKey(serverId, soundName));
 
       return toUpload;
