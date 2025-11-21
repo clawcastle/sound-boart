@@ -10,6 +10,8 @@ import { SoundObjectKey } from "../utils/s3.js";
 import { Paths } from "../utils/fsHelpers.js";
 import { Job } from "./job.js";
 import { chunkArray } from "../utils/arrayHelpers.js";
+import { v4 as uuid } from "uuid";
+
 const fsAsync = fs.promises;
 
 type SoundNamesGroupedByServers = Map<string, Set<string>>;
@@ -194,12 +196,18 @@ export class S3SynchronizationJob extends Job {
 
     const result: SoundObjectKey[] = [];
 
+    let fetchedObjectKeysCount = 0;
     do {
+      const batchId = uuid();
       const response = await this._s3Client.send(listCommand);
 
       const objectKeys = (response.Contents?.map((o) => o.Key).filter(
         (key) => !!key
       ) ?? []) as string[];
+
+      console.log(
+        `jobName='s3-sync-job' received objectKeysLength=${objectKeys.length} object keys in batch with batchId='${batchId}' from S3`
+      );
 
       const soundObjectKeys = objectKeys
         .map((objectKey) => SoundObjectKey.deserialize(objectKey))
@@ -207,10 +215,19 @@ export class S3SynchronizationJob extends Job {
           (soundObjectKey) => soundObjectKey !== null
         ) as SoundObjectKey[];
 
+      console.log(
+        `jobName='s3-sync-job' parsed soundObjectKeysLength=${soundObjectKeys.length} sound object keys in batch with batchId='${batchId}' from S3`
+      );
+
       result.push(...soundObjectKeys);
 
+      fetchedObjectKeysCount += soundObjectKeys.length;
       continuationToken = response.ContinuationToken;
     } while (continuationToken);
+
+    console.log(
+      `jobName='s3-sync-job' fetched objectKeysLength=${fetchedObjectKeysCount} object keys from S3`
+    );
 
     return result;
   }
