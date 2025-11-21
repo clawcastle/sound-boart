@@ -175,11 +175,7 @@ export class S3SynchronizationJob extends Job {
           Paths.soundFilesDirectory(serverId)
         );
 
-        const normalizedSoundNames = new Set(
-          soundNames.map((name) => name.replace(".mp3", ""))
-        );
-
-        return { serverId, soundNames: normalizedSoundNames };
+        return { serverId, soundNames: new Set(soundNames) };
       })
     );
 
