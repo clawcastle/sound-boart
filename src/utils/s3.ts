@@ -1,6 +1,8 @@
 // The format of sound object keys in S3 is /sounds/<server-id>/<sound-name>
 
-const soundObjectKeyPattern = new RegExp(/\/sounds\/[^\/]+\/[^\/]+/);
+const soundObjectKeyPattern = new RegExp(
+  /\/sounds\/(?<serverId>\d+)\/(?<soundName>[^\/]+)/
+);
 
 export class SoundObjectKey {
   serverId: string;
@@ -16,10 +18,20 @@ export class SoundObjectKey {
   }
 
   static deserialize(objectKey: string): SoundObjectKey | null {
-    if (!soundObjectKeyPattern.test(objectKey)) return null;
+    const match = objectKey.match(soundObjectKeyPattern);
 
-    const [_1, _2, serverId, soundName] = objectKey.split("/");
+    if (match) {
+      const { serverId, soundName } = match.groups as {
+        serverId: string;
+        soundName: string;
+      };
+      return new SoundObjectKey(serverId, soundName);
+    } else {
+      console.log(
+        `soundObjectKey='${objectKey}' did not match the expected pattern`
+      );
 
-    return new SoundObjectKey(serverId, soundName);
+      return null;
+    }
   }
 }

@@ -42,21 +42,21 @@ export class S3SynchronizationJob extends Job {
 
     console.log("Starting S3 synchronization job.");
 
-    const soundObjectKeys = await this.listSoundObjects();
-    const soundNamesGroupedByServerId =
+    const soundObjectKeys = await this.listSoundObjectsFromS3();
+    const localSoundNamesGroupedByServerId =
       await this.listSoundNamesGroupedByServer();
 
-    const serverIds = new Set(
+    const allServerIds = new Set(
       soundObjectKeys
         .map((objectKey) => objectKey.serverId)
-        .concat([...soundNamesGroupedByServerId.keys()])
+        .concat([...localSoundNamesGroupedByServerId.keys()])
     );
 
     const findSoundsToDownloadForServer = (
       serverId: string
     ): SoundObjectKey[] => {
       const soundNamesExistingLocally =
-        soundNamesGroupedByServerId.get(serverId) ?? new Set();
+        localSoundNamesGroupedByServerId.get(serverId) ?? new Set();
 
       const soundNamesFromS3 = new Set(
         soundObjectKeys
@@ -80,17 +80,17 @@ export class S3SynchronizationJob extends Job {
           .map((objectKey) => objectKey.soundName)
       );
 
-      const existingSoundNamesForServer =
-        soundNamesGroupedByServerId.get(serverId) ?? new Set();
+      const localSoundNamesForServer =
+        localSoundNamesGroupedByServerId.get(serverId) ?? new Set();
 
-      const toUpload = new Array(...existingSoundNamesForServer)
+      const toUpload = new Array(...localSoundNamesForServer)
         .filter((s) => !alreadyUploadedSoundNames.has(s))
         .map((soundName) => new SoundObjectKey(serverId, soundName));
 
       return toUpload;
     };
 
-    serverIds.forEach(async (serverId) => {
+    allServerIds.forEach(async (serverId) => {
       const toDownload = findSoundsToDownloadForServer(serverId);
       const toUpload = findSoundsToUploadForServer(serverId);
 
@@ -184,7 +184,7 @@ export class S3SynchronizationJob extends Job {
     );
   }
 
-  private async listSoundObjects(): Promise<SoundObjectKey[]> {
+  private async listSoundObjectsFromS3(): Promise<SoundObjectKey[]> {
     const prefix = "/sounds/";
 
     const listCommand = new ListObjectsV2Command({
