@@ -66,6 +66,7 @@ export class S3SynchronizationJob extends Job {
 
       const toDownload = new Array(...soundNamesFromS3)
         .filter((s) => !soundNamesExistingLocally.has(s))
+        .filter((s) => s.endsWith(".mp3"))
         .map((soundName) => new SoundObjectKey(serverId, soundName));
 
       return toDownload;
