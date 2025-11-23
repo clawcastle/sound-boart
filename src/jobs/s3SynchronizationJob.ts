@@ -44,7 +44,7 @@ export class S3SynchronizationJob extends Job {
 
     const soundObjectKeys = await this.listSoundObjectsFromS3();
     const localSoundNamesGroupedByServerId =
-      await this.listSoundNamesGroupedByServer();
+      await this.listLocalSoundNamesGroupedByServer();
 
     const allServerIds = new Set(
       soundObjectKeys
@@ -166,7 +166,7 @@ export class S3SynchronizationJob extends Job {
     console.log(`S3 synchronization finished. Elapsed time: ${elapsedTime}ms`);
   }
 
-  private async listSoundNamesGroupedByServer(): Promise<SoundNamesGroupedByServers> {
+  private async listLocalSoundNamesGroupedByServer(): Promise<SoundNamesGroupedByServers> {
     const serverIds = await fsAsync.readdir(soundboartConfig.soundsDirectory);
 
     const soundNamesGroupedByServers = await Promise.all(
@@ -186,12 +186,6 @@ export class S3SynchronizationJob extends Job {
 
   private async listSoundObjectsFromS3(): Promise<SoundObjectKey[]> {
     const prefix = "/sounds/";
-
-    const listCommand = new ListObjectsV2Command({
-      Bucket: this._bucketName,
-      Prefix: prefix,
-    });
-
     let continuationToken: string | undefined;
 
     const result: SoundObjectKey[] = [];
@@ -199,6 +193,11 @@ export class S3SynchronizationJob extends Job {
     let fetchedObjectKeysCount = 0;
     do {
       const batchId = uuid();
+      const listCommand = new ListObjectsV2Command({
+        Bucket: this._bucketName,
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+      });
       const response = await this._s3Client.send(listCommand);
 
       const objectKeys = (response.Contents?.map((o) => o.Key).filter(
