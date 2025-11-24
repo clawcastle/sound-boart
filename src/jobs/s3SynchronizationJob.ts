@@ -222,7 +222,7 @@ export class S3SynchronizationJob extends Job {
       result.push(...soundObjectKeys);
 
       fetchedObjectKeysCount += soundObjectKeys.length;
-      continuationToken = response.ContinuationToken;
+      continuationToken = response.NextContinuationToken;
     } while (!!continuationToken);
 
     console.log(
