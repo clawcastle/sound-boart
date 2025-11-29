@@ -1,7 +1,7 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { getSettings } from "../serverSettings/settingsManager.js";
-import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
+import { resetVoiceChannelLeaveTimer } from "../utils/leaveChannelTimer.js";
 import { playSound } from "../utils/soundHelpers.js";
 import { Command } from "../command.js";
 import { Paths, fileOrDirectoryExists } from "../utils/fsHelpers.js";
@@ -63,7 +63,7 @@ class PlayGreetingSoundCommandHandler
     if (!soundExists) return;
 
     await playSound(soundFilePath, params.voiceChannel);
-    resetVoiceChannelTimer(params.voiceChannel.guildId);
+    resetVoiceChannelLeaveTimer(params.voiceChannel.guildId);
   }
 }
 

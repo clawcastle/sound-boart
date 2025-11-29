@@ -11,7 +11,7 @@ export function clearVoiceChannelLeaveTimer(serverId: string) {
   delete timerMap[serverId];
 }
 
-export function resetVoiceChannelTimer(serverId: string) {
+export function resetVoiceChannelLeaveTimer(serverId: string) {
   if (timerMap[serverId]) {
     clearTimeout(timerMap[serverId]);
   }
