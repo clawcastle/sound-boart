@@ -101,7 +101,8 @@ const readSoundboartConfigFromEnv: () => SoundboartConfig = () => {
   const defaultPrefix = readEnvironmentVariable("DEFAULT_PREFIX");
 
   const leaveTimeoutSeconds =
-    readOptionalEnvironmentVariableAs<number>("LEAVE_TIMEOUT_SECONDS") ?? 300;
+    readOptionalEnvironmentVariableAs<number>("LEAVE_TIMEOUT_SECONDS") ??
+    60 * 60 * 6; // 6 hours
   const maxFileSizeInBytes =
     readOptionalEnvironmentVariableAs<number>("MAX_FILE_SIZE_IN_BYTES") ??
     5000000;

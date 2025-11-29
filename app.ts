@@ -64,6 +64,7 @@ import TranscribeSoundHandler from "./src/handlers/transcribeSoundHandler.js";
 import { ListSoundHistoryHandler } from "./src/handlers/listSoundHistoryHandler.js";
 import { getSettings } from "./src/serverSettings/settingsManager.js";
 import { getVoiceConnection } from "@discordjs/voice";
+import { clearVoiceChannelLeaveTimer } from "./src/utils/leaveChannelTimer.js";
 
 tracingSdk().start();
 
@@ -305,6 +306,8 @@ discordClient.on(
 
           if (connection) {
             connection.destroy();
+            clearVoiceChannelLeaveTimer(channel.guild.id);
+
             console.log(
               `Sound-boart channel with channelId='${channel.id}' in server with serverId='${channel.guildId}' after user with userId='${userId}' left the channel`
             );
