@@ -63,6 +63,7 @@ import { OpenAiWhisperTranscriptionService } from "./src/transcription/transcrip
 import TranscribeSoundHandler from "./src/handlers/transcribeSoundHandler.js";
 import { ListSoundHistoryHandler } from "./src/handlers/listSoundHistoryHandler.js";
 import { getSettings } from "./src/serverSettings/settingsManager.js";
+import { getVoiceConnection } from "@discordjs/voice";
 
 tracingSdk().start();
 
@@ -261,20 +262,64 @@ discordClient.on(
   async (oldVoiceState, newVoiceState) => {
     const serverId = newVoiceState.guild.id;
 
-    const settings = await getSettings(serverId);
+    const userDisconnectedFromChannel =
+      oldVoiceState.channelId && !newVoiceState.channelId;
+    const userConnectedToChannel =
+      !oldVoiceState.channelId && newVoiceState.channelId;
 
-    const commandContext: CommandContext = {
-      prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
-      commandParts: [],
-      serverId,
-    };
+    if (userConnectedToChannel) {
+      const channel = oldVoiceState.channel;
 
-    const command = new Command(
-      { oldVoiceState, newVoiceState },
-      commandContext
-    );
+      console.log(
+        `User with userId='${oldVoiceState.member?.user.id}' disconnected from voice channel with channelId='${channel?.id}' in server with serverId='${channel?.guildId}'`
+      );
+      const settings = await getSettings(serverId);
 
-    soundBoartEventEmitter.emit("play-greet", command);
+      const commandContext: CommandContext = {
+        prefix: settings?.prefix ?? soundboartConfig.defaultPrefix,
+        commandParts: [],
+        serverId,
+      };
+
+      const command = new Command(
+        { oldVoiceState, newVoiceState },
+        commandContext
+      );
+
+      soundBoartEventEmitter.emit("play-greet", command);
+    } else if (userDisconnectedFromChannel) {
+      const channel = oldVoiceState.channel;
+      const userId = oldVoiceState.member?.user.id;
+
+      if (channel) {
+        const nonBotMembers = channel?.members.filter(
+          (member) => !member.user.bot
+        );
+
+        console.log(
+          `User with userId='${userId}' disconnected from voice channel with channelId='${channel.id}' in server with serverId='${channel.guildId}'`
+        );
+        // Voice channel is empty or only bots are left
+        if (nonBotMembers?.size === 0) {
+          const connection = getVoiceConnection(channel.guild.id);
+
+          if (connection) {
+            connection.destroy();
+            console.log(
+              `Sound-boart channel with channelId='${channel.id}' in server with serverId='${channel.guildId}' after user with userId='${userId}' left the channel`
+            );
+          }
+        } else {
+          console.log(
+            `User with userId='${userId}' left channel with channelId='${channel.id}' in server with serverId='${channel.guildId}'. There are still userCount=${nonBotMembers?.size} non-bot users left in channel, sound-boart is not leaving`
+          );
+        }
+      } else {
+        console.log(
+          `Received VoiceStateUpdate that user with userId='${userId}' left a voice channel in server with serverId='${oldVoiceState.guild.id}' but channel was null`
+        );
+      }
+    }
   }
 );
 
