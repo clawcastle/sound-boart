@@ -1,7 +1,7 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
+import { resetVoiceChannelLeaveTimer } from "../utils/leaveChannelTimer.js";
 import {
   playSound,
   getSoundNamesForServer,
@@ -114,7 +114,7 @@ class PlayRandomSoundCommandHandler
       );
     }
 
-    resetVoiceChannelTimer(voiceChannel.guildId);
+    resetVoiceChannelLeaveTimer(voiceChannel.guildId);
   }
 }
 

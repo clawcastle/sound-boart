@@ -3,7 +3,15 @@ import { getVoiceConnection } from "@discordjs/voice";
 
 const timerMap: { [channelId: string]: NodeJS.Timeout } = {};
 
-export function resetVoiceChannelTimer(serverId: string) {
+export function clearVoiceChannelLeaveTimer(serverId: string) {
+  if (timerMap[serverId]) {
+    clearTimeout(timerMap[serverId]);
+  }
+
+  delete timerMap[serverId];
+}
+
+export function resetVoiceChannelLeaveTimer(serverId: string) {
   if (timerMap[serverId]) {
     clearTimeout(timerMap[serverId]);
   }

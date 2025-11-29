@@ -1,7 +1,7 @@
 import ICommandHandler from "./commandHandler.js";
 import Discord from "discord.js";
 import { sendMessage } from "../utils/textChannelHelpers.js";
-import { resetVoiceChannelTimer } from "../utils/leaveChannelTimer.js";
+import { resetVoiceChannelLeaveTimer } from "../utils/leaveChannelTimer.js";
 import { getClosestSoundNames, playSound } from "../utils/soundHelpers.js";
 import { soundBoartEventEmitter } from "../soundBoartEventEmitter.js";
 import { soundPlayedEvent } from "../soundBoartEvents.js";
@@ -129,7 +129,7 @@ class PlaySoundCommandHandler implements ICommandHandler<Discord.Message> {
       }
     }
 
-    resetVoiceChannelTimer(voiceChannel.guildId);
+    resetVoiceChannelLeaveTimer(voiceChannel.guildId);
   }
 }
 
